@@ -1,11 +1,5 @@
-:- module(basic_domains,[constant_string_domain/2,
-                         any_char_domain/1]).
-
-%! automaton(Automaton) is det
-% The representation of an automaton.
-% TODO
-% @Automaton is the resulting Automaton
-automaton(A).
+:- module(basic_domains,  [constant_string_domain/2,
+                          any_char_domain/1]).
 
 
 %! constant_string_domain(String,ResultingDomain) is det
@@ -17,6 +11,9 @@ constant_string_domain(S,string_dom(S)) :-
 
 %! any_char_domain(ResultingDomain) is det
 % Constructs an automaton domain containing any character.
-% TODO
 % @ResultingDomain is the domain containing any character.
-any_char_domain(D).
+any_char_domain(automaton_dom(States,Delta,Start,End)):-
+  States = [start,end], % List of states
+  Delta = [(start,any,end)], % List of statetransitions
+  Start = [start], % List of start states
+  End = [end]. % List of end states
