@@ -1,12 +1,6 @@
 :- module(basic_domains,[constant_string_domain/2,
                          any_char_domain/1]).
 
-%! string_dom(String) is det
-% The representation of a string.
-% @String is string that shall be represented.
-string_dom(S):-
-  string(S).
-
 %! automaton(Automaton) is det
 % The representation of an automaton.
 % TODO
@@ -18,8 +12,8 @@ automaton(A).
 % Constructs a string domain from a string.
 % @String is the String.
 % @ResultingDomain is the domain only containing S.
-constant_string_domain(S,R):-
-  R = string_dom(S).
+constant_string_domain(S,string_dom(S)) :-
+  string(S).
 
 %! any_char_domain(ResultingDomain) is det
 % Constructs an automaton domain containing any character.
