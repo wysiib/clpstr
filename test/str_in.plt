@@ -16,15 +16,15 @@ test(simple_in_collision,[fail]) :-
     str_in(X,D2).
 test(str_in_twice_fail,[fail,blocked("uses repeat")]) :-
     any_char_domain(A),
-    repeat(A,10,10,TenTimesAny),
+    repeat(A,10,TenTimesAny),
     str_in(X,TenTimesAny),
-    repeat(A,5,5,FiveTimesAny),
+    repeat(A,5,FiveTimesAny),
     str_in(X,FiveTimesAny).
 test(str_in_twice_succeed,[nondet,blocked("uses repeat")]) :-
     any_char_domain(A),
     repeat(A,5,10,FiveToTenTimesAny),
     str_in(X,FiveToTenTimesAny),
-    repeat(A,5,5,FiveTimesAny),
+    repeat(A,5,FiveTimesAny),
     str_in(X,FiveTimesAny).
 
 :- end_tests(str_in).
