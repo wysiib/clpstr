@@ -1,7 +1,7 @@
 :- use_module(library(plunit)).
 
 :- use_module('../src/domains/basic_domains').
-:- use_module('../src/labeling')
+:- use_module('../src/labeling').
 
 :- begin_tests(basic_domains).
 
