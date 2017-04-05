@@ -9,7 +9,7 @@ test(constant,[true(Res == "abc")]) :-
   constant_string_domain("abc",D),
   label(D,Res).
 
-test(any_char_domain,[true(D == " "),nondet]) :-
+test(any_char_domain,[true(Res == " "),nondet]) :-
   any_char_domain(D),
   label(D,Res).
   
