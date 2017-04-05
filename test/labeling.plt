@@ -7,10 +7,10 @@
 
 test(constant,[true(Res == "abc")]) :-
   constant_string_domain("abc",D),
-  labeling(D,Res).
+  label(D,Res).
 
 test(any_char_domain,[true(D == " "),nondet]) :-
   any_char_domain(D),
-  labeling(D,Res).
+  label(D,Res).
   
 :- end_tests(basic_domains).
