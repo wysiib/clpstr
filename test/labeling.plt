@@ -17,4 +17,9 @@ test(any_char_domain,[true(Res == " "),nondet]) :-
   any_char_domain(D),
   label(D,Res).
 
+test(any_char_domain_can_return_different_character,[nondet]) :-
+  any_char_domain(D),
+  label(D,Res),
+  Res == "~".
+
 :- end_tests(basic_domains).
