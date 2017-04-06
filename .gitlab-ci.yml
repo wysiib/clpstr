@@ -2,3 +2,5 @@ image: swipl/swipl:latest
 
 run_tests:
   script: "make tests"
+  tags:
+    - docker
