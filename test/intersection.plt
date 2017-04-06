@@ -17,19 +17,19 @@ test(constant_domain_intersection_different,[true(D == empty)]) :-
 
 :- begin_tests(mixed_domains).
 
-test(simple_mixed_one_char,[true(D == string_dom("a")),blocked("uses labeling")]) :-
+test(simple_mixed_one_char,[true(D == string_dom("a"))]) :-
   constant_string_domain("a",D1),
   any_char_domain(D2),
   intersection(D1,D2,D).
-test(simple_mixed_one_char_reverse,[true(D == string_dom("a")),blocked("uses labeling")]) :-
+test(simple_mixed_one_char_reverse,[true(D == string_dom("a"))]) :-
   constant_string_domain("a",D1),
   any_char_domain(D2),
   intersection(D2,D1,D).
-test(simple_mixed_card,[true(D == empty),blocked("uses labeling")]) :-
+test(simple_mixed_card,[true(D == empty)]) :-
   constant_string_domain("ab",D1),
   any_char_domain(D2),
   intersection(D1,D2,D).
-test(simple_mixed_card_reverse,[true(D == empty),blocked("uses labeling")]) :-
+test(simple_mixed_card_reverse,[true(D == empty)]) :-
   constant_string_domain("ab",D1),
   any_char_domain(D2),
   intersection(D2,D1,D).
