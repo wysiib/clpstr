@@ -10,6 +10,7 @@ constant_string_domain(S,string_dom(S)) :-
   string(S).
 
 %! any_char_domain(ResultingDomain) is det
+% TODO
 % Constructs an automaton domain containing any character.
 % @ResultingDomain is the domain containing any character.
 any_char_domain(automaton_dom(States,Delta,Start,End)):-
