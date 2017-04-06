@@ -10,7 +10,7 @@
 % @Domain is the domain that is to be labeled.
 % @Label is the resulting label as a list of characters.
 label(string_dom(S),S).
-label(automaton_dom(States,Trans,Starts,Ends),Label) :-
+label(automaton_dom(_,Trans,Starts,Ends),Label) :-
   member(StartState,Starts),
   unfold_tailrec(StartState,Trans,Ends,CharList),
   string_codes(Label,CharList).
