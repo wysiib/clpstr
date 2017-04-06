@@ -3,7 +3,7 @@
 :- use_module(library(chr)).
 
 :- use_module('domains/basic_operations').
-:- use_module(labeling).
+:- use_module('domains/labeling').
 
 :- chr_constraint str_in/2, str_labeling/1.
 
