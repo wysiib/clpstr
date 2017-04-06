@@ -10,7 +10,8 @@ test(constant,[true(Res == "abc")]) :-
   label(D,Res).
 
 test(simple_automaton,[true(Res == "a"),nondet]) :-
-  label(automaton_dom([start,end],[(start,range(97,97),end)],[start],[end]),Res).
+  single_char_domain("a",Dom),
+  label(Dom,Res).
 
 test(any_char_domain,[true(Res == " "),nondet]) :-
   any_char_domain(D),
