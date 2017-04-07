@@ -5,8 +5,8 @@
 
 :- begin_tests(repeat).
 
-test(constant,[true(Res == string_dom("aa")),blocked("uses repeat")]) :-
+test(constant,[true(Res == string_dom("aa"))]) :-
   constant_string_domain("a",D),
   repeat(D,2,Res).
-  
+
 :- end_tests(repeat).
