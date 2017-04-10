@@ -11,10 +11,15 @@
 % @Label is the resulting label as a list of characters.
 label(string_dom(S),S).
 label(automaton_dom(_,Trans,Starts,Ends),Label) :-
+  ground(Label), !, % string is ground: verify if in language
+  string_codes(Label,CharList),
+  member(StartState,Starts),
+  unfold_tailrec(StartState,Trans,Ends,CharList).
+label(automaton_dom(_,Trans,Starts,Ends),Label) :-
+  % string is var: enumerate all solutions
   member(StartState,Starts),
   unfold_tailrec(StartState,Trans,Ends,CharList),
   string_codes(Label,CharList).
-
 
 %! unfold_tailrec(AutomatonDomain,ListOfCharacterCodes) is nondet
 % Tailrecursively constructs a list of character codes from an automaton.

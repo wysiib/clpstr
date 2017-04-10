@@ -21,10 +21,10 @@ constant_string_domain(S,string_dom(S)) :-
 % @ResultingDomain is the domain containing only a single character.
 single_char_domain(CharAsString,automaton_dom(States,Delta,Start,End)):-
   string_codes(CharAsString,[Char]),
-  States = [start,end], % List of states
-  Delta = [(start,range(Char,Char),end)], % List of statetransitions
-  Start = [start], % List of start states
-  End = [end]. % List of end states
+  States = [1,2], % List of states
+  Delta = [(1,range(Char,Char),2)], % List of statetransitions
+  Start = [1], % List of start states
+  End = [2]. % List of end states
 
 %! any_char_domain(ResultingDomain) is det
 % TODO
@@ -32,7 +32,7 @@ single_char_domain(CharAsString,automaton_dom(States,Delta,Start,End)):-
 % @ResultingDomain is the domain containing any character.
 any_char_domain(automaton_dom(States,Delta,Start,End)):-
   any_range(Range),
-  States = [start,end], % List of states
-  Delta = [(start,Range,end)], % List of statetransitions
-  Start = [start], % List of start states
-  End = [end]. % List of end states
+  States = [1,2], % List of states
+  Delta = [(1,Range,2)], % List of statetransitions
+  Start = [1], % List of start states
+  End = [2]. % List of end states

@@ -21,5 +21,9 @@ test(any_char_domain_can_return_different_character,[nondet]) :-
   any_char_domain(D),
   label(D,Res),
   Res == "~".
+  
+test(epsilon_can_be_labeled,[true(Res == "")]) :-
+  D = automaton_dom([1,2],[(1,epsilon,2)],[1],[2]),
+  label(D,Res).
 
 :- end_tests(basic_domains).

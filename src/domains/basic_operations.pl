@@ -40,6 +40,7 @@ intersection(_,_,empty).
 repeat(string_dom(S),C,string_dom(Label)) :-
   repeat_acc(S,"",C,Label).
 
+
 %! repeat_acc(String,Accumulator,Counter,NewString) is det
 % Generates recursively a repeated String from a String by using
 % an accumulator. This predicate should only be called by the repeat predicate
@@ -48,7 +49,7 @@ repeat(string_dom(S),C,string_dom(Label)) :-
 % @Accumulator collects the new String in the recursion.
 % @Counter is the nuumber of times the string shall be repeated.
 % NewString is the recursion's solution.
-repeat_acc(_,Acc,0,Acc).
+repeat_acc(_,Acc,0,Acc) :- !.
 repeat_acc(String,Acc,C,Res) :-
   C > 0,
   C1 is C - 1,
