@@ -7,10 +7,10 @@
 test(constant_domain,[true(D == string_dom("abc"))]) :-
   constant_string_domain("abc",D).
 
-test(any_char_domain,[true(D == automaton_dom([start,end],[(start,range(32,126),end)],[start],[end]))]) :-
+test(any_char_domain,[true(D == automaton_dom([1,2],[(1,range(32,126),2)],[1],[2]))]) :-
   any_char_domain(D).
   
-test(single_char_domain,[true(D == automaton_dom([start,end],[(start,range(97,97),end)],[start],[end]))]) :-
+test(single_char_domain,[true(D == automaton_dom([1,2],[(1,range(97,97),2)],[1],[2]))]) :-
   single_char_domain("a",D).
   
 :- end_tests(basic_domains).
