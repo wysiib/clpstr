@@ -33,3 +33,6 @@ unfold_tailrec(CurrentState,Transitions,FinalStates,[C|Cs]) :-
   member((CurrentState,range(From,To),NextState),Transitions),
   between(From,To,C),
   unfold_tailrec(NextState,Transitions,FinalStates,Cs).
+unfold_tailrec(CurrentState,Transitions,FinalStates,Cs) :-
+  member((CurrentState,epsilon,NextState),Transitions),
+  unfold_tailrec(NextState,Transitions,FinalStates,Cs).
