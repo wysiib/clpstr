@@ -1,5 +1,6 @@
 :- module(basic_operations, [is_empty/1,
-                            intersection/3]).
+                            intersection/3,
+                            repeat/3]).
 
 :- use_module(labeling).
 
@@ -28,3 +29,13 @@ intersection(string_dom(S),Dom2,string_dom(S)) :-
   label(Dom2,S),
   !.
 intersection(_,_,empty).
+
+
+repeat(string_dom(S),C,string_dom(Label)) :-
+  repeat_acc(S,"",C,Label).
+
+repeat_acc(_,Acc,0,Acc).
+repeat_acc(String,Acc,C,Res) :-
+  C1 is C - 1,
+  string_concat(String,Acc,NewAcc),
+  repeat_acc(String,NewAcc,C1,Res).

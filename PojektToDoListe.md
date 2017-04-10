@@ -2,7 +2,7 @@
 
 - [x] intersection.plt tests wieder einschalten
 - [ ] intersection fertig schreiben
-- [ ] make "any" a charakter in all transition.
+- [x] make "any" a charakter in all transition.
     - Aktuell kann `any` nur als allein stehendes Zeichen eingelesen werden im
     Prädikat labeling/make_string. Ziel ist es, dass es letztendlich während
     des errechnens eines Labels gemacht wird. Z.B. in label/unfold_tailrec.
@@ -10,7 +10,7 @@
 - [ ] Create more labeling tests.
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
-
+- [ ] repeat for automaton_dom
 - [ ] [Prolog Doc conventionen][1] in gesamtem project durchsetzen
 **MÖGLICHST BALD!**
 
