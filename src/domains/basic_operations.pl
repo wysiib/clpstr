@@ -1,6 +1,7 @@
 :- module(basic_operations, [is_empty/1,
                             intersection/3,
-                            repeat/3]).
+                            repeat/3,
+                            concat_domain/3]).
 
 :- use_module(labeling).
 
@@ -30,6 +31,7 @@ intersection(string_dom(S),Dom2,string_dom(S)) :-
   !.
 intersection(_,_,empty).
 
+
 %! repeat(StringDomain,Counter,RepeatedString) is det
 % Generates a new string domain from a string domain using an accumulative
 % help predicate.
@@ -55,3 +57,48 @@ repeat_acc(String,Acc,C,Res) :-
   C1 is C - 1,
   string_concat(String,Acc,NewAcc),
   repeat_acc(String,NewAcc,C1,Res).
+
+
+
+
+
+/*
+repeat(automaton_dom(States,Delta,Start,End),C,Res) :-
+  length(States,L)
+  double_state_space(States,L,NewStates),
+
+repeat(automaton_dom(States,Delta,Start,End),C,Res) :-
+  fail.
+
+
+
+
+double_state_space([OldH|OldT],L,[NewH|NewT]) :-
+  NewH is OldH + L,
+  double_state_space(OldT,L,NewT)
+double_state_space([],New). */
+
+
+
+%! concat_domain(FirstDomain,SecondDomain,NewDomain)
+concat_domain(string_dom(S1),string_dom(S2),string_dom(S3)) :-
+  string_concat(S1,S2,S3).
+concat_domain(automaton_dom(States1,Delta1,Start1,End1),automaton_dom(States2,Delta2,Start2,End2),automaton_dom(States3,Delta3,Start1,End2Star)) :-
+  length(States1,L),
+  maplist(plus(L),States2,States2Star), % create new state space.
+  flatten([States1,States2Star],States3),
+
+  maplist(plus(L),Start2,Start2Star), % create new delta transition.
+  findall((S,epsilon,T),(member(S,End1),member(T,Start2Star)),Trans),
+  maplist(adjust_transition(L),Delta2,Delta2Star),
+  %adjust_transition(Delta2,L,Delta2Star),
+  flatten([Delta1,Trans,Delta2Star],Delta3),
+
+  maplist(plus(L),End2,End2Star). % create new Endspaces.
+
+/*connect_by_transition(List1,Liste2,ResList) :-
+  maplist((List1,epsilon),List2,ResList).*/
+
+adjust_transition(L,(X,T,Y),(X2,T,Y2)) :-
+  plus(X,L,X2),
+  plus(Y,L,Y2).
