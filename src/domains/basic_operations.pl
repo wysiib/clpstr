@@ -34,7 +34,7 @@ intersection(_,_,empty).
 repeat(string_dom(S),C,string_dom(Label)) :-
   repeat_acc(S,"",C,Label).
 
-repeat_acc(_,Acc,0,Acc).
+repeat_acc(_,Acc,0,Acc) :- !.
 repeat_acc(String,Acc,C,Res) :-
   C1 is C - 1,
   string_concat(String,Acc,NewAcc),
