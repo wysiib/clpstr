@@ -11,6 +11,7 @@
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
 - [ ] repeat for automaton_dom
+- [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
 - [ ] [Prolog Doc conventionen][1] in gesamtem project durchsetzen
 **MÖGLICHST BALD!**
 
