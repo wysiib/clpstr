@@ -31,32 +31,22 @@ intersection(string_dom(S),Dom2,string_dom(S)) :-
   !.
 intersection(_,_,empty).
 
-
 %! repeat(StringDomain,Counter,RepeatedString) is det
-% Generates a new string domain from a string domain using an accumulative
+% Generates a new domain from a domain using an accumulative
 % help predicate.
-% The new domain contains the original string times Counter.
+% The new domain contains the original string or automaton times Counter.
 % @StringDomain is a string domain containing the original String.
 % @Counter is the nuumber of times the string is repeated.
 % @RepeatedString is the resulting new string domain.
-repeat(string_dom(S),C,string_dom(Label)) :-
-  repeat_acc(S,"",C,Label).
+repeat(_,C,_) :- C =< 0, !, fail.
+repeat(D,C,DOut) :-
+  repeat(C,D,D,DOut).
 
-
-%! repeat_acc(String,Accumulator,Counter,NewString) is det
-% Generates recursively a repeated String from a String by using
-% an accumulator. This predicate should only be called by the repeat predicate
-% and not by its own. It should only be called with an Counter > 0.
-% @String is the string to repeat.
-% @Accumulator collects the new String in the recursion.
-% @Counter is the nuumber of times the string shall be repeated.
-% NewString is the recursion's solution.
-repeat_acc(_,Acc,0,Acc) :- !.
-repeat_acc(String,Acc,C,Res) :-
-  C > 0,
+repeat(1,_,D,D) :- !.
+repeat(C,D,Acc,Res) :-
   C1 is C - 1,
-  string_concat(String,Acc,NewAcc),
-  repeat_acc(String,NewAcc,C1,Res).
+  concatenation(D,Acc,NewAcc),
+  repeat(C1,D,NewAcc,Res).
 
 
 

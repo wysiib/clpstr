@@ -26,7 +26,7 @@ test(simple_string_domain_concat,[true(Res == string_dom("ab"))]) :-
   constant_string_domain("b",S2),
   concatenation(S1,S2,Res).
 
-test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[4]))]) :-
+test(simple_automaton_concat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[4]))]) :-
   any_char_domain(D1),
   any_char_domain(D2),
   concatenation(D1,D2,Res).
@@ -48,7 +48,7 @@ test(simple_automaton_single_repeat,[true(Res == D)]) :-
   any_char_domain(D),
   repeat(D,1,Res).
 
-test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3],[(1,range(32,126),2),(2,range(32,126),3)],[1],[3]))]) :-
+test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[4]))]) :-
   any_char_domain(D),
   repeat(D,2,Res).
 
