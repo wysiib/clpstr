@@ -1,7 +1,7 @@
 :- module(basic_operations, [is_empty/1,
                             intersection/3,
                             repeat/3,
-                            concat_domain/3]).
+                            concatenation/3]).
 
 :- use_module(labeling).
 
@@ -81,9 +81,9 @@ double_state_space([],New). */
 
 
 %! concat_domain(FirstDomain,SecondDomain,NewDomain)
-concat_domain(string_dom(S1),string_dom(S2),string_dom(S3)) :-
+concatenation(string_dom(S1),string_dom(S2),string_dom(S3)) :-
   string_concat(S1,S2,S3).
-concat_domain(automaton_dom(States1,Delta1,Start1,End1),automaton_dom(States2,Delta2,Start2,End2),automaton_dom(States3,Delta3,Start1,End2Star)) :-
+concatenation(automaton_dom(States1,Delta1,Start1,End1),automaton_dom(States2,Delta2,Start2,End2),automaton_dom(States3,Delta3,Start1,End2Star)) :-
   length(States1,L),
   maplist(plus(L),States2,States2Star), % create new state space.
   flatten([States1,States2Star],States3),

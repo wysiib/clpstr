@@ -9,27 +9,27 @@
 test(both_empty_string_domain_concat,[true(Res == string_dom(""))]) :-
   constant_string_domain("",S1),
   constant_string_domain("",S2),
-  concat_domain(S1,S2,Res).
+  concatenation(S1,S2,Res).
 
 test(left_empty_string_domain_concat,[true(Res == string_dom("a"))]) :-
   constant_string_domain("a",S1),
   constant_string_domain("",S2),
-  concat_domain(S1,S2,Res).
+  concatenation(S1,S2,Res).
 
 test(right_empty_string_domain_concat,[true(Res == string_dom("b"))]) :-
   constant_string_domain("",S1),
   constant_string_domain("b",S2),
-  concat_domain(S1,S2,Res).
+  concatenation(S1,S2,Res).
 
 test(simple_string_domain_concat,[true(Res == string_dom("ab"))]) :-
   constant_string_domain("a",S1),
   constant_string_domain("b",S2),
-  concat_domain(S1,S2,Res).
+  concatenation(S1,S2,Res).
 
 test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[4]))]) :-
   any_char_domain(D1),
   any_char_domain(D2),
-  concat_domain(D1,D2,Res).
+  concatenation(D1,D2,Res).
 
 :- end_tests(concat).
 
