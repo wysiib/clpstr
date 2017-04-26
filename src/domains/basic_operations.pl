@@ -39,9 +39,11 @@ intersection(_,_,empty).
 % Generates a new domain from a domain using an accumulative
 % help predicate.
 % The new domain contains the original string or automaton times Counter.
-% @InputDomain is a string domain containing the original String.
+% The resulting domain is an automaton if any of the arguments is an automaton.
+% Will fail if counter is =< 0
+% @InputDomain is a string domain containing the original String or autoamton.
 % @Counter is the number of times the string is repeated.
-% @RepeatedDomain is the resulting new string domain.
+% @RepeatedDomain is the resulting new domain.
 repeat(_,C,_) :- C =< 0, !, fail.
 repeat(D,C,DOut) :-
   repeat(C,D,D,DOut).
@@ -53,7 +55,13 @@ repeat(C,D,Acc,Res) :-
   repeat(C1,D,NewAcc,Res).
 
 
-%! concat_domain(FirstDomain,SecondDomain,NewDomain)
+%! concatenation(FirstDomain,SecondDomain,ConcatDomain) is det
+% Concatenates two domains by converting them into automatons and tying them
+% together. Uses SWI Prologs build in string_concat if both domains are strings.
+% The resulting domain is an automaton if any of the arguments is an automaton.
+% @FirstDomain is one of the domains to be concatenated.
+% @SecondDomain is one of the domains to be concatenated.
+% @ResultingDomain is the resulting new domain.
 concatenation(string_dom(S1),string_dom(S2),string_dom(S3)) :-
   string_concat(S1,S2,S3),
   !.
@@ -67,12 +75,19 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   maplist(plus(L),Start2,Start2Star), % create new delta transition.
   findall((S,epsilon,T),(member(S,End1),member(T,Start2Star)),Trans),
   maplist(adjust_transition(L),Delta2,Delta2Star),
-  %adjust_transition(Delta2,L,Delta2Star),
   flatten([Delta1,Trans,Delta2Star],Delta3),
 
   maplist(plus(L),End2,End2Star). % create new Endspaces.
 
 
+
+%! adjust_transition(LengthTillHere,Transition1,Transition2) is det
+% Helper predicate used by concat_domain to adjust the state names in a
+% transition to be valid transitions in the new domain. TODO
+% Should only be called by concatenation.
+% @LengthTillHere is the length of the transition.
+% @Transition1
+% @Transition2
 adjust_transition(L,(X,T,Y),(X2,T,Y2)) :-
   plus(X,L,X2),
   plus(Y,L,Y2).
