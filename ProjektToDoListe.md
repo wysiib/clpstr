@@ -17,11 +17,13 @@
     mehr Tests benötigt.
 - [ ] repeat for automaton_dom
   - [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
+- add more tests for repeat/2, testing whether it correctly accepts (word)* ,
+  i.e. wordwordword and not wordwowordwword or such things.
 
 
 ## read me
 - [ ] add usage part
 - [ ] add FAQ part
-- [ ] add bug part when at least beta ready 
+- [ ] add bug part when at least beta ready
 
 [1]: http://www.swi-prolog.org/pldoc/doc_for?object=section('packages/pldoc.html') "pldoc"

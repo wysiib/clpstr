@@ -1,10 +1,12 @@
 :- module(basic_operations, [is_empty/1,
                             intersection/3,
+                            repeat/2,
                             repeat/3,
+                            repeat/4,
                             concatenation/3]).
 
 :- use_module(labeling).
-
+:- use_module(domain_conversion).
 
 %! is_empty(Domain) is det
 % Checks whether an domain is empty, in case of an automaton_dom by having no
@@ -37,7 +39,7 @@ intersection(_,_,empty).
 
 %! repeat(InputDomain,Counter,RepeatedDomain) is det
 % Generates a new domain from a domain using an accumulative
-% help predicate.
+% help predicate repeat_acc/4.
 % The new domain contains the original string or automaton times Counter.
 % The resulting domain is an automaton if any of the arguments is an automaton.
 % Will fail if counter is =< 0
@@ -46,13 +48,35 @@ intersection(_,_,empty).
 % @RepeatedDomain is the resulting new domain.
 repeat(_,C,_) :- C =< 0, !, fail.
 repeat(D,C,DOut) :-
-  repeat(C,D,D,DOut).
+  repeat_acc(C,D,D,DOut).
 
-repeat(1,_,D,D) :- !.
-repeat(C,D,Acc,Res) :-
+
+%! repeat(InputDomain,OutputDomain) is det
+% Takes a domain and generates an infitie loop automaton representing the
+% regular expression InputDomain*.
+% The resulting automaton accepts zero to infinite times the original domain's
+% accepted words.
+% String domains are automatically converted to automatons.
+% @InputDomain is the Domain that shall be repeated.
+% @OutputDomain is the resulting Domain as an automaton.
+repeat(Dom,automaton_dom(States,DeltaRes,Start,EndRes)) :-
+  constant_string_domain_to_automaton(Dom,automaton_dom(States,Delta,Start,End)),
+  flatten([Start,End],EndRes),
+  findall((E,epsilon,S),(member(E,End),member(S,Start)),Trans),
+  flatten([Delta,Trans],DeltaRes).
+
+
+repeat(_,_,_,_) :- fail.
+
+
+%! repeat_acc(Counter,Input,Accumulator,Output)
+% helper predicate for repeat/3
+% TODO
+repeat_acc(1,_,D,D) :- !.
+repeat_acc(C,D,Acc,Res) :-
   C1 is C - 1,
   concatenation(D,Acc,NewAcc),
-  repeat(C1,D,NewAcc,Res).
+  repeat_acc(C1,D,NewAcc,Res).
 
 
 %! concatenation(FirstDomain,SecondDomain,ConcatDomain) is det
@@ -78,7 +102,6 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   flatten([Delta1,Trans,Delta2Star],Delta3),
 
   maplist(plus(L),End2,End2Star). % create new Endspaces.
-
 
 
 %! adjust_transition(LengthTillHere,Transition1,Transition2) is det
