@@ -4,7 +4,8 @@
                            get_all_states/2,
                            get_transition/2,
                            get_start_states/2,
-                           get_end_states/2]).
+                           get_end_states/2,
+                           set_end_states/3]).
 
 
 %! any_range(Range) is det
@@ -72,3 +73,10 @@ get_start_states(automaton_dom(_,_,Start,_),Start).
 % @AutomatonDom is the automaton_dom to return her states.
 % @ReturnStates is the List of end states of AutomatonDom.
 get_end_states(automaton_dom(_,_,_,End),End).
+
+%! set_end_states(InputDomain,NewEndStates,OutputDomain) is det
+% Returns the InputDomain with new end states.
+% TODO
+set_end_states(automaton_dom(States,Delta,Start,_),NewEnd,automaton_dom(States,Delta,Start,NewEnd)).
+% NOTE if this ever breaks, test whether NewEnd are part of States.
+% FOr example by using maplist(member()).
