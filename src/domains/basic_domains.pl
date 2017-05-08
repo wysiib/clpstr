@@ -1,6 +1,10 @@
 :- module(basic_domains,  [constant_string_domain/2,
                            single_char_domain/2,
-                           any_char_domain/1]).
+                           any_char_domain/1,
+                           get_all_states/2,
+                           get_transition/2,
+                           get_start_states/2,
+                           get_end_states/2]).
 
 
 %! any_range(Range) is det
@@ -36,3 +40,35 @@ any_char_domain(automaton_dom(States,Delta,Start,End)):-
   Delta = [(1,Range,2)], % List of statetransitions
   Start = [1], % List of start states
   End = [2]. % List of end states
+
+
+%! get_all_states(AutomatonDom,ReturnStates) is det
+% Returns the List of all states of a given automaton_dom.
+% AutomatonDom must be initiialized to an automaton.
+% @AutomatonDom is the automaton_dom to return her states.
+% @ReturnStates is the List of states of AutomatonDom.
+get_all_states(automaton_dom(States,_,_,_),States).
+
+
+%! get_transition(AutomatonDom,ReturnTransition) is det
+% Returns the List of state transitions of a given automaton_dom.
+% AutomatonDom must be initiialized to an automaton.
+% @AutomatonDom is the automaton_dom to return her states.
+% @ReturnTransition is the List of transitions of AutomatonDom.
+get_transition(automaton_dom(_,Delta,_,_),Delta).
+
+
+%! get_start_states(AutomatonDom,ReturnStates) is det
+% Returns the List of all start states of a given automaton_dom.
+% AutomatonDom must be initiialized to an automaton.
+% @AutomatonDom is the automaton_dom to return her states.
+% @ReturnStates is the List of start states of AutomatonDom.
+get_start_states(automaton_dom(_,_,Start,_),Start).
+
+
+%! get_end_states(AutomatonDom,ReturnStates) is det
+% Returns the List of all end states of a given automaton_dom.
+% AutomatonDom must be initiialized to an automaton.
+% @AutomatonDom is the automaton_dom to return her states.
+% @ReturnStates is the List of end states of AutomatonDom.
+get_end_states(automaton_dom(_,_,_,End),End).
