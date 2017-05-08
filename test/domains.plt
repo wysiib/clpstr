@@ -24,7 +24,7 @@ test(get_all_states,[true(States == [1,2])]) :-
 
 test(get_transition,[true(Trans == [(1,range(32,126),2)])]) :-
   any_char_domain(D),
-  get_all_states(D,Trans).
+  get_transition(D,Trans).
 
 test(get_start_states,[true(States == [1])]) :-
   any_char_domain(D),

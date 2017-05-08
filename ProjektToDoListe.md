@@ -17,8 +17,8 @@
     mehr Tests benötigt.
 - [ ] repeat for automaton_dom
   - [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
-- add more tests for repeat/2, testing whether it correctly accepts (word)* ,
-  i.e. wordwordword and not wordwowordwword or such things.
+- [ ] add more tests for repeat/2, testing whether it correctly accepts (word)* ,
+  i.e. wordwordword and not something like wordwowordwword or such things.
 
 
 ## read me

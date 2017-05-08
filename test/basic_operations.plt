@@ -30,7 +30,7 @@ test(simple_automaton_concat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,1
   any_char_domain(D1),
   any_char_domain(D2),
   concatenation(D1,D2,Res).
-  
+
 test(mixed_domain_concat,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,epsilon,3),(3,range(97,97),4)],[1],[4]))]) :-
   single_char_domain("a",D1),
   constant_string_domain("a",D2),
@@ -62,9 +62,13 @@ test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,1
   any_char_domain(D),
   repeat(D,2,Res).
 
-test(simple_automaton_from_to_repeat,[true(Res == automaton_dom([1,2,3],[(1,range(32,126),2),(2,range(32,126),3)],[1],[2,3]))]) :-
+test(simple_automaton_from_to_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[2,4]))]) :-
   any_char_domain(D),
   repeat(D,1,2,Res).
+
+test(simple_automaton_from_0_to_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[1,2,4]))]) :-
+  any_char_domain(D),
+  repeat(D,0,2,Res).
 
 test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range(32,126),2),(2,epsilon,1)],[1],[1,2]))]) :-
   any_char_domain(D),

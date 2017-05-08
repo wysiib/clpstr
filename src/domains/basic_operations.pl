@@ -66,7 +66,33 @@ repeat(Dom,automaton_dom(States,DeltaRes,Start,EndRes)) :-
   flatten([Delta,Trans],DeltaRes).
 
 
-repeat(_,_,_,_) :- fail.
+%! repeat(Domain,From,To,RepeatedDomain) is det
+% TODO
+% The resulting domain is always an autoamton.
+repeat(_,From,To,_) :- From < 0; To < 0; To < From, fail.
+repeat(Dom,FromTo,FromTo,Res) :- repeat(Dom,FromTo,Res).
+repeat(Dom,0,To,automaton_dom(States,Delta,Start,End)) :-
+  repeat(Dom,1,To,automaton_dom(States,Delta,Start,TempEnd)),
+  flatten([Start,TempEnd],End),
+  !.
+repeat(Dom,From,To,Res) :-
+  constant_string_domain_to_automaton(Dom,TempDom),
+  repeat(TempDom,From,FromDom),
+  Len is To - From,
+  repeat_acc_with_end(Len,TempDom,TempDom,ToDom),
+  concatenation(FromDom,ToDom,ConcatDom),
+  get_end_states(FromDom,Ends1),
+  get_end_states(ConcatDom,Ends2),
+  flatten([Ends1,Ends2],Ends),
+  set_end_states(ConcatDom,Ends,Res).
+
+
+
+  /*repeat_acc_with_end(Len,automaton_dom(TempStates,TempDelta,TempStart,TempEnd),
+             automaton_dom(TempStates,TempDelta,TempStart,TempEnd),
+             automaton_dom(States,Delta,Start,_)),
+  length(TempStates,Add),
+  add_and_multiply(TempStates,Len,Add,End).*/
 
 
 %! repeat_acc(Counter,Input,Accumulator,Output)
@@ -77,6 +103,20 @@ repeat_acc(C,D,Acc,Res) :-
   C1 is C - 1,
   concatenation(D,Acc,NewAcc),
   repeat_acc(C1,D,NewAcc,Res).
+
+
+repeat_acc_with_end(1,_,Dom,Dom) :- !.
+repeat_acc_with_end(C,Dom,Acc,Res) :-
+  C1 is C - 1,
+  concatenation(Dom,Acc,TempAcc),
+  get_end_states(Acc,Ends1),
+  get_end_states(TempAcc,Ends2),
+  flatten([Ends1,Ends2],Ends),
+  set_end_states(TempAcc,Ends,NewAcc),
+  repeat_acc(C1,Dom,NewAcc,Res).
+
+add_and_multiply(_,_,_,_) :- fail.
+
 
 
 %! concatenation(FirstDomain,SecondDomain,ConcatDomain) is det
