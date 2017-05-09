@@ -84,12 +84,6 @@ repeat(Dom,From,To,Res) :-
   get_end_states(FromDom,EndsFrom),
   add_end_states(ConcatDom,EndsFrom,Res).
 
-  /*repeat_acc_with_end(Len,automaton_dom(TempStates,TempDelta,TempStart,TempEnd),
-             automaton_dom(TempStates,TempDelta,TempStart,TempEnd),
-             automaton_dom(States,Delta,Start,_)),
-  length(TempStates,Add),
-  add_and_multiply(TempStates,Len,Add,End).*/
-
 
 %! repeat_acc(Counter,Input,Accumulator,Output)
 % helper predicate for repeat/3
@@ -109,9 +103,6 @@ repeat_acc_with_end(C,Dom,Acc,AdditionalEnds,Res) :-
   concatenation(Acc,Dom,TempAcc),
   get_end_states(Acc,Ends),
   repeat_acc_with_end(C1,Dom,TempAcc,[Ends|AdditionalEnds],Res).
-
-add_and_multiply(_,_,_,_) :- fail.
-
 
 
 %! concatenation(FirstDomain,SecondDomain,ConcatDomain) is det
