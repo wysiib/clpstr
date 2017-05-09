@@ -62,13 +62,33 @@ test(simple_automaton_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,1
   any_char_domain(D),
   repeat(D,2,Res).
 
-test(simple_automaton_from_to_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[2,4]))]) :-
+test(simple_automaton_from_1_to_2_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[2,4]))]) :-
   any_char_domain(D),
   repeat(D,1,2,Res).
 
-test(simple_automaton_from_0_to_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[1,2,4]))]) :-
+test(simple_automaton_from_0_to_2_repeat,[true(Res == automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4)],[1],[1,2,4]))]) :-
   any_char_domain(D),
   repeat(D,0,2,Res).
+  
+test(simple_automaton_from_0_to_3_repeat,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4),(4,epsilon,5),(5,range(32,126),6)],[1],[1,2,4,6]))]) :-
+  any_char_domain(D),
+  repeat(D,0,3,Res).
+
+test(simple_automaton_from_0_to_4_repeat,[true(Res == automaton_dom([1,2,3,4,5,6,7,8],
+                                                                  [(1,range(32,126),2),(2,epsilon,3),
+                                                                   (3,range(32,126),4),(4,epsilon,5),
+                                                                   (5,range(32,126),6),(6,epsilon,7),
+                                                                   (7,range(32,126),8)],[1],[1,2,4,6,8]))]) :-
+  any_char_domain(D),
+  repeat(D,0,4,Res).
+
+test(simple_automaton_from_2_to_4_repeat,[true(Res == automaton_dom([1,2,3,4,5,6,7,8],
+                                                                    [(1,range(32,126),2),(2,epsilon,3),
+                                                                     (3,range(32,126),4),(4,epsilon,5),
+                                                                     (5,range(32,126),6),(6,epsilon,7),
+                                                                     (7,range(32,126),8)],[1],[4,6,8]))]) :-
+  any_char_domain(D),
+  repeat(D,2,4,Res).
 
 test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range(32,126),2),(2,epsilon,1)],[1],[1,2]))]) :-
   any_char_domain(D),
