@@ -94,8 +94,19 @@ repeat_acc(C,D,Acc,Res) :-
   concatenation(D,Acc,NewAcc),
   repeat_acc(C1,D,NewAcc,Res).
 
-repeat_acc_with_end(C,Dom,Acc,DomOut) :-
-  repeat_acc_with_end(C,Dom,Acc,[[]],DomOut).
+
+%! repeat_acc_with_end(Counter,InputDomain,Accumulator,ResultingDomain) is det
+% Helper Predicate for repeat/4.
+% Recursively creates an automaton Domain from InputDomain by repeating it
+% Counter times. Thereby the end states betweet the repeated domains remain
+% and are not deleted as they are in repeat acc.
+% The resulting automaton will have epsilon transitions inbetween two
+% repetitions.
+% @Counter is the number of times input domain will be repeated.
+% @InputDomain is the domain that is repeated.
+% @ResultingDomain contains the repeated Domain.
+repeat_acc_with_end(C,Dom,DomOut) :-
+  repeat_acc_with_end(C,Dom,Dom,[[]],DomOut).
 repeat_acc_with_end(1,_,Dom,Ends,DomOut) :- !,
   add_several_end_states(Dom,Ends,DomOut).
 repeat_acc_with_end(C,Dom,Acc,AdditionalEnds,Res) :-
@@ -121,12 +132,10 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   length(States1,L),
   maplist(plus(L),States2,States2Star), % create new state space.
   flatten([States1,States2Star],States3),
-
   maplist(plus(L),Start2,Start2Star), % create new delta transition.
   findall((S,epsilon,T),(member(S,End1),member(T,Start2Star)),Trans),
   maplist(adjust_transition(L),Delta2,Delta2Star),
   flatten([Delta1,Trans,Delta2Star],Delta3),
-
   maplist(plus(L),End2,End2Star). % create new Endspaces.
 
 
