@@ -2,6 +2,8 @@
 
 :- use_module('../src/domains/basic_domains').
 
+:- use_module('../src/domains/domain_conversion').
+
 :- begin_tests(basic_domains).
 
 test(constant_domain,[true(D == string_dom("abc"))]) :-
@@ -35,3 +37,26 @@ test(get_end_states,[true(States == [2])]) :-
   get_end_states(D,States).
 
 :- end_tests(basic_domain_getters).
+
+
+
+:- begin_tests(adjusts).
+
+test(adjust_simple_charakter,[true(Res == [(5,range(97,97),6)])]) :-
+  L = 4,
+  single_char_domain("a",Dom),
+  get_transition(Dom,Trans),
+  adjust_transition(L,Trans,Res).
+
+test(adjust_constant_string_domain,[true(Res == automaton_dom([5,6,7,8],[(5,range(97,97),6),(6,range(98,98),7),(7,range(99,99),8)],[5],[8]))]) :-
+  L = 4,
+  constant_string_domain("abc",D),
+  adjust_domain(L,D,Res).
+
+
+test(adjust_single_char_domain,[true(Res == automaton_dom([5,6],[(5,range(97,97),6)],[5],[6]))]) :-
+  L = 4,
+  single_char_domain("a",D),
+  adjust_domain(L,D,Res).
+
+:- end_tests(adjusts).
