@@ -8,7 +8,8 @@
                            set_end_states/3,
                            add_end_states/3,
                            add_several_end_states/3,
-                           adjust_transition/3]).
+                           adjust_transition/3,
+                           adjust_domain/3]).
 
 
 %! any_range(Range) is det
@@ -29,7 +30,7 @@ constant_string_domain(S,string_dom(S)) :-
 % Constructs an automaton domain containing only a single character.
 % @CharAsString is a string of length one containing the character in question
 % @ResultingDomain is the domain containing only a single character.
-single_char_domain(CharAsString,automaton_dom(States,Delta,Start,End)):-
+single_char_domain(CharAsString,automaton_dom(States,Delta,Start,End)) :-
   string_codes(CharAsString,[Char]),
   States = [1,2], % List of states
   Delta = [(1,range(Char,Char),2)], % List of statetransitions
@@ -40,7 +41,7 @@ single_char_domain(CharAsString,automaton_dom(States,Delta,Start,End)):-
 %! any_char_domain(ResultingDomain) is det
 % Constructs an automaton domain containing any character.
 % @ResultingDomain is the domain containing any character.
-any_char_domain(automaton_dom(States,Delta,Start,End)):-
+any_char_domain(automaton_dom(States,Delta,Start,End)) :-
   any_range(Range),
   States = [1,2], % List of states
   Delta = [(1,Range,2)], % List of statetransitions
@@ -94,14 +95,15 @@ set_end_states(automaton_dom(States,Delta,Start,_),NewEnd,automaton_dom(States,D
 
 
 %! adjust_transition(Length,OldTransitionlist,ResultingTransitionlist) is det
-% Takes a List of Transitions, , usually used by an automaton_dom.
+% Takes a List of Transitions, usually used by an automaton_dom.
 % Addjusts the state names in the given transition list by shifting all
 % state names in OldTransition by LengthTillHere.
 % @Length is the length of the transition shift.
 % @OldTransition is the list of transitions to be changed.
 % @ResultingTransition is the new list of transitions.
-adjust_transition(L,Trans,Res) :-
-  maplist(adjust_single_transition(L),Trans,Res).
+adjust_transition(L,Delta,Res) :-
+  maplist(adjust_single_transition(L),Delta,Res).
+
 
 %! adjust_single_transition(Length,OldTransition,ResultingTransition) is det
 % Addjusts the state names of a single transition, by shifting all state names
@@ -115,9 +117,30 @@ adjust_single_transition(L,(X,T,Y),(X2,T,Y2)) :-
   plus(X,L,X2),
   plus(Y,L,Y2).
 
+%! adjust_domain(Length,InputDomain,ResultingDomain) is det
+% Takes a domain and adjusts all state names in the domain's definition, i.e.
+% in States, Delta, Start, and End.
+% The length of the shift is Length.
+% @Length is the length of the domain shift.
+% @InputDomain is the domain to be changed.
+% @ResultingDomain is the new shifted domain.
+adjust_domain(L,string_dom(String),automaton_dom(ResStates,ResDelta,ResStart,ResEnd)) :-
+  constant_string_domain_to_automaton(string_dom(String),automaton_dom(States,Delta,Start,End)),
+  maplist(plus(L),States,ResStates),
+  adjust_transition(L,Delta,ResDelta),
+  maplist(plus(L),Start,ResStart),
+  maplist(plus(L),End,ResEnd),
+  !.
+adjust_domain(L,automaton_dom(States,Delta,Start,End),automaton_dom(ResStates,ResDelta,ResStart,ResEnd)) :-
+  maplist(plus(L),States,ResStates),
+  adjust_transition(L,Delta,ResDelta),
+  maplist(plus(L),Start,ResStart),
+  maplist(plus(L),End,ResEnd).
+
 
 add_end_states(automaton_dom(States,Delta,Start,Ends),AdditionalEnds,automaton_dom(States,Delta,Start,NewEnds)) :-
     ord_union(Ends,AdditionalEnds,NewEnds).
+
 
 add_several_end_states(automaton_dom(States,Delta,Start,Ends),ListOfAdditionalEnds,automaton_dom(States,Delta,Start,NewEnds)) :-
     ord_union([Ends|ListOfAdditionalEnds],NewEnds).
