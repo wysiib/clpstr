@@ -18,6 +18,7 @@
 - [x] repeat for automaton_dom
   - [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
 - [ ] add more tests for repeat/2, testing whether it correctly accepts (word)* , i.e. wordwordword and not something like wordwowordwword or such things.
+- [ ] add tests for adjust_transition and adjust_automaton_dom.
 
 
 ## read me

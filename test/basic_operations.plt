@@ -100,12 +100,12 @@ test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range
 
 :- begin_tests(union).
 
-  test(string_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,epsilon,2),(1,epsilon,4),(2,97,3),(4,98,5)],[1],[3,5])),fixme]) :-
+  test(string_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,epsilon,2),(1,epsilon,4),(2,range(97,97),3),(4,range(98,98),5)],[1],[3,5])),fixme("union not implemented")]) :-
     constant_string_domain("a",D1),
     constant_string_domain("b",D2),
     union(D1,D2,Res).
 
-  test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,epsilon,2),(1,epsilon,4),(2,97,3),(4,range(32,126),5)],[1],[3,5])),fixme]) :-
+  test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,epsilon,2),(1,epsilon,4),(2,range(97,97),3),(4,range(32,126),5)],[1],[3,5])),fixme("union not implemented")]) :-
     constant_string_domain("a",D1),
     any_char_domain(D2),
     union(D1,D2,Res).
