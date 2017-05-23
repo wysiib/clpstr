@@ -3,7 +3,8 @@
                             repeat/2,
                             repeat/3,
                             repeat/4,
-                            concatenation/3]).
+                            concatenation/3,
+                            union/3]).
 
 :- use_module(labeling).
 :- use_module(domain_conversion).
@@ -79,7 +80,7 @@ repeat(Dom,From,To,Res) :-
   constant_string_domain_to_automaton(Dom,TempDom),
   repeat(TempDom,From,FromDom),
   Len is To - From,
-  repeat_acc_with_end(Len,TempDom,TempDom,ToDom),
+  repeat_acc_with_end(Len,TempDom,ToDom),
   concatenation(FromDom,ToDom,ConcatDom),
   get_end_states(FromDom,EndsFrom),
   add_end_states(ConcatDom,EndsFrom,Res).
@@ -134,18 +135,11 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   flatten([States1,States2Star],States3),
   maplist(plus(L),Start2,Start2Star), % create new delta transition.
   findall((S,epsilon,T),(member(S,End1),member(T,Start2Star)),Trans),
-  maplist(adjust_transition(L),Delta2,Delta2Star),
+  adjust_transition(L,Delta2,Delta2Star),
   flatten([Delta1,Trans,Delta2Star],Delta3),
   maplist(plus(L),End2,End2Star). % create new Endspaces.
 
 
-%! adjust_transition(LengthTillHere,Transition1,Transition2) is det
-% Helper predicate used by concat_domain to adjust the state names in a
-% transition to be valid transitions in the new domain. TODO
-% Should only be called by concatenation.
-% @LengthTillHere is the length of the transition.
-% @Transition1
-% @Transition2
-adjust_transition(L,(X,T,Y),(X2,T,Y2)) :-
-  plus(X,L,X2),
-  plus(Y,L,Y2).
+union(Dom1,Dom2,Res) :-
+  Res is Dom1 + Dom2,
+  fail.
