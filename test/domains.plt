@@ -48,7 +48,8 @@ test(adjust_simple_charakter,[true(Res == [(5,range(97,97),6)])]) :-
   get_transition(Dom,Trans),
   adjust_transition(L,Trans,Res).
 
-test(adjust_constant_string_domain,[true(Res == automaton_dom([5,6,7,8],[(5,range(97,97),6),(6,range(98,98),7),(7,range(99,99),8)],[5],[8]))]) :-
+test(adjust_constant_string_domain,[true(Res == automaton_dom([5,6,7,8],[(5,range(97,97),6),
+                                        (6,range(98,98),7),(7,range(99,99),8)],[5],[8]))]) :-
   L = 4,
   constant_string_domain("abc",D),
   adjust_domain(L,D,Res).
@@ -60,3 +61,13 @@ test(adjust_single_char_domain,[true(Res == automaton_dom([5,6],[(5,range(97,97)
   adjust_domain(L,D,Res).
 
 :- end_tests(adjusts).
+
+
+:- begin_tests(combine_domains).
+
+test(comb_simple,[true(Res == automaton_dom([1,2,1,2],[(1,range(32,126),2),(1,range(32,126),2)],[1,1],[2,2]))]) :-
+  any_char_domain(D1),
+  any_char_domain(D2),
+  combine_domain(D1,D2,Res).
+
+:- end_tests(combine_domains).
