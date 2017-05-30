@@ -157,6 +157,13 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   maplist(plus(L),End2,End2Star). % create new Endspaces.
 
 
+%! union(InputDomain1,InputDomain2,ResultingDomain) is det
+% Builds the union of InputDomain1 and InputDomain2.
+% Thereby a new start state is created, but the old final states are kept.
+% The input domains can either be strings or automatons.
+% @InputDomain1 is the first domain of the union.
+% @InputDomain2 is the second domain of the union.
+% @ResultingDomain is the union of InputDomain1 and InputDomain2.
 union(Dom1,Dom2,Res) :-
   constant_string_domain_to_automaton(Dom1,AutomDom1),
   constant_string_domain_to_automaton(Dom2,AutomDom2),
