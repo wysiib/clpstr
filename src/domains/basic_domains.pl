@@ -9,7 +9,8 @@
                            add_end_states/3,
                            add_several_end_states/3,
                            adjust_transition/3,
-                           adjust_domain/3]).
+                           adjust_domain/3,
+                           combine_domain/3]).
 
 
 %! any_range(Range) is det
@@ -136,6 +137,20 @@ adjust_domain(L,automaton_dom(States,Delta,Start,End),automaton_dom(ResStates,Re
   adjust_transition(L,Delta,ResDelta),
   maplist(plus(L),Start,ResStart),
   maplist(plus(L),End,ResEnd).
+
+%! combine_domain(Domain1,Domain2,ResultingDomain) is det
+% Takes two domains and returns a domain containing both of them.
+% Note that the States will not be remained.
+% Thus ResultingDomain can contain multiple States with the same Name.
+% Use adjust_domain to rename states.
+% @Domain1 is the first domain to be combined.
+% @Domain2 is the second domain to be combined.
+% @ResultingDomain is the combined domain.
+combine_domain(automaton_dom(States1,Delta1,Start1,End1),automaton_dom(States2,Delta2,Start2,End2),automaton_dom(ResStates,ResDelta,ResStart,ResEnd)) :-
+  append(States1,States2,ResStates),
+  append(Delta1,Delta2,ResDelta),
+  append(Start1,Start2,ResStart),
+  append(End1,End2,ResEnd).
 
 
 add_end_states(automaton_dom(States,Delta,Start,Ends),AdditionalEnds,automaton_dom(States,Delta,Start,NewEnds)) :-
