@@ -67,9 +67,19 @@ repeat(Dom,automaton_dom(States,DeltaRes,Start,EndRes)) :-
   flatten([Delta,Trans],DeltaRes).
 
 
-%! repeat(Domain,From,To,RepeatedDomain) is det
-% TODO
-% The resulting domain is always an autoamton.
+%! repeat(InputDomain,From,To,RepeatedDomain) is det
+% Generates a new domain from a domain using an accumulative
+% help predicate repeat_acc_with_end/4.
+% The new domain contains the original string or automaton a number of times
+% between From and To.
+% The resulting domain is an automaton and has fianl states that may end any
+% labeling in between From and To.
+% Will fail if From < 0, To < 0 or  To < From.
+% @InputDomain is a string domain containing the original String or autoamton.
+% @From is the number of times the string is at least repeated.
+% @To is the number of times the string is at most repeated.
+% @RepeatedDomain is the resulting new domain.
+% The resulting domain is always an automaton.
 repeat(_,From,To,_) :- From < 0; To < 0; To < From, !, fail.
 repeat(Dom,FromTo,FromTo,Res) :- repeat(Dom,FromTo,Res).
 repeat(Dom,0,To,automaton_dom(States,Delta,Start,End)) :-
@@ -88,7 +98,14 @@ repeat(Dom,From,To,Res) :-
 
 %! repeat_acc(Counter,Input,Accumulator,Output)
 % helper predicate for repeat/3
-% TODO
+% Recursively creates an automaton Domain from InputDomain by repeating it
+% Counter times.
+% The resulting automaton will have epsilon transitions inbetween two
+% repetitions.
+% @Counter is the number of times input domain will be repeated.
+% @Input is the domain that is repeated.
+% @Accumulator is used for the recursion. Ususally instantiated with Input.
+% @Output contains the repeated Domain.
 repeat_acc(1,_,D,D) :- !.
 repeat_acc(C,D,Acc,Res) :-
   C1 is C - 1,
@@ -99,7 +116,7 @@ repeat_acc(C,D,Acc,Res) :-
 %! repeat_acc_with_end(Counter,InputDomain,Accumulator,ResultingDomain) is det
 % Helper Predicate for repeat/4.
 % Recursively creates an automaton Domain from InputDomain by repeating it
-% Counter times. Thereby the end states betweet the repeated domains remain
+% Counter times. Thereby the end states between the repeated domains remain
 % and are not deleted as they are in repeat acc.
 % The resulting automaton will have epsilon transitions inbetween two
 % repetitions.
