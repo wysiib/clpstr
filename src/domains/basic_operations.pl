@@ -158,5 +158,11 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
 
 
 union(Dom1,Dom2,Res) :-
-  Res is Dom1 + Dom2,
-  fail.
+  constant_string_domain_to_automaton(Dom1,AutomDom1),
+  constant_string_domain_to_automaton(Dom2,AutomDom2),
+  get_all_states(AutomDom1,D1States),
+  length(D1States,L),
+  adjust_domain(L,AutomDom2,AdjDom2),
+  combine_domain(AutomDom1,AdjDom2,CombiDom),
+  UniDom = automaton_dom([1],[],[1],[1]),
+  concatenation(UniDom,CombiDom,Res).
