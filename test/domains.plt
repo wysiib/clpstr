@@ -4,6 +4,7 @@
 
 :- use_module('../src/domains/domain_conversion').
 
+
 :- begin_tests(basic_domains).
 
 test(constant_domain,[true(D == string_dom("abc"))]) :-
