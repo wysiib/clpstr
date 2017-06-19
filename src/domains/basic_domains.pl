@@ -92,7 +92,7 @@ get_end_states(automaton_dom(_,_,_,End),End).
 % @OutputDomain is the resulting automaton_dom.
 set_end_states(automaton_dom(States,Delta,Start,_),NewEnd,automaton_dom(States,Delta,Start,NewEnd)).
 % NOTE if this ever breaks, test whether NewEnd are part of States.
-% FOr example by using maplist(member()).
+% For example by using maplist(member()).
 
 
 %! adjust_transition(Length,OldTransitionlist,ResultingTransitionlist) is det

@@ -35,6 +35,18 @@ intersection(Dom1,string_dom(S), string_dom(S)) :-
 intersection(string_dom(S),Dom2,string_dom(S)) :-
   label(Dom2,S),
   !.
+/*intersection(Dom1,Dom2,Res) :-
+  get_all_states(Dom1,L1),
+  get_all_states(Dom2,L2),
+  L is L1 * L2,
+  numlist(1,L,ResStates),
+  % State product:
+  % (X,Y) = (X-1)*L2 + Y
+  % e.g.
+  % (1x1) = (1-1)*L2 + 1
+  % (2x3) = (2-1)*L2 + 3
+  Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd).*/
+
 intersection(_,_,empty).
 
 
