@@ -43,3 +43,27 @@ test(double_eps_reduction,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),
   epsilon_reduce(Test,Res).
 
 :- end_tests(epsilon_reduction).
+
+
+:- begin_tests(epsilon_closure).
+
+test(simple_automaton_eps_closure,[true(Res == [1])]) :-
+  Test = automaton_dom([1],[(1,epsilon,1)],[1],[1]),
+  get_transition(Test,T),
+  epsilon_closure(1,T,Res).
+
+test(concat_eps_closure,[true(Res == [3])]) :-
+  single_char_domain("a",A),
+  single_char_domain("b",B),
+  concatenation(A,B,Test),
+  get_transition(Test,T),
+  epsilon_closure(2,T,Res).
+
+test(union_eps_closure,[true(Res == [2,4])]) :-
+  single_char_domain("a",A),
+  single_char_domain("b",B),
+  union(A,B,Test),
+  get_transition(Test,T),
+  epsilon_closure(1,T,Res).
+
+:- end_tests(epsilon_closure).
