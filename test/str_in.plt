@@ -14,13 +14,13 @@ test(simple_in_collision,[fail]) :-
     str_in(X,D1),
     constant_string_domain("def",D2),
     str_in(X,D2).
-test(str_in_twice_fail,[fail,blocked("uses repeat")]) :-
+test(str_in_twice_fail,[fail,fixme("uses repeat")]) :-
     any_char_domain(A),
     repeat(A,10,TenTimesAny),
     str_in(X,TenTimesAny),
     repeat(A,5,FiveTimesAny),
     str_in(X,FiveTimesAny).
-test(str_in_twice_succeed,[nondet,blocked("uses repeat")]) :-
+test(str_in_twice_succeed,[nondet,fixme("uses repeat")]) :-
     any_char_domain(A),
     repeat(A,5,10,FiveToTenTimesAny),
     str_in(X,FiveToTenTimesAny),
