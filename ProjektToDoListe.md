@@ -11,7 +11,6 @@
 ## basic operations and domains
 - [x] intersection.plt tests wieder einschalten
 - [ ] intersection fertig schreiben
-
 - [ ] Create more labeling tests.
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
@@ -19,7 +18,8 @@
   - [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
 - [ ] add more tests for repeat/2, testing whether it correctly accepts (word)* , i.e. wordwordword and not something like wordwowordwword or such things.
 - [ ] add tests for adjust_transition and adjust_automaton_dom.
-
+- [ ] add DFA reduction.
+- [ ] Fix epsilon_closure, see 2. note in documentary.
 
 ## read me
 - [ ] add usage part
