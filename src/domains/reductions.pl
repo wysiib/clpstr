@@ -14,9 +14,9 @@
 
 epsilon_reduce_recursive(States,Trans,End,[ResTH|ResTT],[ResEndH|ResEndT]) :-
   States = [SH|ST],
-  epsilon_closure(SH,Trans,EpClo),
-  make_accept_states([SH|EpClo],End,ResEndH),
-  make_transitions(SH,EpClo,Trans,ResTH),
+  ordered_eps_closure(SH,Trans,EpClo),
+  make_accept_states([SH|EpClo],End,ResEndH), % TODO
+  make_transitions(SH,EpClo,Trans,ResTH), % TODO
   wonderfunction(ST,Trans,End,ResTT,ResEndT).
 
 
