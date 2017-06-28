@@ -36,6 +36,15 @@ test(simple_mixed_card_reverse,[true(D == empty)]) :-
 
 :- end_tests(mixed_domains).
 
+:- begin_tests(automaton_domains).
+
+test(any_char_single_char_automaton_intersection,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),4)],[1],[4]))]) :-
+  any_char_domain(D1),
+  single_char_domain("a",D2),
+  intersection(D1,D2,Res).
+
+:- end_tests(automaton_domains).
+
 :- begin_tests(empty_domains).
 
 test(is_empty) :-
