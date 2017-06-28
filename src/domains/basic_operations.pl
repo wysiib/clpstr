@@ -4,7 +4,8 @@
                             repeat/3,
                             repeat/4,
                             concatenation/3,
-                            union/3]).
+                            union/3,
+                            calcse/4]).
 
 :- use_module(labeling).
 :- use_module(domain_conversion).
@@ -48,22 +49,24 @@ intersection(Dom1,Dom2,Res) :-
   % (2x3) = (2-1)*L2 + 3
   get_transition(Dom1,Delta1),
   get_transition(Dom2,Delta2),
-  specialfunctionfortransitions(Delta1,Delta2,ResDelta),
+  %specialfunctionfortransitions(Delta1,Delta2,ResDelta),
+  findall((Start,Char,End),(((member((S1,Char,E1),Delta1),member((S2,Char,E2),Delta2));
+                            (member((S1,epsilon,E1),Delta1),S2=E2);
+                            (member((S2,epsilon,E2),Delta2),S1=E1)),
+                            calcse(S1,S2,L,Start),calcse(E1,E2,L,End)),ResDelta),
   get_start_states(Dom1,Start1),
   get_start_states(Dom2,Start2),
-  specialcalcforstartend(Start1,Start2,L2,ResStart),
+  findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,L,E)),ResStart),
   get_end_states(Dom1,End1),
   get_end_states(Dom2,End2),
-  specialcalcforstartend(End1,End2,L2,ResEnd),
+  findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,L,E)),ResEnd),
   Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd).
 intersection(_,_,empty).
 
 
 % TODO
-specialcalcforstartend(States1,States2,L,ResStates) :-
-  States1 = States2,
-  L = ResStates.
-
+calcse(State1,State2,L,ResState) :-
+  ResState is (State1 - 1) * L + State2.
 
 
 %! repeat(InputDomain,Counter,RepeatedDomain) is det
