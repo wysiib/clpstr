@@ -39,7 +39,9 @@ intersection(string_dom(S),Dom2,string_dom(S)) :-
 intersection(Dom1,Dom2,Res) :-
   get_all_states(Dom1,L1),
   get_all_states(Dom2,L2),
-  L is L1 * L2,
+  length(L1,NumStates1),
+  length(L2,NumStates2),
+  L is NumStates1 * NumStates2,
   numlist(1,L,ResStates),
   % State product:
   % X : Dom1.States, Y : Dom2.States
@@ -50,21 +52,25 @@ intersection(Dom1,Dom2,Res) :-
   get_transition(Dom1,Delta1),
   get_transition(Dom2,Delta2),
   %specialfunctionfortransitions(Delta1,Delta2,ResDelta),
-  findall((Start,Char,End),(((member((S1,Char,E1),Delta1),member((S2,Char,E2),Delta2));
+  findall((Start,Char,End),(((member((S1,Char1,E1),Delta1),member((S2,Char2,E2),Delta2),subrange(Char1,Char2,Char));
                             (member((S1,epsilon,E1),Delta1),S2=E2);
                             (member((S2,epsilon,E2),Delta2),S1=E1)),
-                            calcse(S1,S2,L,Start),calcse(E1,E2,L,End)),ResDelta),
+                            calcse(S1,S2,NumStates1,Start),calcse(E1,E2,NumStates1,End)),ResDelta),
   get_start_states(Dom1,Start1),
   get_start_states(Dom2,Start2),
-  findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,L,E)),ResStart),
+  findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,NumStates1,E)),ResStart),
   get_end_states(Dom1,End1),
   get_end_states(Dom2,End2),
-  findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,L,E)),ResEnd),
-  Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd).
+  findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,NumStates1,E)),ResEnd),
+  Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd),
+  !.
 intersection(_,_,empty).
 
+subrange(range(L1,U1),range(L2,U2),range(LOut,UOut)) :-
+  LOut is max(L1,L2),
+  UOut is min(U1,U2),
+  UOut >= LOut.
 
-% TODO
 calcse(State1,State2,L,ResState) :-
   ResState is (State1 - 1) * L + State2.
 
