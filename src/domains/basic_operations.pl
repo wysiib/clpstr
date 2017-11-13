@@ -51,11 +51,7 @@ intersection(Dom1,Dom2,Res) :-
   % (2x3) = (2-1)*L2 + 3
   get_transition(Dom1,Delta1),
   get_transition(Dom2,Delta2),
-  %specialfunctionfortransitions(Delta1,Delta2,ResDelta),
-  findall((Start,Char,End),(((member((S1,Char1,E1),Delta1),member((S2,Char2,E2),Delta2),subrange(Char1,Char2,Char));
-                            (member((S1,epsilon,E1),Delta1),S2=E2);
-                            (member((S2,epsilon,E2),Delta2),S1=E1)),
-                            calcse(S1,S2,NumStates1,Start),calcse(E1,E2,NumStates1,End)),ResDelta),
+  findall(Delta,state_in_state_product(Delta1,Delta2,NumStates1,Delta),ResDelta),
   get_start_states(Dom1,Start1),
   get_start_states(Dom2,Start2),
   findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,NumStates1,E)),ResStart),
@@ -66,10 +62,19 @@ intersection(Dom1,Dom2,Res) :-
   !.
 intersection(_,_,empty).
 
-subrange(range(L1,U1),range(L2,U2),range(LOut,UOut)) :-
+state_in_state_product(Delta1,Delta2,NumStates1,(Start,Char,End)) :-
+  member((S1,Char1,E1),Delta1),
+  member((S2,Char2,E2),Delta2),
+  subrange(Char1,Char2,Char),
+  calcse(S1,S2,NumStates1,Start),
+  calcse(E1,E2,NumStates1,End).
+
+subrange(range(L1,U1),range(L2,U2),range(LOut,UOut)) :- !,
   LOut is max(L1,L2),
   UOut is min(U1,U2),
   UOut >= LOut.
+subrange(R,epsilon,R).
+subrange(epsilon,R,R).
 
 calcse(State1,State2,L,ResState) :-
   ResState is (State1 - 1) * L + State2.
