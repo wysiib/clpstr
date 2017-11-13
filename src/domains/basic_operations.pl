@@ -14,7 +14,7 @@
 % Checks whether an domain is empty, in case of an automaton_dom by having no
 % end states or no states at all and by containing the empty fact in all other
 % cases.
-% @Domain is the Domain to be testet whether it is empty.
+% @Domain is the Domain to be tested whether it is empty.
 is_empty(automaton_dom([],_,_,_)).
 is_empty(automaton_dom(_,_,[],_)).
 is_empty(empty).
