@@ -25,7 +25,7 @@ is_empty(D) :- !, \+ label(D,_).
 % @Domain1 is the first domain.
 % @Domain2 is the second domain.
 % @ResultingDomain is the domain containing the Intersection of the two strings.
-intersection(S,S,S) :-
+intersection(D,D,D) :-
   !.
 intersection(string_dom(S1),string_dom(S2),empty) :-
   S1 \= S2,

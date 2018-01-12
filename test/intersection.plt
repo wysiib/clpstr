@@ -3,6 +3,11 @@
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
 
+/**
+* basic_operations intersection tests.
+*/
+
+
 :- begin_tests(constant_domains).
 
 test(constant_domain_intersection_same,[true(D == D1)]) :-

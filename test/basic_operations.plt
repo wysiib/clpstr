@@ -3,6 +3,11 @@
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
 
+/**
+* This unit contains all the basic basic_operations tests, but intersection.
+* basic_operations intersection tests are in an extra plt. 
+*/
+
 
 :- begin_tests(concat).
 
