@@ -7,19 +7,45 @@
  epsilon_reduce(Dom,Res) :-
    get_all_states(Dom,States),
    get_transition(Dom,Delta),
-   get_start_states(Dom,Start),
+   %get_start_states(Dom,Start),
    get_end_states(Dom,End),
    epsilon_reduce_recursive(States,Delta,End,ResDelta,ResEnd),
-   Res = automaton_dom(States,ResDelta,Start,ResEnd).
-
-epsilon_reduce_recursive(States,Trans,End,[ResTH|ResTT],[ResEndH|ResEndT]) :-
-  States = [SH|ST],
-  ordered_eps_closure(SH,Trans,EpClo),
-  make_accept_states([SH|EpClo],End,ResEndH), % TODO
-  make_transitions(SH,EpClo,Trans,ResTH), % TODO
-  wonderfunction(ST,Trans,End,ResTT,ResEndT).
+   set_end_states(Dom,ResEnd,Temp),
+   set_transitions(Temp,ResDelta,Res). % TODO
 
 
+epsilon_reduce_recursive([],_,_,[],[]).
+epsilon_reduce_recursive([SH|ST],Delta,End,ResDelta,ResEndT) :-
+  ordered_eps_closure(SH,Delta,EpClo),
+  make_accept_states(SH,EpClo,End,TempEnd),
+  make_transitions(SH,EpClo,Delta,TempDelta), % TODO
+  epsilon_reduce_recursive(ST,TempDelta,TempEnd,ResDelta,ResEndT).
+
+
+
+%! make_accept_states(StartState,EpsilonClosure,EndStates,ResultingStates)
+% Takes a state, its ordered epsilon closure and the list of end states
+% and returns the new list of end states.
+% Helper predicate for the epsilon_reduce_recursive
+% StartState is included in ResultingStates, iff there is a state in
+% EpsilonClosure that is also contained in EndStates.
+% @StartState is the state for which the status is checked.
+% @EpsilonClosure is the epsilon closure of StartState.
+% @EndStates is the incoming list of already existing accepting states.
+% @ResultingStates is the outgoing list of accepting states.
+% Case 1: State is already an end State.
+make_accept_states(State,_,End,End) :-
+  ord_memberchk(State,End),!.
+% Case 2:  No End States in Epsilon closure.
+make_accept_states(_,EpClo,End,End) :-
+  ord_intersect(EpClo,End,[]).
+% Case 3: An End State is in Epsilon closure.
+make_accept_states(State,_,End,ResEnd) :-
+  ord_add_element(End,State,ResEnd).
+
+
+
+% TODO Reduce NFA to DFA
 dfa_reduce(_,_) :- fail.
 
 
@@ -31,8 +57,8 @@ dfa_reduce(_,_) :- fail.
 % This does not return an ordered set. Use ordered_eps_closure for the epsilon
 % closure as an orderered set.
 % NOTE that this is not a formaly correct epsilon closure, since it does not
-% include, although it is obviously always reachable via an epsilon
-% transition from the initial state.
+% include the StartState itself, although it is obviously always reachable via an epsilon
+% transition from the initial StartState.
 % Also if this ever breaks, its propably because it does not test whether
 % S is actually included in T or because it expects the transition in an
 % ordered state.

@@ -20,13 +20,16 @@ test_intersec:
 	swipl --quiet -l test/intersection.plt -t "run_tests"
 
 test_reduc:
-	swipl --quiet -l test/intersection.plt -t "run_tests"
+	swipl --quiet -l test/reduction.plt -t "run_tests"
 
 test_label:
 	swipl --quiet -l test/labeling.plt -t "run_tests"
 
 test_dom_conv:
 	swipl --quiet -l test/domain_conversion.plt -t "run_tests"
+
+test_str_in:
+	swipl --quiet -l test/str_in.plt -t "run_tests"
 
 help:
 	@echo	'make tests - To run all tests.'

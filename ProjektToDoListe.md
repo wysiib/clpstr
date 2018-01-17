@@ -10,7 +10,7 @@
 
 ## basic operations and domains
 - [x] intersection.plt tests wieder einschalten
-- [ ] intersection fertig schreiben
+- [x] intersection fertig schreiben
 - [ ] Create more labeling tests.
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
