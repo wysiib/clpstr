@@ -3,23 +3,23 @@
                       epsilon_closure/3,
                       ordered_eps_closure/3]).
 
+% TODO DOC
+epsilon_reduce(Dom,Res) :-
+  get_all_states(Dom,States),
+  get_transition(Dom,Delta),
+  get_end_states(Dom,End),
+  epsilon_reduce_recursive(States,States,Delta,End,TempDelta,ResEnd),
+  delete_epsilon_transitions(TempDelta, ResDelta),
+  set_end_states(Dom,ResEnd,Temp),
+  set_transitions(Temp,ResDelta,Res).
 
- epsilon_reduce(Dom,Res) :-
-   get_all_states(Dom,States),
-   get_transition(Dom,Delta),
-   %get_start_states(Dom,Start),
-   get_end_states(Dom,End),
-   epsilon_reduce_recursive(States,Delta,End,ResDelta,ResEnd),
-   set_end_states(Dom,ResEnd,Temp),
-   set_transitions(Temp,ResDelta,Res). % TODO
-
-
-epsilon_reduce_recursive([],_,_,[],[]).
-epsilon_reduce_recursive([SH|ST],Delta,End,ResDelta,ResEndT) :-
+% TODO DOC
+epsilon_reduce_recursive([],_,TempDelta,TempEnd,TempDelta,TempEnd).
+epsilon_reduce_recursive([SH|ST],AllStates,Delta,End,ResDelta,ResEndT) :-
   ordered_eps_closure(SH,Delta,EpClo),
-  make_accept_states(SH,EpClo,End,TempEnd),
-  make_transitions(SH,EpClo,Delta,TempDelta), % TODO
-  epsilon_reduce_recursive(ST,TempDelta,TempEnd,ResDelta,ResEndT).
+  make_accept_states(SH,EpClo,End,TempEnd),!,
+  make_transitions(AllStates,SH,EpClo,Delta,TempDelta),
+  epsilon_reduce_recursive(ST,AllStates,TempDelta,TempEnd,ResDelta,ResEndT).
 
 
 
@@ -38,10 +38,26 @@ make_accept_states(State,_,End,End) :-
   ord_memberchk(State,End),!.
 % Case 2:  No End States in Epsilon closure.
 make_accept_states(_,EpClo,End,End) :-
-  ord_intersect(EpClo,End,[]).
+  ord_intersect(EpClo,End,[]),!.
 % Case 3: An End State is in Epsilon closure.
 make_accept_states(State,_,End,ResEnd) :-
   ord_add_element(End,State,ResEnd).
+
+
+make_transitions([],_,_,Delta,Delta).
+make_transitions([S|T],S,EpClo,Delta,ResDelta) :-
+  !, make_transitions(T,S,EpClo,Delta,ResDelta).
+make_transitions([Tar|T],S,EpClo,Delta,ResDelta) :-
+  findall((S,Char,Tar),(member(C,EpClo),member((C,Char,Tar),Delta)),SomeOtherDelta),
+  append(SomeOtherDelta,Delta,TempDelta),
+  make_transitions(T,S,EpClo,TempDelta,ResDelta).
+
+
+delete_epsilon_transitions([],[]).
+delete_epsilon_transitions([(_,epsilon,_)|T],Res) :-
+  !,delete_epsilon_transitions(T,Res).
+delete_epsilon_transitions([(A,Char,B)|T],[(A,Char,B)|Res]) :-
+  delete_epsilon_transitions(T,Res).
 
 
 

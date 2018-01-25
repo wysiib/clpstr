@@ -6,6 +6,7 @@
                            get_start_states/2,
                            get_end_states/2,
                            set_end_states/3,
+                           set_transitions/3,
                            add_end_states/3,
                            add_several_end_states/3,
                            adjust_transition/3,
@@ -93,6 +94,10 @@ get_end_states(automaton_dom(_,_,_,End),End).
 set_end_states(automaton_dom(States,Delta,Start,_),NewEnd,automaton_dom(States,Delta,Start,NewEnd)).
 % NOTE if this ever breaks, test whether NewEnd are part of States.
 % For example by using maplist(member()).
+
+
+%!
+set_transitions(automaton_dom(States,_,Start,End),NewTransitions,automaton_dom(States,NewTransitions,Start,End)).
 
 
 %! adjust_transition(Length,OldTransitionlist,ResultingTransitionlist) is det

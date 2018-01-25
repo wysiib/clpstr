@@ -11,6 +11,10 @@
 ## basic operations and domains
 - [x] intersection.plt tests wieder einschalten
 - [x] intersection fertig schreiben
+- [x] Epsilon Reduktion für automaton_dom hinzufügen
+    - [x] accepting states
+    - [x] add new transitions
+    - [x] delete epsilon transitions
 - [ ] Create more labeling tests.
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
