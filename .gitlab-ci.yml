@@ -1,4 +1,4 @@
 image: swipl
 
 run_tests:
-  script: "for file in test/*.plt; do swipl --quiet -l $$file -t 'run_tests'; done"
+  script: 'for file in test/*.plt; do swipl --quiet -l $file -t "run_tests"; done'
