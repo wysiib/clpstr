@@ -3,7 +3,13 @@
                       epsilon_closure/3,
                       ordered_eps_closure/3]).
 
-% TODO DOC
+%! epsilon_reduce(OldDomain,ResultingDomain)
+% Takes a Domain and applies an epsilon reduction.
+% The resulting domain may contain unneccessary not reachable states and
+% trainsitions from these states.
+% NOTE: this is very expensive because it calls epsilon_reduce_recursive.
+% @OldDomain the automaton domain to be reduced.
+% @ResultingDomain the domain after the reduction.
 epsilon_reduce(Dom,Res) :-
   get_all_states(Dom,States),
   get_transition(Dom,Delta),
@@ -13,7 +19,19 @@ epsilon_reduce(Dom,Res) :-
   set_end_states(Dom,ResEnd,Temp),
   set_transitions(Temp,ResDelta,Res).
 
-% TODO DOC
+%! epsilon_reduce_recursive(States,AllStates,Delta,EndStates,ResDelta,ResEnd)
+% Takes the list of states from an automaton domain, its delta and its
+% end states and returns new end states and list of transitions according
+% to an epsilon reduction.
+% Helper predicate for epsilon_reduce.
+% NOTE: this is very expensive because it recursivly calls make_transitions.
+% @States The list of states the reduction did not consider yet.
+% @AllStates the list of all states of the automaton to reduce.
+% @Delta the list of transitions of the automaton to reduce.
+% @EndStates the list of accepting states of the automaton to reduce.
+% @ResDelta the list of transitions of the reduced automaton, still containing
+% epsilon trainsitions.
+% @ResEnd the list of accepting states of the reduced automaton.
 epsilon_reduce_recursive([],_,TempDelta,TempEnd,TempDelta,TempEnd).
 epsilon_reduce_recursive([SH|ST],AllStates,Delta,End,ResDelta,ResEndT) :-
   ordered_eps_closure(SH,Delta,EpClo),
@@ -26,7 +44,7 @@ epsilon_reduce_recursive([SH|ST],AllStates,Delta,End,ResDelta,ResEndT) :-
 %! make_accept_states(StartState,EpsilonClosure,EndStates,ResultingStates)
 % Takes a state, its ordered epsilon closure and the list of end states
 % and returns the new list of end states.
-% Helper predicate for the epsilon_reduce_recursive
+% Helper predicate for epsilon_reduce_recursive.
 % StartState is included in ResultingStates, iff there is a state in
 % EpsilonClosure that is also contained in EndStates.
 % @StartState is the state for which the status is checked.
@@ -44,6 +62,25 @@ make_accept_states(State,_,End,ResEnd) :-
   ord_add_element(End,State,ResEnd).
 
 
+%! make_transitions(AllStates,CurrentState,EpsilonClosure,CurrentDelta,ResDelta)
+% Takes a state its EpsilonClosure and the list of all transitions and
+% returns a new list of transitions that bypass epsilon transitions.
+% Helper predicate for epsilon_reduce_recursive.
+% The new transitions are created by considering all pairs of states from the
+% CurrentState and the elements of AllStates. There is added a new Transition,
+% iff there is a state in EpsilonClosure containing a transition to the element
+% of AllStates.
+% New tranisitons are added at the beginning of ResDelta for efficiency.
+% NOTE: This is a very expensive operation since it recursivly calls findall/3
+% to make the transitions.
+% @AllStates the list of all states from the automaton domain.
+% @CurrentState the state from which  new transitions are added.
+% @EpsilonClosure the epsilon closure of CurrentState.
+% @CurrentDelta the list of transitions during recursion.
+% NOTE: this could add unneccessary tranisitions since, unlike in the
+% original algorithm, the originial list of transitions is not kept between
+% recursion steps. This did never happen in test cases.
+% @ResDelta the resulting list of transitions.
 make_transitions([],_,_,Delta,Delta).
 make_transitions([S|T],S,EpClo,Delta,ResDelta) :-
   !, make_transitions(T,S,EpClo,Delta,ResDelta).
@@ -53,6 +90,10 @@ make_transitions([Tar|T],S,EpClo,Delta,ResDelta) :-
   make_transitions(T,S,EpClo,TempDelta,ResDelta).
 
 
+%! delete_epsilon_transitions(CurrentDelta,NewDelta)
+% Takes a list of atomaton transitions and deletes all epsilon transitions.
+% @CurrentDelta is the list containing epsilon transitions.
+% @NewDelta is the original list without epsilon transitions.
 delete_epsilon_transitions([],[]).
 delete_epsilon_transitions([(_,epsilon,_)|T],Res) :-
   !,delete_epsilon_transitions(T,Res).

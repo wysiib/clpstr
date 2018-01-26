@@ -96,7 +96,16 @@ set_end_states(automaton_dom(States,Delta,Start,_),NewEnd,automaton_dom(States,D
 % For example by using maplist(member()).
 
 
-%!
+%! set_transitions(InputDomain,NewTransitions,OutputDomain) is det
+% Takes an automaton_dom and a list of transitions creates a new domain,
+% containing the new transitions as transitions.
+% Only use transitions that are between states of the original automatons
+% state list!
+% Returns the InputDomain with NewTransitions as transitions.
+% InputDomain must be initiialized to an automaton_dom.
+% @InputDomain is an automaton_dom.
+% @NewEndStates is a list of states, that must be part of InputDomain's states.
+% @OutputDomain is the resulting automaton_dom.
 set_transitions(automaton_dom(States,_,Start,End),NewTransitions,automaton_dom(States,NewTransitions,Start,End)).
 
 
