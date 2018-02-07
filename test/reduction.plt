@@ -71,3 +71,32 @@ test(parallel_eps_closure,[true(Res == [2,3,4,5])]) :-
   ordered_eps_closure(1,T,Res).
 
 :- end_tests(epsilon_closure).
+
+
+:- begin_tests(bin_2_new_state).
+
+test(simple_binstate_all_ones,[true(Res == 31)]) :-
+  Test = [1,1,1,1,1],
+  bin_2_new_state(binstate(Test),Res).
+
+test(simple_binstate_one_one,[true(Res == 16)]) :-
+  Test = [1,0,0,0,0],
+  bin_2_new_state(binstate(Test),Res).
+
+test(simple_binstate_no_ones,[true(Res == 0)]) :-
+  Test = [0,0,0,0,0],
+  bin_2_new_state(binstate(Test),Res).
+
+test(simple_binstate_one_one,[true(Res == 21)]) :-
+  Test = [1,0,1,0,1],
+  bin_2_new_state(binstate(Test),Res).
+
+test(simple_binstate_empty_list,[true(Res == 0)]) :-
+  Test = [],
+  bin_2_new_state(binstate(Test),Res).
+
+test(simple_binstate_no_list,[fail]) :-
+  Test = 10101,
+  bin_2_new_state(binstate(Test),_).
+
+:- end_tests(bin_2_new_state).
