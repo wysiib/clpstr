@@ -1,7 +1,8 @@
 :- module(reductions, [epsilon_reduce/2,
                       dfa_reduce/2,
                       epsilon_closure/3,
-                      ordered_eps_closure/3]).
+                      ordered_eps_closure/3,
+                      bin_2_new_state/2]).
 
 %! epsilon_reduce(OldDomain,ResultingDomain)
 % Takes a Domain and applies an epsilon reduction.
@@ -103,7 +104,36 @@ delete_epsilon_transitions([(A,Char,B)|T],[(A,Char,B)|Res]) :-
 
 
 % TODO Reduce NFA to DFA
-dfa_reduce(_,_) :- fail.
+dfa_reduce(_,_) :- !, fail.
+dfa_reduce(Dom,Res) :-
+  /*get_all_states(Dom,States),
+  length(States,L),
+  Pow is 2**L,
+  findall(X,between(1,Pow,X),NewStates),
+
+  This code does generate a Power set of States.
+  Whether it is really needed depends on the
+  implementation of the reduction.*/
+  doWonders(NewStates,Res,NewStates,Dom).
+
+
+bin_2_new_state(binstate([]),0) :- !.
+bin_2_new_state(binstate(L),ResState) :-
+  is_list(L),
+  length(L,Temp),
+  N is Temp - 1,
+  bin_2_new_state_recursive(L,0,N,ResState).
+
+bin_2_new_state_recursive([],Acc,_,Acc).
+bin_2_new_state_recursive([0|T],Acc,N,Res) :-
+  NewN is N - 1,
+  bin_2_new_state_recursive(T,Acc,NewN,Res).
+bin_2_new_state_recursive([1|T],Acc,N,Res) :-
+  NewN is N - 1,
+  NewAcc is 2 ** N + Acc,
+  bin_2_new_state_recursive(T,NewAcc,NewN,Res).
+
+
 
 
 %! epsilon_closure(StartState,TransitionList,EpsilonClosure) is det
@@ -133,6 +163,8 @@ epsilon_closure(S,[TH|TT],[Next|ResT]) :-
 epsilon_closure(S,[_|TT],Res) :-
   epsilon_closure(S,TT,Res),!.
 epsilon_closure(_,[],[]).
+
+
 
 %!ordered_eps_closure(StartState,TransitionList,EpsilonClosure) is det
 % Computes the epsilon closure and transforms it into an ordered set.
