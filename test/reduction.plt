@@ -100,3 +100,21 @@ test(simple_binstate_no_list,[fail]) :-
   bin_2_new_state(binstate(Test),_).
 
 :- end_tests(bin_2_new_state).
+
+
+:- begin_tests(gen_bin_states).
+
+test(gen0,true(Res == [[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]])) :-
+  Test = [1,2,3],
+  gen_bin_states(Test,Res).
+
+/*test(gen1,true(Res == [[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]])) :-
+  Test = [1,2,3],
+  gen_bin_states1(Test,Res).
+
+test(gen2,true(Res == [[0,0,0],[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1],[1,1,1]])) :-
+  Test = [1,2,3],
+  gen_bin_states2(Test,Res).*/
+
+
+:- end_tests(gen_bin_states).
