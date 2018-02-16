@@ -2,7 +2,10 @@
                       dfa_reduce/2,
                       epsilon_closure/3,
                       ordered_eps_closure/3,
-                      bin_2_new_state/2]).
+                      bin_2_new_state/2,
+                      gen_bin_states/2]).
+
+:- use_module(library(clpfd)).
 
 %! epsilon_reduce(OldDomain,ResultingDomain)
 % Takes a Domain and applies an epsilon reduction.
@@ -106,15 +109,26 @@ delete_epsilon_transitions([(A,Char,B)|T],[(A,Char,B)|Res]) :-
 % TODO Reduce NFA to DFA
 dfa_reduce(_,_) :- !, fail.
 dfa_reduce(Dom,Res) :-
-  /*get_all_states(Dom,States),
-  length(States,L),
+  get_all_states(Dom,States),
+  gen_bin_states(States,NewStates),
+  get_transition(Dom,Trans),
+  gen_transition_dict(Trans,Dict),
+  /*length(States,L),
   Pow is 2**L,
   findall(X,between(1,Pow,X),NewStates),
 
   This code does generate a Power set of States.
   Whether it is really needed depends on the
   implementation of the reduction.*/
-  doWonders(NewStates,Res,NewStates,Dom).
+  doWonders(NewStates,Res,NewStates,Dom,Dict).
+
+
+
+
+
+gen_bin_states(OldStates,ResStates) :-
+  length(OldStates,L),
+  findall(X,(length(X,L),X ins 0..1,labeling([],X)),ResStates).
 
 
 bin_2_new_state(binstate([]),0) :- !.
@@ -126,7 +140,7 @@ bin_2_new_state(binstate(L),ResState) :-
 
 bin_2_new_state_recursive([],Acc,_,Acc).
 bin_2_new_state_recursive([0|T],Acc,N,Res) :-
-  NewN is N - 1,
+  !, NewN is N - 1,
   bin_2_new_state_recursive(T,Acc,NewN,Res).
 bin_2_new_state_recursive([1|T],Acc,N,Res) :-
   NewN is N - 1,
