@@ -31,6 +31,9 @@ test_dom_conv:
 test_str_in:
 	swipl --quiet -l test/str_in.plt -t "run_tests"
 
+test_re_parser:
+	swipl --quiet -l test/reg_ex_parser.plt -t "run_tests"
+
 help:
 	@echo	'make tests - To run all tests.'
 	@echo 'make profile - To run all tests and return resource calculation.'
