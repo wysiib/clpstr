@@ -110,9 +110,8 @@ delete_epsilon_transitions([(A,Char,B)|T],[(A,Char,B)|Res]) :-
 dfa_reduce(_,_) :- !, fail.
 dfa_reduce(Dom,Res) :-
   get_all_states(Dom,States),
-  gen_bin_states(States,NewStates),
+  gen_pow_set(States,PowStates),
   get_transition(Dom,Trans),
-  gen_transition_dict(Trans,Dict),
   /*length(States,L),
   Pow is 2**L,
   findall(X,between(1,Pow,X),NewStates),
@@ -120,16 +119,31 @@ dfa_reduce(Dom,Res) :-
   This code does generate a Power set of States.
   Whether it is really needed depends on the
   implementation of the reduction.*/
-  doWonders(NewStates,Res,NewStates,Dom,Dict).
+  % generate new transitions:
+  generate_dfa_transitions(PowStates,Trans,[],NewDelta),
+  set_transitions(Dom,NewDelta,Res).
 
 
-
+generate_dfa_transitions([],Acc,Acc).
+generate_dfa_transitions([Start|PowT],Trans,Acc,Res) :-
+  findall(
+    (Start,Char,End),
+    (member(S,Start),findall(E,member((S,Char,E),Trans),End)),
+    NewDelta),
+  append(NewDelta,Acc,NewAcc),
+  generate_dfa_transitions(PowT,NewAcc,Res).
 
 
 gen_bin_states(OldStates,ResStates) :-
   length(OldStates,L),
   findall(X,(length(X,L),X ins 0..1,labeling([],X)),ResStates).
 
+gen_pow_set(Set,Res) :-
+  findall(Pow,pow_set(Set,Pow),Res).
+
+pow_set([],[]).
+pow_set([H|T], [H|P]) :- pow_set(T,P).
+pow_set([_|T], P) :- pow_set(T,P).
 
 bin_2_new_state(binstate([]),0) :- !.
 bin_2_new_state(binstate(L),ResState) :-
