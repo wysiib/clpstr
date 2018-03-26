@@ -14,7 +14,11 @@ test(alternative_no_brackets,[true(Res == set(a,b))]) :-
   parse_2_tree(Test,Res).
 
 test(quantity,[true(Res == quantity(*,a))]) :-
-  Test = "a*",
+  Test = `a*`,
+  parse_2_tree(Test,Res).
+
+test(simple_multi,[true(Res == quantity(*,a))]) :-
+  Test = `(a | b | c)*`,
   parse_2_tree(Test,Res).
 
 :- end_tests(tree_parser).

@@ -215,3 +215,9 @@ union(Dom1,Dom2,Res) :-
   combine_domain(AutomDom1,AdjDom2,CombiDom),
   UniDom = automaton_dom([1],[],[1],[1]),
   concatenation(UniDom,CombiDom,Res).
+
+
+% TODO
+union(L,_) :-
+  is_list(L),
+  fail.
