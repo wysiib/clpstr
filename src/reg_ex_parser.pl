@@ -1,4 +1,4 @@
-:- module(reg_ex_parser, [parse/2,
+:- module(reg_ex_parser, [generate/2,
                           parse_2_tree/2]).
 
 :- use_module('domains/basic_domains').
@@ -21,8 +21,8 @@ ws --> ``.
 
 
 % regular expressions
-expression0(Z) --> expression(X), expression(Y), {Z = (X,Y)}.
-expression0(X) --> expression(X).
+expression0([H|T]) --> expression(H), expression0(T).
+expression0([X]) --> expression(X).
 
 expression(set('|',X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
 expression(X) --> expression2(X).
@@ -36,9 +36,6 @@ expression3(X) --> `(`, ws, expression(X), ws, `)`.
 expression3(X) --> characters(X).
 
 
-parse(_,_) :- fail.
-
-
 parse_2_tree(RegEx,Tree) :-
   expression(Tree,RegEx,[]).
 
@@ -46,6 +43,13 @@ parse_2_tree(RegEx,Tree) :-
 generate(RegEx,ResDom) :-
   parse_2_tree(RegEx,Tree),
   build(Tree,ResDom).
+
+
+build_meta([],empty).
+build_meta([H|T],ResDom) :-
+  build(H,TempDom1),
+  build_meta(T,TempDom2),
+  concatenation(TempDom1,TempDom2,ResDom).
 
 
 build(string(X),ResDom) :-
