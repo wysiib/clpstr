@@ -13,6 +13,7 @@
                            adjust_domain/3,
                            combine_domain/3]).
 
+:- use_module(domain_conversion).
 
 %! any_range(Range) is det
 % Returns the range of characters represented by '.' in a regex
