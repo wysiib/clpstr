@@ -4,15 +4,17 @@
 :- use_module('domains/basic_domains').
 :- use_module('domains/basic_operations').
 
+/* ----- Generating an AST from a given regular expression  ----- */
+
 % ( | * + )
 % (a_b)* + (_)
 
 % characters
-characters(string(I)) --> char(D0), characters(D), {atom_codes(I, [D0|D])}.
+characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
 %characters([any|T]) --> `.`, !, characters(T).
-characters([D|T]) --> char(D), !, characters(T).
-characters([]) --> [].
-char(D) --> [D], {code_type(D, alpha)}.
+characters2([D|T]) --> char(D), !, characters2(T).
+characters2([]) --> [].
+char(D) --> [D], {code_type(D, alpha), (D>=65, D=<90); (D>=97, D=<122)}.
 
 
 % white space
@@ -21,8 +23,9 @@ ws --> ``.
 
 
 % regular expressions
-expression0([H|T]) --> expression(H), expression0(T).
-expression0([X]) --> expression(X).
+expression0([exp(X)]) --> expression(X).
+expression0([exp(H)|T]) --> expression(H), expression0(T).
+
 
 expression(set('|',X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
 expression(X) --> expression2(X).
@@ -35,18 +38,20 @@ expression2(X) --> expression3(X).
 expression3(X) --> `(`, ws, expression(X), ws, `)`.
 expression3(X) --> characters(X).
 
+/* ----- Generating the Constraint system from the AST  ----- */
 
 parse_2_tree(RegEx,Tree) :-
-  expression(Tree,RegEx,[]).
+  expression0(Tree,RegEx,[]).
 
 
 generate(RegEx,ResDom) :-
   parse_2_tree(RegEx,Tree),
-  build(Tree,ResDom).
+  build_meta(Tree,ResDom).
 
 
-build_meta([],empty).
-build_meta([H|T],ResDom) :-
+build_meta([],ResDom) :-
+  constant_string_domain("",ResDom).
+build_meta([exp(H)|T],ResDom) :-
   build(H,TempDom1),
   build_meta(T,TempDom2),
   concatenation(TempDom1,TempDom2,ResDom).
