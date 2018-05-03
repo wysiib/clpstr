@@ -5,32 +5,55 @@
 
 :- begin_tests(tree_parser).
 
-test(single_letter,[true(Res == set('|',string(a),string(b)))]) :-
+test(single_letter,[true(Res == [exp(string(a))])]) :-
   Test = `a`,
   parse_2_tree(Test,Res).
 
-test(alternative_brackets,[true(Res == set('|',string(a),string(b)))]) :-
+test(some_letters,[true(Res == [exp(string(abc))])]) :-
+  Test = `abc`,
+  parse_2_tree(Test,Res).
+
+test(alternative_brackets,[true(Res == [exp(set('|',string(a),string(b)))])]) :-
   Test = `(a | b)`,
   parse_2_tree(Test,Res).
 
-test(alternative_no_brackets,[true(Res == set('|',string(a),string(b)))]) :-
+test(alternative_no_brackets,[true(Res == [exp(set('|',string(a),string(b)))])]) :-
   Test = `a | b`,
   parse_2_tree(Test,Res).
 
-test(multi_alternative,[fixme('not ready yet')]) :- %true(Res == set('|',a,b))]) :-
+test(multi_alternative,[fixme('not ready yet')]) :- %true(Res == [exp(set('|',a,b))])]) :-
   Test = `a | b | c | d`,
   parse_2_tree(Test,_).
 
-test(quantity,[true(Res == quantity(*,string(a)))]) :-
+test(multi_alternative,[fixme('not ready yet')]) :- %true(Res == [exp(set('|',a,b))])]) :-
+  Test = `a | b | c | d`,
+  parse_2_tree(Test,_).
+
+test(quantity_star,[true(Res == [exp(quantity(*,string(a)))])]) :-
   Test = `a*`,
   parse_2_tree(Test,Res).
 
-test(quantity_nested,[true(Res == quantity(*,string(a)))]) :-
-  Test = `a*b*`,
-  trace,
+test(quantity_plus,[true(Res == [exp(quantity(+,string(a)))])]) :-
+  Test = `a+`,
   parse_2_tree(Test,Res).
 
-test(multi_operations,[true(Res == quantity(*,set('|',string(a),set('|',string(b),string(c)))))]) :-
+test(quantity_questionmark,[true(Res == [exp(quantity(?,string(a)))])]) :-
+  Test = `a?`,
+  parse_2_tree(Test,Res).
+
+test(quantity_nested,[true(Res == [exp(quantity(*,string(a))),exp(quantity(*,string(b)))])]) :-
+  Test = `a*b*`,
+  parse_2_tree(Test,Res).
+
+test(quantity_nested_multi,[true(Res == [exp(quantity(*,string(a))),exp(quantity(+,string(b))),exp(quantity(?,string(c)))])]) :-
+  Test = `a*b+c?`,
+  parse_2_tree(Test,Res).
+
+test(multi_operations,[true(Res == [exp(quantity(*,set('|',string(a),set('|',string(b),string(c)))))])]) :-
+  Test = `(a | b | c)*`,
+  parse_2_tree(Test,Res).
+
+test(long_term_example,[true(Res == [exp(quantity(*,set('|',string(a),set('|',string(b),string(c)))))])]) :-
   Test = `(a | b | c)*`,
   parse_2_tree(Test,Res).
 
