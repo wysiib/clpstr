@@ -5,6 +5,7 @@
                             repeat/4,
                             concatenation/3,
                             union/3,
+                            union/2,
                             calcse/4]).
 
 :- use_module(labeling).
@@ -187,8 +188,16 @@ concatenation(string_dom(S1),string_dom(S2),string_dom(S3)) :-
   string_concat(S1,S2,S3),
   !.
 concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
-  constant_string_domain_to_automaton(A1,automaton_dom(States1,Delta1,Start1,End1)),
-  constant_string_domain_to_automaton(A2,automaton_dom(States2,Delta2,Start2,End2)),
+  constant_string_domain_to_automaton(A1,AutomDom1),
+  get_all_states(AutomDom1,States1),
+  get_transition(AutomDom1,Delta1),
+  get_start_states(AutomDom1,Start1),
+  get_end_states(AutomDom1,End1),
+  constant_string_domain_to_automaton(A2,AutomDom2),
+  get_all_states(AutomDom2,States2),
+  get_transition(AutomDom2,Delta2),
+  get_start_states(AutomDom2,Start2),
+  get_end_states(AutomDom2,End2),
   length(States1,L),
   maplist(plus(L),States2,States2Star), % create new state space.
   flatten([States1,States2Star],States3),
@@ -217,7 +226,27 @@ union(Dom1,Dom2,Res) :-
   concatenation(UniDom,CombiDom,Res).
 
 
-% TODO
-union(L,_) :-
-  is_list(L),
-  fail.
+%! union(InputDomainList,ResultingDomain) is det
+% Builds the union of all domains contained in InputDomainList.
+% Thereby a new start state is created, but the old final states are kept.
+% The input domains in the list can either be strings or automatons.
+% @InputDomainList is the list of domains on to apply the union operator.
+% @ResultingDomain is the union of all domains in InputDomainList.
+union([H|T],Res) :-
+  constant_string_domain_to_automaton(H,AutomDomH),
+  union_recursive(T,AutomDomH,CombiDom),
+  UniDom = automaton_dom([1],[],[1],[1]),
+  concatenation(UniDom,CombiDom,Res).
+
+
+%! union(InputDomainList,Accumulator,ResultingDomain) is det
+% Helper predicate for union/2. Recursively builds a new Domain from the
+% InputDomainList by putting together all states and adjusting the transitions
+% to create one cohesive automaton.
+union_recursive([],AccDom,AccDom).
+union_recursive([HDom|T],AccDom,ResDom) :-
+  get_all_states(AccDom,AccStates),
+  length(AccStates,L),
+  adjust_domain(L,HDom,AdjHDom),
+  combine_domain(AccDom,AdjHDom,CombiDom),
+  union_recursive(T,CombiDom,ResDom).
