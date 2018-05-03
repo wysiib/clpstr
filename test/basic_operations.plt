@@ -5,7 +5,7 @@
 
 /**
 * This unit contains all the basic basic_operations tests, but intersection.
-* basic_operations intersection tests are in an extra plt. 
+* basic_operations intersection tests are in an extra plt.
 */
 
 
@@ -103,7 +103,8 @@ test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range
 
 :- end_tests(repeat).
 
-:- begin_tests(union).
+
+:- begin_tests(union_3).
 
 test(string_union,[true(Res == automaton_dom([1,2,3,4,5],[(1,epsilon,2),(1,epsilon,4),(2,range(97,97),3),(4,range(98,98),5)],[1],[3,5]))]) :-
   constant_string_domain("a",D1),
@@ -115,4 +116,24 @@ test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4,5],[(1,epsilon,2
   any_char_domain(D2),
   union(D1,D2,Res).
 
-:- end_tests(union).
+:- end_tests(union_3).
+
+
+:- begin_tests(union_2).
+
+test(string_union,[true(Res == automaton_dom([1,2,3,4,5,6,7],[(1,epsilon,2),(1,epsilon,4),(1,epsilon,6),(2,range(97,97),3),(4,range(98,98),5),(6,range(99,99),7)],[1],[3,5,7]))]) :-
+  constant_string_domain("a",D1),
+  constant_string_domain("b",D2),
+  constant_string_domain("c",D3),
+  union([D1,D2,D3],Res).
+
+test(multi_union,[true(Res == automaton_dom([1,2,3,4,5,6,7],[(1,epsilon,2),(1,epsilon,4),(1,epsilon,6),(2,range(97,97),3),(4,range(32,126),5),(6,range(98,98),7)],[1],[3,5,7]))]) :-
+  constant_string_domain("a",D1),
+  any_char_domain(D2),
+  single_char_domain("b",D3),
+  union([D1,D2,D3],Res).
+
+test(no_union,[fail]) :-
+  union([],_).
+
+:- end_tests(union_2).
