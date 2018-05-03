@@ -26,6 +26,7 @@
 - [ ] Fix epsilon_closure, see 2. note in documentary.
 - [ ] add n-union. Union with a list.
 - [ ] add empty automaton domain.
+- [ ] adjust_domain nochmal angucken wegen doppeltem choicepoint.
 
 ## read me
 - [ ] add usage part
