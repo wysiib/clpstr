@@ -30,12 +30,12 @@ expression0([exp(H)|T]) --> expression(H), expression0(T).
 expression(set('|',X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
 expression(X) --> expression2(X).
 
-expression2(quantity(*,X)) --> expression3(X), ws, `*`.
-expression2(quantity(+,X)) --> expression3(X), ws, `+`.
-expression2(quantity(?,X)) --> expression3(X), ws, `?`.
+expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
+expression2(quantity(+,X)) --> expression3(X), ws, `+`, !.
+expression2(quantity(?,X)) --> expression3(X), ws, `?`, !.
 expression2(X) --> expression3(X).
 
-expression3(X) --> `(`, ws, expression(X), ws, `)`.
+expression3(X) --> `(`, ws, expression(X), ws, `)`, !.
 expression3(X) --> characters(X).
 
 /* ----- Generating the Constraint system from the AST  ----- */
@@ -59,6 +59,9 @@ build_meta([exp(H)|T],ResDom) :-
 
 build(string(X),ResDom) :-
   constant_string_domain(X,ResDom).
+/*build(set('|',X),ResDom) :-
+  is_list(X), TODO
+  */
 build(set('|',X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
