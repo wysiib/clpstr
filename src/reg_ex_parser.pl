@@ -12,8 +12,8 @@
 % characters
 characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
 %characters([any|T]) --> `.`, !, characters(T).
+characters2([D]) --> char(D), !.
 characters2([D|T]) --> char(D), !, characters2(T).
-characters2([]) --> [].
 char(D) --> [D], {code_type(D, alpha), (D>=65, D=<90); (D>=97, D=<122)}.
 
 
@@ -23,10 +23,8 @@ ws --> ``.
 
 
 % regular expressions
-expression0([exp(X)]) --> expression(X).
-expression0([exp(H)|T]) --> expression(H), expression0(T).
-
-
+%expression0([exp(X)]) --> expression(X).
+expression(concat(X,Y)) --> expression2(X), ws, expression(Y).
 expression(set('|',X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
 expression(X) --> expression2(X).
 
@@ -35,13 +33,13 @@ expression2(quantity(+,X)) --> expression3(X), ws, `+`, !.
 expression2(quantity(?,X)) --> expression3(X), ws, `?`, !.
 expression2(X) --> expression3(X).
 
-expression3(X) --> `(`, ws, expression(X), ws, `)`, !.
+expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
 expression3(X) --> characters(X).
 
 /* ----- Generating the Constraint system from the AST  ----- */
 
 parse_2_tree(RegEx,Tree) :-
-  expression0(Tree,RegEx,[]).
+  expression(Tree,RegEx,[]).
 
 
 generate(RegEx,ResDom) :-
@@ -62,6 +60,10 @@ build(string(X),ResDom) :-
 /*build(set('|',X),ResDom) :-
   is_list(X), TODO
   */
+build(concat(X,Y),ResDom) :-
+  build(X,TempDom1),
+  build(Y,TempDom2),
+  concatenation(TempDom1,TempDom2,ResDom).
 build(set('|',X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
