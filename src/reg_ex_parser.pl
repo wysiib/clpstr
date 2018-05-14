@@ -60,6 +60,12 @@ build(string(X),ResDom) :-
 /*build(set('|',X),ResDom) :-
   is_list(X), TODO
   */
+build(concat(string(X),Y),ResDom) :-
+  string_check(concat(X,Y),StringList),
+  atomic_list_concat(StringList,String),
+  % NOTE String is here an Atom not a string.
+  % Not relevant now, but maybe in the future!
+  constant_string_domain(String,ResDom).
 build(concat(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
@@ -78,3 +84,7 @@ build(quantity(+,X),ResDom) :-
 build(quantity(?,X),ResDom) :-
   build(X,TempDom),
   repeat(TempDom,0,1,ResDom).
+
+string_check(concat(string(X),string(Y)),[X,Y]).
+string_check(concat(string(X),Y),[X|T]) :-
+  string_check(Y,T).
