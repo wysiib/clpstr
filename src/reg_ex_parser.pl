@@ -9,8 +9,9 @@
 % characters
 %characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
 characters(char(I)) --> char_or_digit(D), !, {atom_codes(I, D)}.
-characters(any) --> `.`.
-characters(nonliteral(D)) --> nonlit(D), !.
+characters(any) --> `.`. % any
+characters(char(I)) --> `_`, {atom_codes(I, [32])}. % space
+%characters(nonliteral(D)) --> nonlit(D), !. % TODO add some
 %characters2([D|T]) --> char(D), !, characters2(T).
 char_or_digit([D]) --> [D], {code_type(D, alnum)}.
 % not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
