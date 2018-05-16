@@ -26,8 +26,8 @@ ws --> ``.
 
 % regular expressions
 %expression0([exp(X)]) --> expression(X).
-expression(concat(X,Y)) --> expression2(X), ws, expression(Y).
-expression(set(X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
+expression(concat(X,Y)) --> expression2(X), ws, expression(Y), !.
+expression(set(X,Y)) --> expression2(X), ws, `|`, !, ws, expression(Y).
 expression(X) --> expression2(X).
 
 expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
