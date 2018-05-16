@@ -6,15 +6,17 @@
 
 /* ----- Generating an AST from a given regular expression  ----- */
 
-% ( | * + )
-% (a_b)* + (_)
-
 % characters
-characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
-%characters([any|T]) --> `.`, !, characters(T).
-characters2([D]) --> char(D), !.
-characters2([D|T]) --> char(D), !, characters2(T).
-char(D) --> [D], {code_type(D, alpha), (D>=65, D=<90); (D>=97, D=<122)}.
+%characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
+characters(char(I)) --> char_or_digit(D), !, {atom_codes(I, D)}.
+characters(any) --> `.`.
+characters(nonliteral(D)) --> nonlit(D), !.
+%characters2([D|T]) --> char(D), !, characters2(T).
+char_or_digit([D]) --> [D], {code_type(D, alnum)}.
+% not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
+% letters like ö,ü,a and so on.
+% (D>=48, D=<57) for digits
+nonlit(any) --> `.`.
 
 
 % white space
@@ -25,7 +27,7 @@ ws --> ``.
 % regular expressions
 %expression0([exp(X)]) --> expression(X).
 expression(concat(X,Y)) --> expression2(X), ws, expression(Y).
-expression(set('|',X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
+expression(set(X,Y)) --> expression2(X), ws, `|`, ws, expression(Y).
 expression(X) --> expression2(X).
 
 expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
@@ -34,7 +36,7 @@ expression2(quantity(?,X)) --> expression3(X), ws, `?`, !.
 expression2(X) --> expression3(X).
 
 expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
-expression3(X) --> characters(X).
+expression3(X) --> characters(X), !.
 
 /* ----- Generating the Constraint system from the AST  ----- */
 
@@ -55,13 +57,15 @@ build_meta([exp(H)|T],ResDom) :-
   concatenation(TempDom1,TempDom2,ResDom).
 
 
-build(string(X),ResDom) :-
-  constant_string_domain(X,ResDom).
-/*build(set('|',X),ResDom) :-
+build(char(X),ResDom) :-
+  single_char_domain(X,ResDom).
+build(any,ResDom) :-
+  any_char_domain(ResDom).
+/*build(set(X),ResDom) :-
   is_list(X), TODO
   */
-build(concat(string(X),Y),ResDom) :-
-  string_check(concat(X,Y),StringList),
+build(concat(char(X),Y),ResDom) :-
+  string_check(concat(char(X),Y),StringList),
   atomic_list_concat(StringList,String),
   % NOTE String is here an Atom not a string.
   % Not relevant now, but maybe in the future!
@@ -70,7 +74,7 @@ build(concat(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
   concatenation(TempDom1,TempDom2,ResDom).
-build(set('|',X,Y),ResDom) :-
+build(set(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
   union(TempDom1,TempDom2,ResDom).
@@ -85,6 +89,6 @@ build(quantity(?,X),ResDom) :-
   build(X,TempDom),
   repeat(TempDom,0,1,ResDom).
 
-string_check(concat(string(X),string(Y)),[X,Y]).
-string_check(concat(string(X),Y),[X|T]) :-
+string_check(concat(char(X),char(Y)),[X,Y]).
+string_check(concat(char(X),Y),[X|T]) :-
   string_check(Y,T).
