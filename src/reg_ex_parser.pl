@@ -4,6 +4,69 @@
 :- use_module('domains/basic_domains').
 :- use_module('domains/basic_operations').
 
+/* ----- How to use the regular expression parser  ----- */
+/*
+      This prolog module is a parser for regular expressions, in
+      the following refered to as regex. The module is seperated into two
+      parts. First the parser and secondly the interpreter.
+      You can specifically call the parser by using the parse_2_tree/2
+      predicate. It will take a regex in backticks in its first argument
+      and the resulting AST in its second. By using a variable in its second
+      argument the parser will unify the resulting AST of the given
+      regex with the variable. Note that the regex must be ground for
+      parse_2_tree/2 to work.
+
+      If you do not need or want the AST you can use generate/2 to generate
+      an automaton from your regex. Similary to the parser, the first argument
+      is again the regex in backticks and the second is the resulting automaton.
+      A variable in the second argument will be unified with the correct
+      automaton by the interpreter.
+
+      You can use white space in the regex at your own convinience. Thus
+      keeping your regex as tidy and readable as you want. It is not
+      registered as part of the regex. Use _ underscore instead, if you
+      specifically want space as a character.
+
+      Currently the parser supports the following:
+      - The following characters:
+          - all standard lower and upper case letters, as well some special
+            letters like ä, á, â. See SWI prolog char_type alpha for more
+            information.
+          - digits (0 - 9)
+          - The . is used to represent an arbitrary character.
+          - The _ represents the space character, " ", in an regex.
+      - All quantity operations:
+        Repeats the given regex a set amount of times.
+          - * for zero to infinit repeats
+          - + for one to infinit repeats
+          - ? for one or zero repeats
+      - Alternatives:
+        Divide multiple regex and add choice points between them by using |.
+      - Brackets:
+        Use brackets to clarify the use of operations.
+
+      Thereby the operator precedence is:
+        1. brackets
+        2. quantity operations ( *, +, ? )
+        3. alternatives seperated by |
+
+      Thus the regex `ab*` would define the language a, ab, abb, abbb, abbbb, ...
+
+      Example:
+
+      Let's take the regex `(ab)*c*` as an example call. It defines the
+      language {ab^n c^m | n,m >= 0}. Thus an arbitrary number of ab's
+      followed by an arbitrary numbers of c's.
+
+      Parser:
+      The call parse_2_tree(`(ab)*c*`, A) will unify A with the term
+      A = concat(quantity(*, concat(char(a), char(b))), quantity(*, char(c))).
+
+      Interpreter:
+      The call generate(`(ab)*c*`, A) will TODO
+*/
+
+
 /* ----- Generating an AST from a given regular expression  ----- */
 
 % characters
