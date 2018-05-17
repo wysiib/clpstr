@@ -6,6 +6,7 @@
                       gen_bin_states/2]).
 
 :- use_module(library(clpfd)).
+:- use_module(basic_domains).
 
 %! epsilon_reduce(OldDomain,ResultingDomain)
 % Takes a Domain and applies an epsilon reduction.

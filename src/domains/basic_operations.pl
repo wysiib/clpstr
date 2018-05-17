@@ -8,6 +8,7 @@
                             union/2,
                             calcse/4]).
 
+:- use_module(basic_domains).
 :- use_module(labeling).
 :- use_module(domain_conversion).
 
