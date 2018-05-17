@@ -74,7 +74,7 @@
 characters(char(I)) --> char_or_digit(D), !, {atom_codes(I, D)}.
 characters(any) --> `.`. % any
 characters(char(I)) --> `_`, {atom_codes(I, [32])}. % space
-%characters(nonliteral(D)) --> nonlit(D), !. % TODO add some
+%characters(nonliteral(D)) --> nonlit(D), !. % TODO add some more
 %characters2([D|T]) --> char(D), !, characters2(T).
 char_or_digit([D]) --> [D], {code_type(D, alnum)}.
 % not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
@@ -110,7 +110,9 @@ parse_2_tree(RegEx,Tree) :-
 
 generate(RegEx,ResDom) :-
   parse_2_tree(RegEx,Tree),
-  build_meta(Tree,ResDom).
+  print(Tree),
+  nl,
+  build(Tree,ResDom).
 
 
 build_meta([],ResDom) :-
@@ -122,12 +124,9 @@ build_meta([exp(H)|T],ResDom) :-
 
 
 build(char(X),ResDom) :-
-  single_char_domain(X,ResDom).
+  !, single_char_domain(X,ResDom).
 build(any,ResDom) :-
-  any_char_domain(ResDom).
-/*build(set(X),ResDom) :-
-  is_list(X), TODO
-  */
+  !, any_char_domain(ResDom).
 build(concat(char(X),Y),ResDom) :-
   string_check(concat(char(X),Y),StringList),
   atomic_list_concat(StringList,String),
@@ -138,6 +137,9 @@ build(concat(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
   concatenation(TempDom1,TempDom2,ResDom).
+/*build(set(X),ResDom) :-
+  set_check(set(X),TempDomList),
+  union(TempDomList,ResDom).*/
 build(set(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
@@ -156,3 +158,8 @@ build(quantity(?,X),ResDom) :-
 string_check(concat(char(X),char(Y)),[X,Y]).
 string_check(concat(char(X),Y),[X|T]) :-
   string_check(Y,T).
+
+set_check(set(X,Y),[]) :-
+  X = set(_,_),
+  Y = set(_,_),
+  fail.
