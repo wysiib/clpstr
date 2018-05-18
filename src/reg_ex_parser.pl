@@ -145,14 +145,14 @@ build(set(X,Y),ResDom) :-
   build(Y,TempDom2),
   union(TempDom1,TempDom2,ResDom).
 build(quantity(*,X),ResDom) :-
-  build(X,TempDom),
+  !,build(X,TempDom),
   repeat(TempDom,ResDom).
 build(quantity(+,X),ResDom) :-
-  build(X,TempDom),
+  !,build(X,TempDom),
   repeat(TempDom,RepeatDom),
   concatenation(TempDom,RepeatDom,ResDom).
 build(quantity(?,X),ResDom) :-
-  build(X,TempDom),
+  !,build(X,TempDom),
   repeat(TempDom,0,1,ResDom).
 
 
