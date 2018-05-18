@@ -102,6 +102,7 @@ expression2(X) --> expression3(X).
 expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
 expression3(X) --> characters(X), !.
 
+
 /* ----- Generating the Constraint system from the AST  ----- */
 
 parse_2_tree(RegEx,Tree) :-
@@ -110,8 +111,7 @@ parse_2_tree(RegEx,Tree) :-
 
 generate(RegEx,ResDom) :-
   parse_2_tree(RegEx,Tree),
-  print(Tree),
-  nl,
+  %nl,print(Tree),nl,
   build(Tree,ResDom).
 
 
@@ -128,17 +128,17 @@ build(char(X),ResDom) :-
 build(any,ResDom) :-
   !, any_char_domain(ResDom).
 build(concat(char(X),Y),ResDom) :-
-  string_check(concat(char(X),Y),StringList),
-  atomic_list_concat(StringList,String),
-  % NOTE String is here an Atom not a string.
-  % Not relevant now, but maybe in the future!
+  string_check(concat(char(X),Y),CharList), !,
+  string_chars(String,CharList),
   constant_string_domain(String,ResDom).
 build(concat(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
   concatenation(TempDom1,TempDom2,ResDom).
-/*build(set(X),ResDom) :-
-  set_check(set(X),TempDomList),
+/*build(set(X,Y),ResDom) :-
+  X = set(_,_);
+  Y = set(_,_),!,
+  set_collect(set(X,Y),TempDomList),
   union(TempDomList,ResDom).*/
 build(set(X,Y),ResDom) :-
   build(X,TempDom1),
@@ -155,11 +155,7 @@ build(quantity(?,X),ResDom) :-
   build(X,TempDom),
   repeat(TempDom,0,1,ResDom).
 
+
 string_check(concat(char(X),char(Y)),[X,Y]).
 string_check(concat(char(X),Y),[X|T]) :-
   string_check(Y,T).
-
-set_check(set(X,Y),[]) :-
-  X = set(_,_),
-  Y = set(_,_),
-  fail.
