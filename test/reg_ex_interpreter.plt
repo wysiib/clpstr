@@ -116,31 +116,73 @@ test(multi_operations,[true(Actual == Expected)]) :-
 
 :- end_tests(generater_reg_ex_operations).
 
-/*
+
 :- begin_tests(generater_nesting).
 
-test(brackets_nested_single_letter,[true(Res == concat(char(a),char(b)))]) :-
+test(brackets_nested_single_letter,[true(Actual == Expected)]) :-
   Test = `(a)(b)`,
-  parse_2_tree(Test,Res).
+  constant_string_domain("ab",Expected),
+  generate(Test,Actual).
 
-test(alternatives_nested,[true(Res == set(char(a),concat(quantity(*,char(b)),char(a))))]) :-
+test(alternatives_nested,[true(Actual == Expected)]) :-
   Test = `a | b*a`,
-  parse_2_tree(Test,Res).
+  single_char_domain("a",A),
+  single_char_domain("b",B),
+  repeat(B,RepeatB),
+  concatenation(RepeatB,A,TempDom),
+  union(A,TempDom,Expected),
+  generate(Test,Actual).
 
-test(alternatives_brackets_nested,[true(Res == concat(set(char(a),char(b)),set(char(a),char(b))))]) :-
+test(alternatives_brackets_nested,[true(Actual == Expected)]) :-
   Test = `(a | b) (a | b)`,
-  parse_2_tree(Test,Res).
+  single_char_domain("a",A),
+  single_char_domain("b",B),
+  union(A,B,TempDom),
+  concatenation(TempDom,TempDom,Expected),
+  generate(Test,Actual).
 
-test(quantity_nested,[true(Res == concat(quantity(*,char(a)),quantity(*,char(b))))]) :-
+test(quantity_nested,[true(Actual == Expected)]) :-
   Test = `a*b*`,
-  parse_2_tree(Test,Res).
+  single_char_domain("a",A),
+  repeat(A,TempDomA),
+  single_char_domain("b",B),
+  repeat(B,TempDomB),
+  concatenation(TempDomA,TempDomB,Expected),
+  generate(Test,Actual).
 
-test(quantity_nested_multi,[true(Res == concat(quantity(*,char(a)),concat(quantity(+,char(b)),quantity(?,char(c)))))]) :-
+test(quantity_nested_multi,[true(Actual == Expected)]) :-
   Test = `a*b+c?`,
-  parse_2_tree(Test,Res).
+  single_char_domain("a",A),
+  repeat(A,TempA),
+  single_char_domain("b",B),
+  repeat(B,TempDom1),
+  concatenation(B,TempDom1,TempB),
+  single_char_domain("c",C),
+  repeat(C,0,1,TempC),
+  concatenation(TempA,TempB,TempDom2),
+  concatenation(TempDom2,TempC,Expected),
+  generate(Test,Actual).
 
-test(long_term_example,[true(Res == concat(quantity(*,set(char(a),set(char(b),char(c)))),concat(set(char(a),char(b)),concat(char(a),concat(quantity(*,char(b)),concat(quantity(+,char(c)),char(a)))))))]) :-
+test(long_term_example,[true(Actual == Expected)]) :-
   Test = `(a | b | c)* (a | b) ab*c+a`,
-  parse_2_tree(Test,Res).
+  % (a | b | c)* --> TempDomTerm1
+  single_char_domain("a",A),
+  single_char_domain("b",B),
+  single_char_domain("c",C),
+  union([A,B,C],UnionABC),
+  repeat(UnionABC,TempDomTerm1),
+  % (a | b) --> TempDomTerm2
+  union(A,B,TempDomTerm2),
+  % ab*c+a --> TempDomTerm3
+  repeat(B,RepeatB),
+  concatenation(A,RepeatB,TempDom1),
+  repeat(C,RepeatC),
+  concatenation(C,RepeatC,TempDom2),
+  concatenation(TempDom2,A,TempDom3),
+  concatenation(TempDom1,TempDom3,TempDomTerm3),
+  %  TempDomTerm1 TempDomTerm2 TempDomTerm3 --> Expected
+  concatenation(TempDomTerm1,TempDomTerm2,TempDomTerm12),
+  concatenation(TempDomTerm12,TempDomTerm3,Expected),
+  generate(Test,Actual).
 
-:- end_tests(generater_nesting).*/
+:- end_tests(generater_nesting).
