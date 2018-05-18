@@ -137,3 +137,26 @@ test(no_union,[fail]) :-
   union([],_).
 
 :- end_tests(union_2).
+
+
+:-begin_tests(union_2_union3_comparision).
+
+test(un2_un3_csd,[true(Un2 == Un3)]) :-
+  constant_string_domain("a",D1),
+  constant_string_domain("b",D2),
+  union(D1,D2,Un3),
+  union([D1,D2],Un2).
+
+test(un2_un3_acd,[true(Un2 == Un3)]) :-
+  any_char_domain(D1),
+  any_char_domain(D2),
+  union(D1,D2,Un3),
+  union([D1,D2],Un2).
+
+test(un2_un3_scd,[true(Un2 == Un3)]) :-
+  single_char_domain("a",D1),
+  single_char_domain("b",D2),
+  union(D1,D2,Un3),
+  union([D1,D2],Un2).
+
+:- end_tests(union_2_union3_comparision).
