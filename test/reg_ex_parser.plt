@@ -96,9 +96,3 @@ test(long_term_example,[true(Res == concat(quantity(*,set(char(a),set(char(b),ch
   parse_2_tree(Test,Res).
 
 :- end_tests(tree_parser_nesting).
-
-
-:- begin_tests(generater).
-
-
-:- end_tests(generater).
