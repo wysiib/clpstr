@@ -135,11 +135,11 @@ build(concat(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
   concatenation(TempDom1,TempDom2,ResDom).
-/*build(set(X,Y),ResDom) :-
+build(set(X,Y),ResDom) :-
   X = set(_,_);
   Y = set(_,_),!,
   set_collect(set(X,Y),TempDomList),
-  union(TempDomList,ResDom).*/
+  union(TempDomList,ResDom).
 build(set(X,Y),ResDom) :-
   build(X,TempDom1),
   build(Y,TempDom2),
@@ -159,3 +159,20 @@ build(quantity(?,X),ResDom) :-
 string_check(concat(char(X),char(Y)),[X,Y]).
 string_check(concat(char(X),Y),[X|T]) :-
   string_check(Y,T).
+
+
+set_collect(set(set(L1,R1),set(L2,R2)),ResList) :-
+  !, set_collect(set(L1,R1),List1),
+  set_collect(set(L2,R2),List2),
+  append(List1,List2,ResList).
+set_collect(set(set(L1,R1),X),ResList) :-
+  !, set_collect(set(L1,R1),TempList),
+  build(X,BuildX),
+  append([BuildX],TempList,ResList).
+set_collect(set(X,set(L2,R2)),ResList) :-
+  !, build(X,BuildX),
+  set_collect(set(L2,R2),TempList),
+  append([BuildX],TempList,ResList).
+set_collect(set(X,Y),[BuildX,BuildY]) :-
+  build(X,BuildX),
+  build(Y,BuildY).
