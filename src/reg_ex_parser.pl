@@ -115,12 +115,12 @@ generate(RegEx,ResDom) :-
   build(Tree,ResDom).
 
 
-build_meta([],ResDom) :-
+/*build_meta([],ResDom) :-
   constant_string_domain("",ResDom).
 build_meta([exp(H)|T],ResDom) :-
   build(H,TempDom1),
   build_meta(T,TempDom2),
-  concatenation(TempDom1,TempDom2,ResDom).
+  concatenation(TempDom1,TempDom2,ResDom).*/
 
 
 build(char(X),ResDom) :-

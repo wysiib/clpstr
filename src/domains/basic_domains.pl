@@ -83,6 +83,18 @@ get_start_states(automaton_dom(_,_,Start,_),Start).
 % @ReturnStates is the List of end states of AutomatonDom.
 get_end_states(automaton_dom(_,_,_,End),End).
 
+%! set_all_states(InputDomain,NewStates,OutputDomain) is det
+% Takes an automaton_dom and a list of States and  makes them the automaton's
+% states. Only use states that are compatible with original automaton's
+% start and end state lists!
+% Returns the InputDomain with NewStates as states.
+% InputDomain must be initiialized to an automaton_dom.
+% @InputDomain is an automaton_dom.
+% @NewStates is a list of states.
+% @OutputDomain is the resulting automaton_dom.
+set_all_states(automaton_dom(_,Delta,Start,End),NewStates,automaton_dom(NewStates,Delta,Start,End)).
+% NOTE if this ever breaks, test whether End and Start are part of NewStates.
+% For example by using maplist(member()).
 
 %! set_end_states(InputDomain,NewEndStates,OutputDomain) is det
 % Takes an automaton_dom and a list of States and  makes them Endstates.

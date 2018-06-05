@@ -3,7 +3,8 @@
                       epsilon_closure/3,
                       ordered_eps_closure/3,
                       bin_2_new_state/2,
-                      gen_bin_states/2]).
+                      gen_bin_states/2,
+                      breadth_first_state_search/3]).
 
 :- use_module(library(clpfd)).
 :- use_module(basic_domains).
@@ -206,3 +207,28 @@ epsilon_closure(_,[],[]).
 ordered_eps_closure(State,Trans,Res) :-
   epsilon_closure(State,Trans,Clo),
   list_to_ord_set(Clo,Res).
+
+
+
+breadth_first_state_search(Dom,Start,Res) :-
+  get_all_states(Dom,States),
+  ord_memberchk(Start,States),
+  breadth_first_state_search_acc(Dom,[Start],[Start],[Start],Res).
+
+
+breadth_first_state_search_acc(_,[],_,Acc,Acc) :- !.
+breadth_first_state_search_acc(Dom,Remain,Seen,Acc,Res) :-
+  get_transition(Dom,Trans),
+  findall(To,(member(R,Remain),member((R,_,To),Trans),\+member(To,Seen)),Destination),!, % Is there a transition?
+  ord_add_element(Remain,Seen,NewSeen), % Destination is now visited
+  ord_union(Acc,Destination,NewAcc), % collect Destination in Accumulator
+  breadth_first_state_search_acc(Dom,Destination,NewSeen,NewAcc,Res).
+
+
+/*depth_first_transition_search(_,_,[],_,Acc,Acc).
+depth_first_transition_search(Dom,Remain,Seen,Acc,Res) :-
+  get_transition(Dom,Trans),
+  findall((Start,_,To),member((Start,_,To),Trans),Transitions), !, % Is there a transition?
+  ord_selectchk(Destination,States,NewStates), % Destination is now visited
+  ord_add_element(Acc,Destination,NewAcc), % collect Destination in Accumulator
+  depth_first_state_search(Dom,Destination,,NewAcc,Res).*/
