@@ -24,9 +24,12 @@
 - [ ] add tests for adjust_transition and adjust_automaton_dom.
 - [ ] add DFA reduction.
 - [ ] Fix epsilon_closure, see 2. note in documentary.
-- [ ] add n-union. Union with a list.
+- [x] add n-union. Union with a list.
 - [ ] add empty automaton domain.
 - [ ] adjust_domain nochmal angucken wegen doppeltem choicepoint.
+
+## Tests
+- [ ] add "Actual == Expected" to all tests. (?)
 
 ## read me
 - [ ] add usage part
