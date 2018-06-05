@@ -161,3 +161,47 @@ test(no_states,[fail]) :-
   breadth_first_state_search(Test,1,_).
 
 :- end_tests(bfss).
+
+
+:- begin_tests(remove_unused).
+
+test(one_state,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1],[],[1],[1]),
+  Expected = automaton_dom([1],[],[1],[1]),
+  remove_unused(Test,Actual).
+
+test(three_states_no_transitions,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3],[],[1],[1]),
+  Expected = automaton_dom([1,2,3],[],[1],[1]),
+  remove_unused(Test,Actual).
+
+test(three_starts_no_transitions,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3],[],[1,2,3],[1]),
+  Expected = automaton_dom([1,2,3],[],[1,2,3],[1]),
+  remove_unused(Test,Actual).
+
+test(three_ends_no_transitions,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3],[],[1],[1,2,3]),
+  Expected = automaton_dom([1],[],[1],[1]),
+  remove_unused(Test,Actual).
+
+test(five_states,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5],[(1,a,2),(2,c,3),(1,d,4),(4,e,5)],[1],[3,5]),
+  Expected = automaton_dom([1,2,3,4,5],[(1,a,2),(2,c,3),(1,d,4),(4,e,5)],[1],[3,5]),
+  remove_unused(Test,Actual).
+
+test(five_states_with_cycles,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2)],[1],[3,5]),
+  Expected = automaton_dom([1,2,3,4,5],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2)],[1],[3,5]),
+  remove_unused(Test,Actual).
+
+test(five_states_with_cycles_and_unreachables,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5,6,7],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2),(6,h,7)],[1],[3,5]),
+  Expected = automaton_dom([1,2,3,4,5],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2)],[1],[3,5]),
+  remove_unused(Test,Actual).
+
+test(no_states,[fail]) :-
+  Test = automaton_dom([],[],[],[]),
+  remove_unused(Test,_).
+
+:- end_tests(remove_unused).
