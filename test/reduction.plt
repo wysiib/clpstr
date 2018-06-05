@@ -127,3 +127,37 @@ test(simple_three_state_nfa,[fixme('not ready yet. Need to implement DFA to NFA 
   dfa_reduce(Test,_).
 
 :- end_tests(nfa_2_dfa).
+
+
+:- begin_tests(bfss).
+
+test(one_state,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1],[],[1],[1]),
+  Expected = [1],
+  breadth_first_state_search(Test,1,Actual).
+
+test(three_states_no_transitions,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3],[],[1],[1]),
+  Expected = [1],
+  breadth_first_state_search(Test,1,Actual).
+
+test(five_states,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5],[(1,a,2),(2,c,3),(1,d,4),(4,e,5)],[1],[3,5]),
+  Expected = [1,2,3,4,5],
+  breadth_first_state_search(Test,1,Actual).
+
+test(five_states_with_cycles,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2)],[1],[3,5]),
+  Expected = [1,2,3,4,5],
+  breadth_first_state_search(Test,1,Actual).
+
+test(five_states_with_cycles_and_unreachables,[true(Actual == Expected)]) :-
+  Test = automaton_dom([1,2,3,4,5,6,7],[(1,a,2),(2,b,1),(2,c,3),(1,d,4),(4,e,5),(5,g,2),(6,h,7)],[1],[3,5]),
+  Expected = [1,2,3,4,5],
+  breadth_first_state_search(Test,1,Actual).
+
+test(no_states,[fail]) :-
+  Test = automaton_dom([],[],[],[]),
+  breadth_first_state_search(Test,1,_).
+
+:- end_tests(bfss).
