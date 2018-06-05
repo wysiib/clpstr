@@ -38,17 +38,19 @@ test(alternative_no_brackets,[true(Res == set(char(a),char(b)))]) :-
   Test = `a | b`,
   parse_2_tree(Test,Res).
 
-test(multi_alternative,[fixme('not ready yet')]) :- %true(Res == [exp(set([a,b,c,d]))])]) :-
+test(multi_alternative,[Actual == Expected]) :- %true(Res == [exp(set([a,b,c,d]))])]) :-
   Test = `a | b | c`,
-  parse_2_tree(Test,_).
+  Expected = set(char(a),set(char(b),char(c))),
+  parse_2_tree(Test,Actual).
 
 test(complex_alternative,[true(Res == set(quantity(+,char(a)),quantity(*,char(b))))]) :-
   Test = `a+ | b*`,
   parse_2_tree(Test,Res).
 
-test(multi_complex_alternative,[fixme('not ready yet')]) :-%[true(Res == [exp(set([quantity(+,char(a)),quantity(*,char(b)),quantity(?,char(c))]))])]) :-
+test(multi_complex_alternative,[Actual == Expected]) :-%[true(Res == [exp(set([quantity(+,char(a)),quantity(*,char(b)),quantity(?,char(c))]))])]) :-
   Test = `a+ | b* | c?`,
-  parse_2_tree(Test,_).
+  Expected = set(quantity(+,char(a)),set(quantity(*,char(b)),quantity(?,char(c)))),
+  parse_2_tree(Test,Actual).
 
 test(quantity_star,[true(Res == quantity(*,char(a)))]) :-
   Test = `a*`,
