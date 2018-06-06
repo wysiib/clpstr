@@ -172,7 +172,7 @@ test(one_state,[true(Actual == Expected)]) :-
 
 test(three_states_no_transitions,[true(Actual == Expected)]) :-
   Test = automaton_dom([1,2,3],[],[1],[1]),
-  Expected = automaton_dom([1,2,3],[],[1],[1]),
+  Expected = automaton_dom([1],[],[1],[1]),
   remove_unused(Test,Actual).
 
 test(three_starts_no_transitions,[true(Actual == Expected)]) :-

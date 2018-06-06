@@ -4,6 +4,7 @@
                       ordered_eps_closure/3,
                       bin_2_new_state/2,
                       gen_bin_states/2,
+                      remove_unused/2,
                       breadth_first_state_search/3]).
 
 :- use_module(library(clpfd)).
@@ -208,6 +209,25 @@ ordered_eps_closure(State,Trans,Res) :-
   epsilon_closure(State,Trans,Clo),
   list_to_ord_set(Clo,Res).
 
+
+remove_unused(string_dom(X),string_dom(X)) :- !.
+remove_unused(Dom,Res) :-
+  get_start_states(Dom,Starts),\+ Starts == [], !,
+  findall(SingleState,(member(X,Starts),
+    breadth_first_state_search(Dom,X,ReachableStates),
+    member(SingleState,ReachableStates)),NewStates),
+  list_to_ord_set(NewStates,NewOrdStates),
+  set_all_states(Dom,NewOrdStates,NewStateDom),
+  get_end_states(Dom,Ends),
+  ord_intersect(Ends,NewOrdStates,NewEnds),
+  set_end_states(NewStateDom,NewEnds,NewEndsDom),
+  get_transition(Dom,Trans),
+  findall((X,T,Y),(member((X,T,Y),Trans),member(X,NewStates),member(Y,NewStates)),NewTrans),
+  set_transitions(NewEndsDom,NewTrans,Res).
+/*remove_unused(_,_)
+  (Starts == []) -> (nl,print("Can not remove unused States. Automaton has no start states"),
+  fail). NOTE consider adding log
+*/
 
 
 breadth_first_state_search(Dom,Start,Res) :-

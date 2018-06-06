@@ -5,6 +5,7 @@
                            get_transition/2,
                            get_start_states/2,
                            get_end_states/2,
+                           set_all_states/3,
                            set_end_states/3,
                            set_transitions/3,
                            add_end_states/3,
