@@ -2,6 +2,7 @@
 
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
+:- use_module('../src/domains/basic_operations',[state_in_state_product/4]).
 
 /**
 * basic_operations intersection tests.
@@ -48,6 +49,30 @@ test(any_char_single_char_automaton_intersection,[true(Res == automaton_dom([1,2
   single_char_domain("a",D2),
   intersection(D1,D2,Res).
 
+test(empty_result1,[true(Res == empty)]) :-
+  Test = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  single_char_domain("a",D2),
+  intersection(Test,D2,Res).
+
+test(empty_result2,[true(Res == empty)]) :-
+  Test = automaton_dom([1,2,3],[(1,range(98,98),2),(1,range(97,97),2)],[1],[3]),
+  single_char_domain("a",D2),
+  intersection(Test,D2,Res).
+
+test(empty_result3,[true(Res == empty)]) :-
+  Test = automaton_dom([1,2,3],[(1,range(97,98),2),(1,range(97,98),2)],[1],[3]),
+  single_char_domain("a",D2),
+  intersection(Test,D2,Res).
+
+test(concat_intersec,[true(Res == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4,5,6,7,8,9,10,11,12],[(1,range(97,97),6),(6,epsilon,7),(7,range(98,98),12)],[1],[12]),
+  Test = automaton_dom([1,2,3],[(1,range(97,98),2),(1,range(97,98),2)],[1],[3]),
+  single_char_domain("a",D1),
+  single_char_domain("b",D2),
+  concatenation(D1,D2,D3),
+  intersection(Test,D3,Res),
+  nl,nl, print(Res), nl,nl.
+
 :- end_tests(automaton_domains).
 
 :- begin_tests(empty_domains).
@@ -59,3 +84,102 @@ test(is_empty) :-
   is_empty(D).
 
 :- end_tests(empty_domains).
+
+
+/*:- begin_tests(subrange).
+
+test(simple_range, [Res == Expected]) :-
+  Testdelta = []
+
+:- end_tests(subrange).*/
+
+:- begin_tests(sisproduct).
+
+% For these testcases
+% automaton 1:
+% automaton_dom([1,2],[(1,range(97,98),2)],[1],[2]).
+%
+% automaton 2:
+% automaton_dom([1,2,3],[(1,range(97,97),2),(1,epsilon,2),(2,range(98,98),3)],[1],[3]).
+
+test(single_trans1,[true(Res == Expected)]) :-
+  Expected = (1,range(97,97),5),
+  Testdelta1 = [(1,range(97,98),2)],
+  Testdelta2 = [(1,range(97,97),2)],
+  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+
+test(single_trans2,[true(Res == Expected)]) :-
+  Expected = (2,range(98,98),6),
+  Testdelta1 = [(1,range(97,98),2)],
+  Testdelta2 = [(2,range(98,98),3)],
+  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+
+test(single_trans3,[true(Res == Expected)]) :-
+  Expected = (1,epsilon,2),
+  Testdelta1 = [(1,range(97,98),2)],
+  Testdelta2 = [(1,epsilon,2)],
+  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+
+test(double_trans,all(Res == [(1,range(97,97),5),(1,epsilon,2)])) :-
+  %Expected = [(1,range(97,97),2),(1,epsilon,2)],
+  Testdelta1 = [(1,range(97,98),2)],
+  Testdelta2 = [(1,range(97,97),2),(1,epsilon,2)],
+  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+
+
+% For this testcase
+% automaton 1:
+% automaton_dom([1,2],[(1,epsilon,2)],[1],[2]).
+%
+% automaton 2:
+% automaton_dom([1,2],[(1,epsilon,2)],[1],[2]).
+
+test(double_eps_trans,[true(Res == Expected)]) :-
+  Expected = (1,epsilon,4),
+  Testdelta = [(1,epsilon,2)],
+  state_in_state_product(Testdelta,Testdelta,2,Res).
+
+
+% For this testcase
+% automaton 1:
+% automaton_dom([1,2,3],[(1,range(97,97),2),(2,epsilon,3)],[1],[3]).
+%
+% automaton 2:
+% automaton_dom([1,2,3],[(1,epsilon,2),(2,range(97,97),3)],[1],[3]).
+
+test(single_eps_trans_two_times,fixme("fix intersec. result in comment")) :- %all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])
+  %Expected = [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)],
+  Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
+  Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
+  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+
+
+% For this testcase
+% automaton 1:
+% automaton_dom([1,2,3],[(1,range(97,98),2),(2,range(97,98),3)],[1],[3]).
+%
+% automaton 2:
+% automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4)],[1],[4]).
+% aka
+% single_char_domain("a",D1), single_char_domain("b",D2), concatenation(D1,D2,D3).
+
+test(simple_delta,[true(Res == Expected)]) :-
+  Expected = (5,range(97,97),10),
+  Testdelta1 = [(2,range(97,98),3)],
+  Testdelta2 = [(1,range(97,97),2)],
+  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+
+test(cross_epsilon,[true(Res == Expected)]) :-
+  Expected = (6,epsilon,7),
+  Testdelta1 = [(2,range(97,98),3)],
+  Testdelta2 = [(2,epsilon,3)],
+  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+
+% same result as in concat_intersec above
+test(cross_epsilon,[true(Res == Expected)]) :-
+  Expected = (6,epsilon,7),
+  Testdelta1 = [(2,range(97,98),3)],
+  Testdelta2 = [(2,epsilon,3)],
+  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+
+:- end_tests(sisproduct).
