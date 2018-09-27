@@ -53,31 +53,66 @@ intersection(Dom1,Dom2,Res) :-
   % (2x3) = (2-1)*L2 + 3
   get_transition(Dom1,Delta1),
   get_transition(Dom2,Delta2),
-  findall(Delta,state_in_state_product(Delta1,Delta2,NumStates1,Delta),ResDelta),
+  findall(Delta,state_in_state_product(Delta1,Delta2,NumStates2,Delta),ResDelta),
   get_start_states(Dom1,Start1),
   get_start_states(Dom2,Start2),
-  findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,NumStates1,E)),ResStart),
+  % find a start state if it is a start state in both domains
+  findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,NumStates2,E)),ResStart),
   get_end_states(Dom1,End1),
   get_end_states(Dom2,End2),
-  findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,NumStates1,E)),ResEnd),
+  % find an end state if it is a end state in both domains
+  findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,NumStates2,E)),ResEnd),
   Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd),
   !.
 intersection(_,_,empty).
 
-state_in_state_product(Delta1,Delta2,NumStates1,(Start,Char,End)) :-
-  member((S1,Char1,E1),Delta1),
-  member((S2,Char2,E2),Delta2),
-  subrange(Char1,Char2,Char),
-  calcse(S1,S2,NumStates1,Start),
-  calcse(E1,E2,NumStates1,End).
+state_in_state_product(Delta1,Delta2,NumStates,Res) :-
+  member(Trans1,Delta1),
+  member(Trans2,Delta2),
+  successor_state_in_state_product(Trans1,Trans2,NumStates,Res).
+
+successor_state_in_state_product((S1,epsilon,E1),(S2,epsilon,E2),NumStates,(Start,epsilon,End)) :-
+  !, calcse(S1,S2,NumStates,Start),
+  calcse(E1,E2,NumStates,End).
+successor_state_in_state_product((S1,epsilon,E1),(S2,range(_,_),_),NumStates,(Start,epsilon,End)) :-
+  !, calcse(S1,S2,NumStates,Start),
+  calcse(E1,S2,NumStates,End).
+successor_state_in_state_product((S1,range(_,_),_),(S2,epsilon,E2),NumStates,(Start,epsilon,End)) :-
+  !, calcse(S1,S2,NumStates,Start),
+  calcse(S1,E2,NumStates,End).
+successor_state_in_state_product((S1,range(L1,U1),E1),(S2,range(L2,U2),E2),NumStates,Res) :-
+  LOut is max(L1,L2),
+  UOut is min(U1,U2),
+  UOut >= LOut,
+  calcse(S1,S2,NumStates,Start),
+  calcse(E1,E2,NumStates,End),
+  Res = (Start,range(LOut,UOut),End).
+
+
 
 subrange(range(L1,U1),range(L2,U2),range(LOut,UOut)) :- !,
   LOut is max(L1,L2),
   UOut is min(U1,U2),
   UOut >= LOut.
-subrange(R,epsilon,R).
-subrange(epsilon,R,R).
+subrange(_,epsilon,epsilon).
+subrange(epsilon,_,epsilon).
 
+%! calcse(State1,State2,D2Length,ResultState)
+% Helper function of intersection and its helper functions.
+% Calculates the correct state number of a state in the new automaton
+% resulting from interesection.
+% State1 and State2 need to be ground.
+% The formula used is:
+% State product:
+% X : Dom1.States, Y : Dom2.States
+% (X,Y) = (X-1)*L2 + Y
+% e.g.
+% (1x1) = (1-1)*L2 + 1
+% (2x3) = (2-1)*L2 + 3
+% @State1 is the first component and stems from Dom1.
+% @State2 is the second component and stems from Dom2.
+% @D2Length is the length of the Dom from State 2.
+% @ResultState is the result of the calculation and the number representing the new state.
 calcse(State1,State2,L,ResState) :-
   ResState is (State1 - 1) * L + State2.
 
