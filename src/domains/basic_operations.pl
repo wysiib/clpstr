@@ -234,7 +234,8 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   get_transition(AutomDom2,Delta2),
   get_start_states(AutomDom2,Start2),
   get_end_states(AutomDom2,End2),
-  length(States1,L),
+  %length(States1,L),
+  max_list([0|States1],L),
   maplist(plus(L),States2,States2Star), % create new state space.
   flatten([States1,States2Star],States3),
   maplist(plus(L),Start2,Start2Star), % create new delta transition.
