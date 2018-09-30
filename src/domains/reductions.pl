@@ -245,10 +245,48 @@ breadth_first_state_search_acc(Dom,Remain,Seen,Acc,Res) :-
   breadth_first_state_search_acc(Dom,Destination,NewSeen,NewAcc,Res).
 
 
-/*depth_first_transition_search(_,_,[],_,Acc,Acc).
-depth_first_transition_search(Dom,Remain,Seen,Acc,Res) :-
-  get_transition(Dom,Trans),
-  findall((Start,_,To),member((Start,_,To),Trans),Transitions), !, % Is there a transition?
+clean_automaton(Dom,CleanDom) :-
+  % dummy domain
+  Dummy = automaton_dom([0],[],[0],[0]),
+  concatenation(Dummy,Dom,ConcatDom),
+  get_transition(ConcatDom,Trans),
+  get_start_states(ConcatDom,Starts),
+  % For each initial state DFS
+  reachable([0],Trans,[],[],(ReachState,ReachTrans)),
+  clear_zero_trans(ReachTrans,ResTrans).
+
+
+
+
+
+depth_first_transition_search(_,[],_,_,StateAcc,TransAcc,(StateAcc,TransAcc)).
+depth_first_transition_search(Trans,[H|T],Seen,StateAcc,TransAcc,Res) :-
+  findall((H,R,To),member((H,R,To),Trans),FA)%Transitions), % Is there a transition?
+
+  depth_first_state_search(Dom,_,_,_,_,Res).
+
+reachable([],_,AccTo,AccTrans,(AccTo,AccTrans)).
+reachable([S|T],Trans,AccTo,AccTrans,Res) :-
+  member((S,R,To),Trans),!,
+  ord_add_element(AccTo,To,NewToAcc),
+  delete(Trans,(S,R,To),NewTrans),
+  reachable([To,S|T],NewTrans,NewToAcc,[(S,R,To)|AccTrans],Res).
+reachable([S|T],Trans,AccTo,AccTrans,Res) :-
+  reachable(T,Trans,AccTo,AccTrans,Res).
+
+
+
+  %
+  % reachable(Dom,S,ReachableStates,ReachableTransitions) :-
+  %   get_transition(Dom,Trans),
+  %   get_start_states(Dom,Starts),
+  %
+  %
+
+
+
+
+
+
   ord_selectchk(Destination,States,NewStates), % Destination is now visited
   ord_add_element(Acc,Destination,NewAcc), % collect Destination in Accumulator
-  depth_first_state_search(Dom,Destination,,NewAcc,Res).*/
