@@ -11,6 +11,7 @@
 :- use_module(basic_domains).
 :- use_module(labeling).
 :- use_module(domain_conversion).
+:- use_module(reductions).
 
 %! is_empty(Domain) is det
 % Checks whether an domain is empty, in case of an automaton_dom by having no
@@ -51,20 +52,33 @@ intersection(Dom1,Dom2,Res) :-
   % e.g.
   % (1x1) = (1-1)*L2 + 1
   % (2x3) = (2-1)*L2 + 3
-  get_transition(Dom1,Delta1),
-  get_transition(Dom2,Delta2),
-  findall(Delta,state_in_state_product(Delta1,Delta2,NumStates2,Delta),ResDelta),
   get_start_states(Dom1,Start1),
   get_start_states(Dom2,Start2),
+  % generate start states
   % find a start state if it is a start state in both domains
   findall(E,(member(X,Start1),member(Y,Start2),calcse(X,Y,NumStates2,E)),ResStart),
   get_end_states(Dom1,End1),
   get_end_states(Dom2,End2),
+  % generate end states
   % find an end state if it is a end state in both domains
   findall(E,(member(X,End1),member(Y,End2),calcse(X,Y,NumStates2,E)),ResEnd),
-  Res = automaton_dom(ResStates,ResDelta,ResStart,ResEnd),
-  !.
+  get_transition(Dom1,Delta1),
+  get_transition(Dom2,Delta2),
+  % generate transitions
+  % first add epsilons self loops to end states
+  build_end_state_self_loops(Delta1,End1,Delta1Loops),
+  build_end_state_self_loops(Delta2,End2,Delta2Loops),
+  % calc product of transitions
+  findall(Delta,state_in_state_product(Delta1Loops,Delta2Loops,NumStates2,Delta),ResDelta),
+  UncleanRes = automaton_dom(ResStates,ResDelta,ResStart,ResEnd),
+  clean_automaton(UncleanRes,Res),
+  % If after cleaning, start states or end states are empty -> no intersection.
+  \+ get_start_states(Res,[]),\+ get_end_states(Res,[]), !.
 intersection(_,_,empty).
+
+build_end_state_self_loops(Trans,EndStates,NewTrans) :-
+  findall((R,epsilon,R),member(R,EndStates),Loops),
+  append(Loops,Trans,NewTrans).
 
 state_in_state_product(Delta1,Delta2,NumStates,Res) :-
   member(Trans1,Delta1),
