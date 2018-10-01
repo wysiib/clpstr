@@ -247,7 +247,12 @@ breadth_first_state_search_acc(Dom,Remain,Seen,Acc,Res) :-
 
 
 
-
+%! clean_automaton(Domain, CleanDomain)
+% Takes a domain and clears it of unused states and transitions.
+% NOTE does not check for unaccepting pathes.
+% returns Domain in case of empty or string domain.
+% @Domain is the domain that is about to be cleaned.
+% @CleanDomain is the cleaned domain.
 clean_automaton(empty,empty) :- !.
 clean_automaton(string_dom(String),string_dom(String)) :- !.
 clean_automaton(Dom,CleanDom) :-
@@ -265,14 +270,27 @@ clean_automaton(Dom,CleanDom) :-
   gen_matched_states(Ends,MatchedStates,ResEnds),
   % generate new transitions
   gen_matched_trans(ReachTrans,MatchedStates,ResTrans),
-  reverse(ResTrans,RevResTrans), % TODO! DDo this directly in gen_matched_trans
+  reverse(ResTrans,RevResTrans), % TODO! Do this directly in gen_matched_trans
   CleanDom = automaton_dom(ResStates,RevResTrans,ResStarts,ResEnds).
 
+
+%! reachable(Domain,(ReachableStates,ReachableTransitions))
+% Helper predicate of clean_automaton.
+% Takes a domain and returns a domain containing all reachable states and
+% transitions from a new start state 0
+% Uses a dummy domain and deepth first search to find pathes.
+% Dummy state 0 and dummy transitions (0,epsilon,_) remain in automaton
+% and are returned in ReachableStates and ReachableTransitions.
+% @Domain is the domain to be searched.
+% @ReachableStates are the states reachable from all starting states of Domain.
+% @ReachableTransitions are the Transitions reachable from all starting states
+%  of Domain.
 reachable(Dom,(ReachState,ReachTrans)):-
   % dummy domain used as a for each initial state
   Dummy = automaton_dom([0],[],[0],[0]),
   concatenation(Dummy,Dom,ConcatDom),
   get_transition(ConcatDom,ConTrans),
+  % Use DFS to find transitions and states.
   reachable_acc([0],ConTrans,[],[],(ReachState,ReachTrans)).
 reachable_acc([],_,AccTo,AccTrans,(AccTo,AccTrans)).
 reachable_acc([S|T],Trans,AccTo,AccTrans,Res) :-
@@ -283,6 +301,19 @@ reachable_acc([S|T],Trans,AccTo,AccTrans,Res) :-
 reachable_acc([_|T],Trans,AccTo,AccTrans,Res) :-
   reachable_acc(T,Trans,AccTo,AccTrans,Res).
 
+
+% !match_states(States,Dict,ResDict,ResStates)
+% Helper predicate of clean_automaton.
+% Takes a list of states and returns a dictionary containing matches of states
+% and an ordered list of states.
+% The dictionary contains the member of States and matches them to a new
+% state number, where missing states are removed.
+% ResStates is the complete List of new States.
+% States should be ordered and Dict must be ground.
+% @States is the list of old States.
+% @Dict is the dictionary to be filled.
+% @ResDict is the filled Dict.
+% @ResStates is the list of new states.
 match_states(OrdStates,MatchDict,ResMatchDict,ResStates) :-
   match_states_acc(OrdStates,1,MatchDict,ResMatchDict,ResStates).
 match_states_acc([],_,MatchDict,MatchDict,[]).
@@ -291,6 +322,16 @@ match_states_acc([HStates|TStates],X,Dict,MatchDict,[X|TX]) :-
   put_dict(HStates,Dict,X,NewDict),
   match_states_acc(TStates,NewX,NewDict,MatchDict,TX).
 
+
+% !gen_matched_states(States,Dict,NewStates)
+% Helper predicate of clean_automaton.
+% Takes a list of states and a dictionary of state matches and converts the
+% states to new states via the dictionary.
+% States from States not found in Dict  are not added to NewStates.
+% Conserves order of States.
+% @States is the list of states to be converted.
+% @Dict is the dictionary containing the matches.
+% @NewStates is the new list of states.
 gen_matched_states([],_,[]).
 gen_matched_states([HState|TState],Matches,[HNewState|TNewState]):-
   get_dict(HState,Matches,HNewState),!,
@@ -298,6 +339,14 @@ gen_matched_states([HState|TState],Matches,[HNewState|TNewState]):-
 gen_matched_states([_|TState],Matches,TNewState):-
   gen_matched_states(TState,Matches,TNewState).
 
+
+% !gen_matched_states(Transitions,Dict,NewTransitions)
+% Helper predicate of clean_automaton.
+% Takes a list of transtions and a dictionary of state matches and converts the
+% transtions to contain the new states.
+% @Transitions is the list of transtions to be converted.
+% @Dict is the dictionary containing the matches.
+% @NewTransitions is the new list of transtions.
 gen_matched_trans([],_,[]).
 gen_matched_trans([(0,_,_)|TTrans],Matches,NewTrans) :-
   !, gen_matched_trans(TTrans,Matches,NewTrans).

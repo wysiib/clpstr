@@ -352,4 +352,9 @@ test(complex_clean_multi_way_split,[true(Actual == Expected)]) :-
   Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(2,range(97,97),4),(2,range(98,98),5),(4,range(97,98),6),(5,range(97,98),6),(3,range(97,98),6)],[1],[6]),
   clean_automaton(Test,Actual).
 
+% same automaton as result in complex_clean_multi_way_split
+test(complex_no_clean_multi_way_split,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4,5],[(1,range(97,97),2),(2,range(97,97),3),(3,range(97,98),5),(2,range(98,98),4),(4,range(97,98),5)],[1],[5]),
+  clean_automaton(Expected,Actual).
+
 :- end_tests(clean_automaton).
