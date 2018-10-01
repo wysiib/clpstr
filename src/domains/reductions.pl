@@ -248,9 +248,10 @@ breadth_first_state_search_acc(Dom,Remain,Seen,Acc,Res) :-
 
 
 %! clean_automaton(Domain, CleanDomain)
-% Takes a domain and clears it of unused states and transitions.
+% Takes a domain and clears it of unused states and transitions,
+% as well as espilon self loops, for example resulting from intersection.
 % NOTE does not check for unaccepting pathes.
-% returns Domain in case of empty or string domain.
+% Returns Domain in case of empty or string domain.
 % @Domain is the domain that is about to be cleaned.
 % @CleanDomain is the cleaned domain.
 clean_automaton(empty,empty) :- !.
@@ -269,6 +270,7 @@ clean_automaton(Dom,CleanDom) :-
   get_end_states(Dom,Ends),
   gen_matched_states(Ends,MatchedStates,ResEnds),
   % generate new transitions
+  % remve epsilon self loops and dummy transitions from reachable call
   gen_matched_trans(ReachTrans,MatchedStates,ResTrans),
   reverse(ResTrans,RevResTrans), % TODO! Do this directly in gen_matched_trans
   CleanDom = automaton_dom(ResStates,RevResTrans,ResStarts,ResEnds).
@@ -281,6 +283,7 @@ clean_automaton(Dom,CleanDom) :-
 % Uses a dummy domain and deepth first search to find pathes.
 % Dummy state 0 and dummy transitions (0,epsilon,_) remain in automaton
 % and are returned in ReachableStates and ReachableTransitions.
+% use gen_matched_trans to remove dummy trans.
 % @Domain is the domain to be searched.
 % @ReachableStates are the states reachable from all starting states of Domain.
 % @ReachableTransitions are the Transitions reachable from all starting states
@@ -344,11 +347,14 @@ gen_matched_states([_|TState],Matches,TNewState):-
 % Helper predicate of clean_automaton.
 % Takes a list of transtions and a dictionary of state matches and converts the
 % transtions to contain the new states.
+% Removes dummy transitions and epsilon selfloops.
 % @Transitions is the list of transtions to be converted.
 % @Dict is the dictionary containing the matches.
 % @NewTransitions is the new list of transtions.
 gen_matched_trans([],_,[]).
 gen_matched_trans([(0,_,_)|TTrans],Matches,NewTrans) :-
+  !, gen_matched_trans(TTrans,Matches,NewTrans).
+gen_matched_trans([(In,epsilon,In)|TTrans],Matches,NewTrans) :-
   !, gen_matched_trans(TTrans,Matches,NewTrans).
 gen_matched_trans([(StateIn,R,StateOut)|TTrans],Matches,[(NewStateIn,R,NewStateOut)|TNewTrans]) :-
   get_dict(StateIn,Matches,NewStateIn),
