@@ -310,8 +310,46 @@ test(gen_matched_trans_some_end_states_missing,[fail]) :-
 
 :- end_tests(clean_automaton_subs).
 
+
 :- begin_tests(clean_automaton).
 
+test(clean_empty_dom,[true(Res == empty)]) :-
+  clean_automaton(empty,Res).
 
+test(clean_string_dom,[true(Actual == Expected)]) :-
+  constant_string_domain("Some Domain",Expected),
+  clean_automaton(Expected,Actual).
+
+test(clean_simple_automaton1,[true(Actual == Expected)]) :-
+  single_char_domain("a",Expected),
+  clean_automaton(Expected,Actual).
+
+test(clean_simple_automaton2,[true(Actual == Expected)]) :-
+  any_char_domain(Expected),
+  clean_automaton(Expected,Actual).
+
+test(simple_clean,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(2,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1],[3]),
+  clean_automaton(Expected,Actual).
+
+test(no_clean,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  clean_automaton(Expected,Actual).
+
+test(complex_clean_multi_start,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3],[(1,range(97,97),3),(2,range(98,98),3)],[1,2],[3]),
+  Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),3),(2,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1,2],[3]),
+  clean_automaton(Expected,Actual).
+
+test(complex_clean_multi_way,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,3],[(1,range(97,97),3),(1,range(98,98),3)],[1],[3]),
+  Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),3),(1,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1],[3]),
+  clean_automaton(Expected,Actual).
+
+test(complex_clean_multi_way_split,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,4,5,6],[(1,range(97,97),2),(2,range(97,97),4),(2,range(98,98),5),(4,range(97,98),6),(5,range(97,98),6)],[1],[6]),
+  Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(2,range(97,97),4),(2,range(98,98),5),(4,range(97,98),6),(5,range(97,98),6),(3,range(97,98),6)],[1],[6]),
+  clean_automaton(Expected,Actual).
 
 :- end_tests(clean_automaton).
