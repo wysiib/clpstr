@@ -7,6 +7,7 @@
 :- use_module('../src/domains/basic_operations').
 
 :- use_module('../src/domains/reductions').
+:- use_module('../src/domains/reductions',[reachable/2,match_states/4,gen_matched_states/3,gen_matched_trans/3]).
 
 
 :- begin_tests(epsilon_reduction).
@@ -205,3 +206,112 @@ test(no_states,[fail]) :-
   remove_unused(Test,_).
 
 :- end_tests(remove_unused).
+
+
+:- begin_tests(clean_automaton_subs).
+
+%%%%%%%% Tests on match_states %%%%%%%%
+% used List of States:
+% [1,3,5]
+
+test(match_states_state_list_generate,[Res == [1,2,3]]) :-
+  MatchDict = matchedStates{},
+  match_states([1,3,5],MatchDict,_,Res).
+
+test(match_states_find_value_in_dict,[true(Res == 3)]) :-
+  MatchDict = matchedStates{},
+  match_states([1,3,5],MatchDict,Dict,_),
+  get_dict(5,Dict,Res).
+
+test(match_states_dont_find_value_in_dict,[fail]) :-
+  MatchDict = matchedStates{},
+  match_states([1,3,5],MatchDict,Dict,_),
+  get_dict(6,Dict,_).
+
+test(match_states_no_dict,[throws(Error)]) :-
+  subsumes_chk(Error, "Arguments are not sufficiently instantiated"),
+  match_states([1,3,5],_,Dict,_),
+  get_dict(5,Dict,_).
+
+%%%%%%%% Tests on reachable %%%%%%%%
+
+test(reachable_empty_domain,[fail]) :-
+  reachable(empty,_).
+
+test(reachable_string_domain,[true(Actual == Expected)]) :-
+  Expected = ([1,2],[(1,range(97,97),2),(0,epsilon,1)]),
+  constant_string_domain("a",Dom),
+  reachable(Dom,Actual).
+
+test(reachable_no_state_domain,[true(Actual == Expected)]) :-
+  Expected = ([],[]),
+  Test = automaton_dom([],[],[],[]),
+  reachable(Test,Actual).
+
+test(reachable_everything_in_reach,[true(Actual == Expected)]) :-
+  Expected = ([1,2,3],[(2,range(98,98),3),(1,range(97,97),2),(0,epsilon,1)]),
+  Test = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  reachable(Test,Actual).
+
+test(reachable_nothing_in_reach,[true(Actual == Expected)]) :-
+  Expected = ([1],[(0,epsilon,1)]),
+  Test = automaton_dom([1,2,3],[(2,range(97,97),3),(2,range(98,98),3)],[1],[3]),
+  reachable(Test,Actual).
+
+%%%%%%%% Tests on gen_matched_states %%%%%%%%
+% used List of States:
+% [1,3,5]
+% The dictionary is hard coded to be independent from match_states tests.
+% if ever data structure is change, tests will fail and need to be rewritten.
+
+test(gen_matched_states_empty,[true(Actual == Expected)]) :-
+  Expected = [],
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  gen_matched_states([],Matches,Actual).
+
+test(gen_matched_states_all_states_available,[true(Actual == Expected)]) :-
+  Expected = [1,2,3],
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  Test = [1,3,5],
+  gen_matched_states(Test,Matches,Actual).
+
+test(gen_matched_states_some_states_available,[true(Actual == Expected)]) :-
+  Expected = [1,2,3],
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  Test = [1,2,3,4,5,6],
+  gen_matched_states(Test,Matches,Actual).
+
+%%%%%%%% Tests on gen_matched_trans %%%%%%%%
+% used List of states:
+% [1,3,5]
+% The dictionary is hard coded to be independent from match_states tests.
+% if ever data structure is change, tests will fail and need to be rewritten.
+
+test(gen_matched_trans_empty,[true(Actual == Expected)]) :-
+  Expected = [],
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  gen_matched_trans([],Matches,Actual).
+
+test(gen_matched_trans_all_states_available,[true(Actual == Expected)]) :-
+  Expected = [(1,range(97,97),2),(2,range(98,98),3)],
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  Test = [(1,range(97,97),3),(3,range(98,98),5)],
+  gen_matched_trans(Test,Matches,Actual).
+
+test(gen_matched_trans_some_start_states_missing,[fail]) :-
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  Test = [(1,range(97,97),3),(2,range(98,98),5)],
+  gen_matched_trans(Test,Matches,_).
+
+test(gen_matched_trans_some_end_states_missing,[fail]) :-
+  Matches = matchedStates{1:1, 3:2, 5:3},
+  Test = [(1,range(97,97),3),(3,range(98,98),4)],
+  gen_matched_trans(Test,Matches,_).
+
+:- end_tests(clean_automaton_subs).
+
+:- begin_tests(clean_automaton).
+
+
+
+:- end_tests(clean_automaton).
