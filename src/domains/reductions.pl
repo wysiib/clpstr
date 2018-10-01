@@ -5,7 +5,8 @@
                       bin_2_new_state/2,
                       gen_bin_states/2,
                       remove_unused/2,
-                      breadth_first_state_search/3]).
+                      breadth_first_state_search/3,
+                      clean_automaton/2]).
 
 :- use_module(library(clpfd)).
 :- use_module(basic_domains).
@@ -245,48 +246,62 @@ breadth_first_state_search_acc(Dom,Remain,Seen,Acc,Res) :-
   breadth_first_state_search_acc(Dom,Destination,NewSeen,NewAcc,Res).
 
 
+
+
+clean_automaton(empty,empty) :- !.
+clean_automaton(string_dom(String),string_dom(String)) :- !.
 clean_automaton(Dom,CleanDom) :-
-  % dummy domain
+  % For each initial state DFS to find reachable states and transitions.
+  reachable(Dom,(ReachState,ReachTrans)),
+  % map new states
+  sort(ReachState,OrdStates),
+  % generate matches and new states
+  MatchDict = matchedStates{},
+  match_states(OrdStates,MatchDict,MatchedStates,ResStates),
+  % generate new start and end states
+  get_start_states(Dom,Starts),
+  gen_matched_states(Starts,MatchedStates,ResStarts),
+  get_end_states(Dom,Ends),
+  gen_matched_states(Ends,MatchedStates,ResEnds),
+  % generate new transitions
+  gen_matched_trans(ReachTrans,MatchedStates,ResTrans),
+  reverse(ResTrans,RevResTrans), % TODO! DDo this directly in gen_matched_trans
+  CleanDom = automaton_dom(ResStates,RevResTrans,ResStarts,ResEnds).
+
+reachable(Dom,(ReachState,ReachTrans)):-
+  % dummy domain used as a for each initial state
   Dummy = automaton_dom([0],[],[0],[0]),
   concatenation(Dummy,Dom,ConcatDom),
-  get_transition(ConcatDom,Trans),
-  get_start_states(ConcatDom,Starts),
-  % For each initial state DFS
-  reachable([0],Trans,[],[],(ReachState,ReachTrans)),
-  clear_zero_trans(ReachTrans,ResTrans).
-
-
-
-
-
-depth_first_transition_search(_,[],_,_,StateAcc,TransAcc,(StateAcc,TransAcc)).
-depth_first_transition_search(Trans,[H|T],Seen,StateAcc,TransAcc,Res) :-
-  findall((H,R,To),member((H,R,To),Trans),FA)%Transitions), % Is there a transition?
-
-  depth_first_state_search(Dom,_,_,_,_,Res).
-
-reachable([],_,AccTo,AccTrans,(AccTo,AccTrans)).
-reachable([S|T],Trans,AccTo,AccTrans,Res) :-
+  get_transition(ConcatDom,ConTrans),
+  reachable_acc([0],ConTrans,[],[],(ReachState,ReachTrans)).
+reachable_acc([],_,AccTo,AccTrans,(AccTo,AccTrans)).
+reachable_acc([S|T],Trans,AccTo,AccTrans,Res) :-
   member((S,R,To),Trans),!,
   ord_add_element(AccTo,To,NewToAcc),
   delete(Trans,(S,R,To),NewTrans),
-  reachable([To,S|T],NewTrans,NewToAcc,[(S,R,To)|AccTrans],Res).
-reachable([S|T],Trans,AccTo,AccTrans,Res) :-
-  reachable(T,Trans,AccTo,AccTrans,Res).
+  reachable_acc([To,S|T],NewTrans,NewToAcc,[(S,R,To)|AccTrans],Res).
+reachable_acc([_|T],Trans,AccTo,AccTrans,Res) :-
+  reachable_acc(T,Trans,AccTo,AccTrans,Res).
 
+match_states(OrdStates,MatchDict,ResMatchDict,ResStates) :-
+  match_states_acc(OrdStates,1,MatchDict,ResMatchDict,ResStates).
+match_states_acc([],_,MatchDict,MatchDict,[]).
+match_states_acc([HStates|TStates],X,Dict,MatchDict,[X|TX]) :-
+  NewX is X + 1,
+  put_dict(HStates,Dict,X,NewDict),
+  match_states_acc(TStates,NewX,NewDict,MatchDict,TX).
 
+gen_matched_states([],_,[]).
+gen_matched_states([HState|TState],Matches,[HNewState|TNewState]):-
+  get_dict(HState,Matches,HNewState),!,
+  gen_matched_states(TState,Matches,TNewState).
+gen_matched_states([_|TState],Matches,TNewState):-
+  gen_matched_states(TState,Matches,TNewState).
 
-  %
-  % reachable(Dom,S,ReachableStates,ReachableTransitions) :-
-  %   get_transition(Dom,Trans),
-  %   get_start_states(Dom,Starts),
-  %
-  %
-
-
-
-
-
-
-  ord_selectchk(Destination,States,NewStates), % Destination is now visited
-  ord_add_element(Acc,Destination,NewAcc), % collect Destination in Accumulator
+gen_matched_trans([],_,[]).
+gen_matched_trans([(0,_,_)|TTrans],Matches,NewTrans) :-
+  !, gen_matched_trans(TTrans,Matches,NewTrans).
+gen_matched_trans([(StateIn,R,StateOut)|TTrans],Matches,[(NewStateIn,R,NewStateOut)|TNewTrans]) :-
+  get_dict(StateIn,Matches,NewStateIn),
+  get_dict(StateOut,Matches,NewStateOut),
+  gen_matched_trans(TTrans,Matches,TNewTrans).

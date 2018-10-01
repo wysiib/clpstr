@@ -331,7 +331,7 @@ test(clean_simple_automaton2,[true(Actual == Expected)]) :-
 test(simple_clean,[true(Actual == Expected)]) :-
   Expected = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
   Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(2,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1],[3]),
-  clean_automaton(Expected,Actual).
+  clean_automaton(Test,Actual).
 
 test(no_clean,[true(Actual == Expected)]) :-
   Expected = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
@@ -340,16 +340,16 @@ test(no_clean,[true(Actual == Expected)]) :-
 test(complex_clean_multi_start,[true(Actual == Expected)]) :-
   Expected = automaton_dom([1,2,3],[(1,range(97,97),3),(2,range(98,98),3)],[1,2],[3]),
   Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),3),(2,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1,2],[3]),
-  clean_automaton(Expected,Actual).
+  clean_automaton(Test,Actual).
 
 test(complex_clean_multi_way,[true(Actual == Expected)]) :-
-  Expected = automaton_dom([1,3],[(1,range(97,97),3),(1,range(98,98),3)],[1],[3]),
+  Expected = automaton_dom([1,2],[(1,range(97,97),2),(1,range(98,98),2)],[1],[2]),
   Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),3),(1,range(98,98),3),(4,range(97,98),5),(5,range(97,98),6)],[1],[3]),
-  clean_automaton(Expected,Actual).
+  clean_automaton(Test,Actual).
 
 test(complex_clean_multi_way_split,[true(Actual == Expected)]) :-
-  Expected = automaton_dom([1,2,4,5,6],[(1,range(97,97),2),(2,range(97,97),4),(2,range(98,98),5),(4,range(97,98),6),(5,range(97,98),6)],[1],[6]),
+  Expected = automaton_dom([1,2,3,4,5],[(1,range(97,97),2),(2,range(97,97),3),(3,range(97,98),5),(2,range(98,98),4),(4,range(97,98),5)],[1],[5]),
   Test = automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(2,range(97,97),4),(2,range(98,98),5),(4,range(97,98),6),(5,range(97,98),6),(3,range(97,98),6)],[1],[6]),
-  clean_automaton(Expected,Actual).
+  clean_automaton(Test,Actual).
 
 :- end_tests(clean_automaton).
