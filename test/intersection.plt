@@ -44,7 +44,7 @@ test(simple_mixed_card_reverse,[true(D == empty)]) :-
 
 :- begin_tests(automaton_domains).
 
-test(any_char_single_char_automaton_intersection,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),4)],[1],[4]))]) :-
+test(any_char_single_char_automaton_intersection,[true(Res == automaton_dom([1,2],[(1,range(97,97),2)],[1],[2]))]) :-
   any_char_domain(D1),
   single_char_domain("a",D2),
   intersection(D1,D2,Res).
@@ -64,14 +64,19 @@ test(empty_result3,[true(Res == empty)]) :-
   single_char_domain("a",D2),
   intersection(Test,D2,Res).
 
+test(single_eps_trans_two_times_intersec,all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])) :-
+  %Expected = [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)],
+  Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
+  Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
+  intersection(Testdelta1,Testdelta2,Res).
+
 test(concat_intersec,[true(Res == Expected)]) :-
-  Expected = automaton_dom([1,2,3,4,5,6,7,8,9,10,11,12],[(1,range(97,97),6),(6,epsilon,7),(7,range(98,98),12)],[1],[12]),
-  Test = automaton_dom([1,2,3],[(1,range(97,98),2),(1,range(97,98),2)],[1],[3]),
+  Expected = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4)],[1],[4]),
+  Test = automaton_dom([1,2,3],[(1,range(97,98),2),(2,range(97,98),3)],[1],[3]),
   single_char_domain("a",D1),
   single_char_domain("b",D2),
   concatenation(D1,D2,D3),
-  intersection(Test,D3,Res),
-  nl,nl, print(Res), nl,nl.
+  intersection(Test,D3,Res).
 
 :- end_tests(automaton_domains).
 
@@ -147,7 +152,7 @@ test(double_eps_trans,[true(Res == Expected)]) :-
 % automaton 2:
 % automaton_dom([1,2,3],[(1,epsilon,2),(2,range(97,97),3)],[1],[3]).
 
-test(single_eps_trans_two_times,fixme("fix intersec. result in comment")) :- %all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])
+test(single_eps_trans_two_times,all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])) :-
   %Expected = [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)],
   Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
   Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
