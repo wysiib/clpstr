@@ -73,7 +73,8 @@ intersection(Dom1,Dom2,Res) :-
   UncleanRes = automaton_dom(ResStates,ResDelta,ResStart,ResEnd),
   clean_automaton(UncleanRes,Res),
   % If after cleaning, start states or end states are empty -> no intersection.
-  \+ get_start_states(Res,[]),\+ get_end_states(Res,[]), !.
+  \+ get_start_states(Res,[]),
+  \+ get_end_states(Res,[]), !.
 intersection(_,_,empty).
 
 build_end_state_self_loops(Trans,EndStates,NewTrans) :-
@@ -102,14 +103,6 @@ successor_state_in_state_product((S1,range(L1,U1),E1),(S2,range(L2,U2),E2),NumSt
   calcse(E1,E2,NumStates,End),
   Res = (Start,range(LOut,UOut),End).
 
-
-
-subrange(range(L1,U1),range(L2,U2),range(LOut,UOut)) :- !,
-  LOut is max(L1,L2),
-  UOut is min(U1,U2),
-  UOut >= LOut.
-subrange(_,epsilon,epsilon).
-subrange(epsilon,_,epsilon).
 
 %! calcse(State1,State2,D2Length,ResultState)
 % Helper function of intersection and its helper functions.

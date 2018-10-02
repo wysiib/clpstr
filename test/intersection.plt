@@ -64,11 +64,11 @@ test(empty_result3,[true(Res == empty)]) :-
   single_char_domain("a",D2),
   intersection(Test,D2,Res).
 
-test(single_eps_trans_two_times_intersec,all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])) :-
-  %Expected = [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)],
-  Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
-  Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
-  intersection(Testdelta1,Testdelta2,Res).
+test(single_eps_trans_two_times_intersec,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4],[(1,epsilon,2),(2,range(97,97),3),(3,epsilon,4)],[1],[4]),
+  Testdom1 = automaton_dom([1,2,3],[(1,epsilon,2),(2,range(97,97),3)],[1],[3]),
+  Testdom2 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,epsilon,3)],[1],[3]),
+  intersection(Testdom1,Testdom2,Actual).
 
 test(concat_intersec,[true(Res == Expected)]) :-
   Expected = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4)],[1],[4]),
@@ -152,8 +152,9 @@ test(double_eps_trans,[true(Res == Expected)]) :-
 % automaton 2:
 % automaton_dom([1,2,3],[(1,epsilon,2),(2,range(97,97),3)],[1],[3]).
 
-test(single_eps_trans_two_times,all(Res == [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)])) :-
-  %Expected = [(1,epsilon,4),(4,range(97,97),8),(8,epsilon,9)],
+test(single_eps_trans_two_times,all(Res == [(1,epsilon,4),(2,epsilon,6),(4,range(97,97),8),(5,epsilon,6)])) :-
+  %Expected = [(1,epsilon,4),(2,epsilon,6),(4,range(97,97),8),(5,epsilon,6)]
+  % (8,epsilon,9) is missing because no epsilon selfloops on state 3
   Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
   Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
   state_in_state_product(Testdelta1,Testdelta2,3,Res).
