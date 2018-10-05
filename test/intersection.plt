@@ -70,6 +70,21 @@ test(single_eps_trans_two_times_intersec,[true(Actual == Expected)]) :-
   Testdom2 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,epsilon,3)],[1],[3]),
   intersection(Testdom1,Testdom2,Actual).
 
+test(two_eps_trans_intersec,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4],[(1,epsilon,2),(2,epsilon,3),(3,range(97,97),4)],[1],[4]),
+  Testdom1 = automaton_dom([1,2],[(1,range(97,97),2)],[1],[2]),
+  Testdom2 = automaton_dom([1,2,3,4],[(1,epsilon,2),(2,epsilon,3),(3,range(97,97),4)],[1],[4]),
+  intersection(Testdom1,Testdom2,Actual).
+
+% This tests produces an unleavable trahs state.
+% From 4, there exist no transitions to other states,
+% but there exist a path from start state 1 to state 4.
+test(single_eps_trans_two_times_intersec_thrash_state,[true(Actual == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4,5,6],[(1,epsilon,2),(2,range(97,97),5),(5,epsilon,6),(1,range(97,97),3),(3,epsilon,4),(3,range(97,97),6)],[1],[6]),
+  Testdom1 = automaton_dom([1,2,3],[(1,epsilon,2),(1,range(97,97),2),(2,range(97,97),3)],[1],[3]),
+  Testdom2 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,epsilon,3),(2,range(97,97),3)],[1],[3]),
+  intersection(Testdom1,Testdom2,Actual).
+
 test(concat_intersec,[true(Res == Expected)]) :-
   Expected = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4)],[1],[4]),
   Test = automaton_dom([1,2,3],[(1,range(97,98),2),(2,range(97,98),3)],[1],[3]),
@@ -187,5 +202,27 @@ test(cross_epsilon,[true(Res == Expected)]) :-
   Testdelta1 = [(2,range(97,98),3)],
   Testdelta2 = [(2,epsilon,3)],
   state_in_state_product(Testdelta1,Testdelta2,4,Res).
+
+
+% For this testcase
+% automaton 1:
+% automaton_dom([1,2,3],[(1,range(97,98),2),(2,range(97,98),3)],[1],[3]).
+%
+% automaton 1:
+% single_char_domain("a",D1),
+% single_char_domain("b",D2),
+% concatenation(D1,D2,D3).
+% automaton_dom([1,2,3,4],[(1,range(97,98),2),(2,epsilon,3),(3,range(97,98),4)],[1],[4]).
+%
+% plus epsilon self loops on the accepting states
+%
+% see concat_intersec test
+
+test(concat_sisproduct_findall,[true(Actual == Expected)]) :-
+  Expected = [(1,range(97,97),6),(2,epsilon,3),(4,epsilon,4),(6,epsilon,7),(7,range(98,98),12),(8,epsilon,8),(9,epsilon,9),(10,epsilon,11),(11,epsilon,11),(12,epsilon,12)],
+  Testdelta1 = [(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,3)],
+  Testdelta2 = [(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4),(4,epsilon,4)],
+  findall(Delta,state_in_state_product(Testdelta1,Testdelta2,4,Delta),Actual).
+
 
 :- end_tests(sisproduct).
