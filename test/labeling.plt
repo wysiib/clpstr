@@ -88,6 +88,13 @@ test(one_infinite_trans_domain,[true(Res == "aa"),nondet]) :-
   label(TestDom,"aaaaaa"),
   label(TestDom,Res).
 
+test(two_infinite_trans_domain,[true(Res == "aaa"),nondet]) :-
+  TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(97,97),3),(3,range(97,97),1),(3,range(97,97),4)],[1],[4]),
+  label(TestDom,"aaa"),
+  label(TestDom,"aaaaaa"),
+  label(TestDom,"aaaaaaaaa"),
+  label(TestDom,Res).
+
 test(repeat_concat_automaton,[true(Res == ""),nondet]) :-
   single_char_domain("a",DomA),
   repeat(DomA,RepDomA),
@@ -100,3 +107,22 @@ test(repeat_concat_automaton,[true(Res == ""),nondet]) :-
   label(TestDom,Res).
 
 :- end_tests(infinite_domains).
+
+:- begin_tests(labeling_fail).
+
+test(simple_fail,[fail]) :-
+  label(a,"a").
+
+test(fail_no_end_states,[fail]) :-
+  TestDom = automaton_dom([1,2],[(1,range(97,97),2)],[1],[]),
+  label(TestDom,_).
+
+test(fail_wrong_label,[fail]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  label(TestDom,"ba").
+
+test(fail_wrong_label,[fail]) :-
+  constant_string_domain("abc",TestDom),
+  label(TestDom,"a").
+
+:- end_tests(labeling_fail).
