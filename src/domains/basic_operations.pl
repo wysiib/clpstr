@@ -77,15 +77,40 @@ intersection(Dom1,Dom2,Res) :-
   \+ get_end_states(Res,[]), !.
 intersection(_,_,empty).
 
+%! build_end_state_self_loops(Trans,States,NewTrans)
+% Takes a domain's transition list and the list of  states and
+% add epsilon-loop transitions  of all the states to NewTrans.
+% Helper predicate of intersection/3.
+% @Trans is the original list of transitions.
+% @States is the list of accepting states.
+% @NewTrans is the resulting list of transitions.
 build_end_state_self_loops(Trans,EndStates,NewTrans) :-
   findall((R,epsilon,R),member(R,EndStates),Loops),
   append(Loops,Trans,NewTrans).
 
+%! state_in_state_product(Delta1,Delta2,NumOfStates2,Res)
+% Takes two lists of transitions and calculates a single transtion in their product.
+% Call this with findall.
+% The number of total states of Delta2's domain is used for calcse/4.
+% Helper predicate for intersection/3.
+% @Delta1 is the first list of transitions
+% @Delta2 is the second list of transitions
+% @NumOfStates is the number of total states of Delta2's domain
+% @Res is the resluting transtion in the product.
 state_in_state_product(Delta1,Delta2,NumStates,Res) :-
   member(Trans1,Delta1),
   member(Trans2,Delta2),
   successor_state_in_state_product(Trans1,Trans2,NumStates,Res).
 
+%! successor_state_in_state_product(Transition1,Transition2,NumOfStates2,ResTransition)
+% Helper predicate of state_in_state_product/4.
+% Takes two transition and calculates the correct new states and the correct
+% character from the product.
+% The number of total states of Transition2's domain is used for calcse/4.
+% @Transition1 is one of the transitions in the product.
+% @Transition2 is one of the transitions in the product.
+% @NumOfStates2 is the number of total states of Transition2's domain.
+% ResTransition is the resulting transition.
 successor_state_in_state_product((S1,epsilon,E1),(S2,epsilon,E2),NumStates,(Start,epsilon,End)) :-
   !, calcse(S1,S2,NumStates,Start),
   calcse(E1,E2,NumStates,End).
@@ -105,7 +130,7 @@ successor_state_in_state_product((S1,range(L1,U1),E1),(S2,range(L2,U2),E2),NumSt
 
 
 %! calcse(State1,State2,D2Length,ResultState)
-% Helper function of intersection and its helper functions.
+% Helper function of intersection/3 and its helper functions.
 % Calculates the correct state number of a state in the new automaton
 % resulting from interesection.
 % State1 and State2 need to be ground.
