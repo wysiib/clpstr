@@ -29,6 +29,7 @@ test(epsilon_can_be_labeled,[all(Res == [""])]) :-
 
 :- end_tests(basic_domains).
 
+
 :- begin_tests(domains_with_operations).
 
 test(simple_concat_automaton,[all(Res == ["ab"])]) :-
@@ -72,6 +73,7 @@ test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
 
 :- end_tests(domains_with_operations).
 
+
 :- begin_tests(infinite_domains).
 
 test(simple_infinite_domain,[true(Res == "a"),nondet]) :-
@@ -108,6 +110,7 @@ test(repeat_concat_automaton,[true(Res == ""),nondet]) :-
 
 :- end_tests(infinite_domains).
 
+
 :- begin_tests(labeling_fail).
 
 test(simple_fail,[fail]) :-
@@ -124,5 +127,9 @@ test(fail_wrong_label,[fail]) :-
 test(fail_wrong_label,[fail]) :-
   constant_string_domain("abc",TestDom),
   label(TestDom,"a").
+
+test(unreachable_end,[fail]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2)],[1],[3]),
+  label(TestDom,_).
 
 :- end_tests(labeling_fail).
