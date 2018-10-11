@@ -21,12 +21,14 @@ label(automaton_dom(_,Trans,Starts,Ends),Label) :-
   unfold_tailrec(StartState,Trans,Ends,CharList),
   string_codes(Label,CharList).
 
-%! unfold_tailrec(AutomatonDomain,ListOfCharacterCodes) is nondet
+%! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
 % Tailrecursively constructs a list of character codes from an automaton.
-% AutomatonDomain needs to be instantiated.
-% Uses member to find viable states in the statespace and relies on all_transition
-% to gain viable transitions.
-% @AutomatonDomain is the incoming automaton.
+% From CurrentState a transition in Trans is searched to a new state.
+% If an EndStates is reached the recursion stops and returns the found
+% character codes to ListOfCharacterCodes
+% @CurrentState is the current state of the automaton.
+% @Trans is the labeled automaton's transition list.
+% @EndStates is the list of the automaton's accepting states.
 % @ListOfCharacterCodes is the generated list of charactercodes.
 unfold_tailrec(CurrentState,_,FinalStates,[]) :- member(CurrentState,FinalStates).
 unfold_tailrec(CurrentState,Transitions,FinalStates,[C|Cs]) :-

@@ -15,11 +15,11 @@
     - [x] accepting states
     - [x] add new transitions
     - [x] delete epsilon transitions
-- [ ] Create more labeling tests.
+- [x] Create more labeling tests.
     - Sobald mehr automaton_dom verfügbar sind als nur any_char_domain werden
     mehr Tests benötigt.
 - [x] repeat for automaton_dom
-  - [ ] turn on str_in.plt tests using repeat, after fixing automaton repeat.
+  - [x] turn on str_in.plt tests using repeat, after fixing automaton repeat.
 - [ ] add more tests for repeat/2, testing whether it correctly accepts (word)* , i.e. wordwordword and not something like wordwowordwword or such things.
 - [ ] add tests for adjust_transition and adjust_automaton_dom.
 - [ ] add DFA reduction.
