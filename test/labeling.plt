@@ -3,6 +3,7 @@
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
 :- use_module('../src/domains/labeling').
+:- use_module('../src/domains/labeling',[unfold_tailrec/5,find_next_transition/5,alternative_transitions/5]).
 
 :- begin_tests(basic_domains).
 
@@ -133,3 +134,136 @@ test(unreachable_end,[fail]) :-
   label(TestDom,_).
 
 :- end_tests(labeling_fail).
+
+
+:- begin_tests(alternative_transitions).
+
+test(unvisited_no_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(2,range(97,97),3)],
+  His = history{},
+  Expected = (1,epsilon,2),
+  alternative_transitions(Expected,TestTrans,His,His,Actual).
+
+test(visited_no_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(2,range(97,97),3)],
+  His = history{2:visited},
+  Expected = (1,epsilon,2),
+  alternative_transitions(Expected,TestTrans,His,His,Actual).
+
+test(unvisited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3)],
+  His = history{2:visited},
+  Expected = (1,range(97,97),3),
+  ExpectedHis = history{2:visited, 3:visited},
+  alternative_transitions(Expected,TestTrans,His,ExpectedHis,Actual).
+
+test(visited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3)],
+  His = history{2:visited, 3:visited},
+  Expected = (1,epsilon,2),
+  alternative_transitions(Expected,TestTrans,His,His,Actual).
+
+test(two_visited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3),(1,range(97,98),4)],
+  His = history{2:visited, 3:visited},
+  Expected = (1,range(97,98),4),
+  ExpectedHis = history{2:visited, 3:visited, 4:visited},
+  alternative_transitions(Expected,TestTrans,His,ExpectedHis,Actual).
+
+:- end_tests(alternative_transitions).
+
+
+:- begin_tests(find_next_transition).
+
+test(unvisited_no_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(2,range(97,97),3)],
+  His = history{},
+  Expected = (1,epsilon,2),
+  find_next_transition(1,TestTrans,His,His,Actual).
+
+test(visited_no_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(2,range(97,97),3)],
+  His = history{2:visited},
+  Expected = (1,epsilon,2),
+  find_next_transition(1,TestTrans,His,His,Actual).
+
+test(unvisited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3)],
+  His = history{2:visited},
+  Expected = (1,range(97,97),3),
+  ExpectedHis = history{2:visited, 3:visited},
+  find_next_transition(1,TestTrans,His,ExpectedHis,Actual).
+
+test(visited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3)],
+  His = history{2:visited, 3:visited},
+  Expected = (1,epsilon,2),
+  find_next_transition(1,TestTrans,His,His,Actual).
+
+test(two_visited_alt,[true(Actual == Expected)]) :-
+  TestTrans = [(1,epsilon,2),(1,range(97,97),3),(1,range(97,98),4)],
+  His = history{2:visited, 3:visited},
+  Expected = (1,range(97,98),4),
+  ExpectedHis = history{2:visited, 3:visited, 4:visited},
+  find_next_transition(1,TestTrans,His,ExpectedHis,Actual).
+
+:- end_tests(find_next_transition).
+
+
+:- begin_tests(unfold_tailrec).
+
+test(simple_infinite_domain,[true(Res == "a"),nondet]) :-
+  TestDom = automaton_dom([1,2],[(1,range(97,97),2),(2,range(97,97),1)],[1],[2]),
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,"a"),
+  unfold_tailrec(1,Trans,Ends,History,"aaa"),
+  unfold_tailrec(1,Trans,Ends,History,"aaaaa"),
+  unfold_tailrec(1,Trans,Ends,History,Res).
+
+test(one_infinite_trans_domain,[true(Res == "aa"),nondet]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(97,97),1),(2,range(97,97),3)],[1],[3]),
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,"aa"),
+  unfold_tailrec(1,Trans,Ends,History,"aaaa"),
+  unfold_tailrec(1,Trans,Ends,History,"aaaaaa"),
+  unfold_tailrec(1,Trans,Ends,History,Res).
+
+test(epsilon_can_be_labeled,[all(Res == [""])]) :-
+  D = automaton_dom([1,2],[(1,epsilon,2)],[1],[2]),
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,Res).
+
+test(simple_automaton,[all(Res == ["a"])]) :-
+  single_char_domain("a",Dom),
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,Res).
+
+test(fail_no_end_states,[fail]) :-
+  TestDom = automaton_dom([1,2],[(1,range(97,97),2)],[1],[])
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,_).
+
+test(unreachable_end,[fail]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2)],[1],[3]),
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  History = history{},
+  unfold_tailrec(1,Trans,Ends,History,_).
+
+:- end_tests(unfold_tailrec).
