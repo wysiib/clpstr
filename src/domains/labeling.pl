@@ -10,31 +10,76 @@
 % @Domain is the domain that is to be labeled.
 % @Label is the resulting label as a list of characters.
 label(string_dom(S),S).
-label(automaton_dom(_,Trans,Starts,Ends),Label) :-
+label(Dom,Label) :-
   ground(Label), !, % string is ground: verify if in language
   string_codes(Label,CharList),
+  get_start_states(Dom,Starts),
   member(StartState,Starts),
-  unfold_tailrec(StartState,Trans,Ends,CharList).
-label(automaton_dom(_,Trans,Starts,Ends),Label) :-
+  History = history{},
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  unfold_tailrec(StartState,Trans,Ends,History,CharList).
+label(Dom,Label) :-
   % string is var: enumerate all solutions
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
   member(StartState,Starts),
-  unfold_tailrec(StartState,Trans,Ends,CharList),
+  History = history{},
+  unfold_tailrec(StartState,Trans,Ends,History,CharList),
   string_codes(Label,CharList).
 
 %! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
 % Tailrecursively constructs a list of character codes from an automaton.
 % From CurrentState a transition in Trans is searched to a new state.
 % If an EndStates is reached the recursion stops and returns the found
-% character codes to ListOfCharacterCodes
+% character codes to ListOfCharacterCodes.
+% Helper predicate of labeling.
 % @CurrentState is the current state of the automaton.
 % @Trans is the labeled automaton's transition list.
 % @EndStates is the list of the automaton's accepting states.
 % @ListOfCharacterCodes is the generated list of charactercodes.
-unfold_tailrec(CurrentState,_,FinalStates,[]) :- member(CurrentState,FinalStates).
-unfold_tailrec(CurrentState,Transitions,FinalStates,[C|Cs]) :-
-  member((CurrentState,range(From,To),NextState),Transitions),
-  between(From,To,C),
-  unfold_tailrec(NextState,Transitions,FinalStates,Cs).
-unfold_tailrec(CurrentState,Transitions,FinalStates,Cs) :-
-  member((CurrentState,epsilon,NextState),Transitions),
-  unfold_tailrec(NextState,Transitions,FinalStates,Cs).
+unfold_tailrec(CurrentState,_,FinalStates,_,[]) :-
+  member(CurrentState,FinalStates).
+unfold_tailrec(CurrentState,Transitions,FinalStates,History,CodeList) :-
+  find_next_transition(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
+  (Char == epsilon
+  -> CodeList = Cs
+  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
+  unfold_tailrec(NextState,Transitions,FinalStates,NewHistory,Cs).
+
+%!find_next_transition(CurrentState,ListOfTransitions,HistoryDict,NewHistoryDict,ResTrans)
+% Helper predicate of unfold_tailrec/5.
+% Takes a state, a list of transitions and a dict of visited states
+% and finds the next transition that is acceptable with respect to loops.
+% Transitions outside of a visited loop get prefered.
+% @CurrentState is the state the automaton is currently in.
+% @ListOfTransitions is the list of transitions from the automaton.
+% @HistoryDict is the dict containing the already visited states.
+% @NewHistoryDict is the dict after visiting the newly found transition.
+% @ResTrans is the found transition.
+find_next_transition(CurrentState,Transitions,History,NewHistory,Alternative) :-
+  member((CurrentState,C,NextState),Transitions),
+  (get_dict(NextState,History,visited)
+  ->  alternative_transitions((CurrentState,C,NextState),Transitions,History,NewHistory,Alternative)
+  ;   put_dict(NextState,History,visited,NewHistory),
+      Alternative = (CurrentState,C,NextState)).
+
+%!alternative_transitions(CurrentTrans,ListOfTransitions,HistoryDict,NewHistoryDict,ResTrans)
+% Helper predicate of find_next_transition/5.
+% Takes a transition, a list of transitions and a dict of visited states
+% and if there is an alternative transition, such that the state it leads to
+% is unvisited, the transition is returned instead.
+% If no such transition exists, CurrentTrans is returned.
+% @CurrentTrans is the transition currently used in find_next_transition/5.
+% @ListOfTransitions is the list of transitions from the automaton.
+% @HistoryDict is the dict containing the already visited states.
+% @NewHistoryDict is the dict after visiting the newly found transition.
+% @ResTrans is the found transition.
+alternative_transitions((CS,_,NextState),Trans,History,NewHistory,Alt) :-
+  member((CS,CNew,NewNextState),Trans),
+  NewNextState \= NextState,
+  \+ get_dict(NewNextState,History,visited),
+  put_dict(NewNextState,History,visited,NewHistory),
+  Alt = (CS,CNew,NewNextState).
+alternative_transitions(Found,_,History,History,Found).
