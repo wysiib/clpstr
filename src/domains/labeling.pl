@@ -11,7 +11,7 @@ labeling(_,string_dom(S),S) :- !.
 labeling([dfs],Dom,Label) :-
   label_dfs(Dom,Label).
 labeling([id_dfs],Dom,Label) :-
-  ground(Label),
+  ground(Label),!,
   label_dfs(Dom,Label).
 labeling([id_dfs],Dom,Label) :-
   label_id_dfs(Dom,Label).
@@ -113,33 +113,12 @@ label_id_dfs(Dom,Label) :-
   lst(List),
   length(List,L), % some arbitrary termination condition.
   (L >= 10000 -> !, fail;
-  unfold_tailrec(List,StartState,Trans,Ends,NewHistory,CharList),
-  string_codes(Label,CharList)).
+  unfold_tailrec(StartState,Trans,Ends,NewHistory,List),
+  string_codes(Label,List)).
 
 lst([]).
 lst([_|T]) :-
   lst(T).
-
-%! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
-% Tailrecursively constructs a list of character codes from an automaton.
-% From CurrentState a transition in Trans is searched to a new state.
-% If an EndStates is reached the recursion stops and returns the found
-% character codes to ListOfCharacterCodes.
-% Helper predicate of labeling.
-% @CurrentState is the current state of the automaton.
-% @Trans is the labeled automaton's transition list.
-% @EndStates is the list of the automaton's accepting states.
-% @ListOfCharacterCodes is the generated list of charactercodes.
-unfold_tailrec_iterative_deep(_,CurrentState,_,FinalStates,_,[]) :-
-  member(CurrentState,FinalStates).
-unfold_tailrec_iterative_deep([],_,_,_,_,_) :-
-  fail.
-unfold_tailrec_iterative_deep([_|T],CurrentState,Transitions,FinalStates,History,CodeList) :-
-  find_next_transition(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
-  (Char == epsilon
-  -> CodeList = Cs
-  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
-  unfold_tailrec_iterative_deep(T,NextState,Transitions,FinalStates,NewHistory,Cs).
 
 
 label_bfs(_,_) :-
