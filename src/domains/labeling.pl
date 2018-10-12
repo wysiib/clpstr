@@ -1,13 +1,22 @@
-:- module(labeling, [label/2,label/3]).
+:- module(labeling, [label/2,labeling/3]).
 
+label(string_dom(S),S) :- !.
 label(Dom,Label) :-
+  ground(Label),!,
   label_dfs(Dom,Label).
-label([dfs],Dom,Label) :-
+label(Dom,Label) :-
+  label_id_dfs(Dom,Label).
+
+labeling(_,string_dom(S),S) :- !.
+labeling([dfs],Dom,Label) :-
   label_dfs(Dom,Label).
-label([id_dfs],_,_) :-
-  fail.
-label([bfs],Dom,Label) :-
-  label_bfs(Dom,Label).
+labeling([id_dfs],Dom,Label) :-
+  ground(Label),
+  label_dfs(Dom,Label).
+labeling([id_dfs],Dom,Label) :-
+  label_id_dfs(Dom,Label).
+labeling([bfs],Dom,Label) :-
+  label_bfs(Dom,Label). %NOTE currently does not work!
 
 %! label(Domain,Label) is nondet
 % Labels a domain to get exactly one value.
@@ -16,7 +25,6 @@ label([bfs],Dom,Label) :-
 % Calls unfold_tailrec to construct a label.
 % @Domain is the domain that is to be labeled.
 % @Label is the resulting label as a list of characters.
-label_dfs(string_dom(S),S).
 label_dfs(Dom,Label) :-
   ground(Label), !, % string is ground: verify if in language
   string_codes(Label,CharList),
@@ -94,10 +102,45 @@ alternative_transitions((CS,_,NextState),Trans,History,NewHistory,Alt) :-
 alternative_transitions(Found,_,History,History,Found).
 
 
-label_bfs(string_dom(S),S).
-label_bfs(_,_) :-
-  fail.
+label_id_dfs(Dom,Label) :-
+  % string is var: enumerate all solutions
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  member(StartState,Starts),
+  History = history{},
+  put_dict(StartState,History,visited,NewHistory),
+  lst(List),
+  length(List,L), % some arbitrary termination condition.
+  (L >= 10000 -> !, fail;
+  unfold_tailrec(List,StartState,Trans,Ends,NewHistory,CharList),
+  string_codes(Label,CharList)).
 
-label_id_dfs(string_dom(S),S).
-label_id_dfs(_,_) :-
+lst([]).
+lst([_|T]) :-
+  lst(T).
+
+%! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
+% Tailrecursively constructs a list of character codes from an automaton.
+% From CurrentState a transition in Trans is searched to a new state.
+% If an EndStates is reached the recursion stops and returns the found
+% character codes to ListOfCharacterCodes.
+% Helper predicate of labeling.
+% @CurrentState is the current state of the automaton.
+% @Trans is the labeled automaton's transition list.
+% @EndStates is the list of the automaton's accepting states.
+% @ListOfCharacterCodes is the generated list of charactercodes.
+unfold_tailrec_iterative_deep(_,CurrentState,_,FinalStates,_,[]) :-
+  member(CurrentState,FinalStates).
+unfold_tailrec_iterative_deep([],_,_,_,_,_) :-
+  fail.
+unfold_tailrec_iterative_deep([_|T],CurrentState,Transitions,FinalStates,History,CodeList) :-
+  find_next_transition(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
+  (Char == epsilon
+  -> CodeList = Cs
+  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
+  unfold_tailrec_iterative_deep(T,NextState,Transitions,FinalStates,NewHistory,Cs).
+
+
+label_bfs(_,_) :-
   fail.
