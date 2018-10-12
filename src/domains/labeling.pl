@@ -1,6 +1,11 @@
-:- module(labeling, [label/2]).
+:- module(labeling, [label/2,label/3]).
 
-
+label([dfs],Dom,Label) :-
+  label(Dom,Label).
+label([id_dfs],_,_) :-
+  fail.
+label([bfs],Dom,Label) :-
+  label_bfs(Dom,Label).
 
 %! label(Domain,Label) is nondet
 % Labels a domain to get exactly one value.
@@ -85,3 +90,8 @@ alternative_transitions((CS,_,NextState),Trans,History,NewHistory,Alt) :-
   put_dict(NewNextState,History,visited,NewHistory),
   Alt = (CS,CNew,NewNextState).
 alternative_transitions(Found,_,History,History,Found).
+
+
+label_bfs(string_dom(S),S).
+label_bfs(_,_) :-
+  fail. 
