@@ -16,9 +16,10 @@ label(Dom,Label) :-
   get_start_states(Dom,Starts),
   member(StartState,Starts),
   History = history{},
+  put_dict(StartState,History,visited,NewHistory),
   get_end_states(Dom,Ends),
   get_transition(Dom,Trans),
-  unfold_tailrec(StartState,Trans,Ends,History,CharList).
+  unfold_tailrec(StartState,Trans,Ends,NewHistory,CharList).
 label(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
@@ -26,7 +27,8 @@ label(Dom,Label) :-
   get_transition(Dom,Trans),
   member(StartState,Starts),
   History = history{},
-  unfold_tailrec(StartState,Trans,Ends,History,CharList),
+  put_dict(StartState,History,visited,NewHistory),
+  unfold_tailrec(StartState,Trans,Ends,NewHistory,CharList),
   string_codes(Label,CharList).
 
 %! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
