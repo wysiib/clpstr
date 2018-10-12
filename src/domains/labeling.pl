@@ -1,7 +1,9 @@
 :- module(labeling, [label/2,label/3]).
 
+label(Dom,Label) :-
+  label_dfs(Dom,Label).
 label([dfs],Dom,Label) :-
-  label(Dom,Label).
+  label_dfs(Dom,Label).
 label([id_dfs],_,_) :-
   fail.
 label([bfs],Dom,Label) :-
@@ -14,8 +16,8 @@ label([bfs],Dom,Label) :-
 % Calls unfold_tailrec to construct a label.
 % @Domain is the domain that is to be labeled.
 % @Label is the resulting label as a list of characters.
-label(string_dom(S),S).
-label(Dom,Label) :-
+label_dfs(string_dom(S),S).
+label_dfs(Dom,Label) :-
   ground(Label), !, % string is ground: verify if in language
   string_codes(Label,CharList),
   get_start_states(Dom,Starts),
@@ -25,7 +27,7 @@ label(Dom,Label) :-
   get_end_states(Dom,Ends),
   get_transition(Dom,Trans),
   unfold_tailrec(StartState,Trans,Ends,NewHistory,CharList).
-label(Dom,Label) :-
+label_dfs(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
   get_end_states(Dom,Ends),
@@ -94,4 +96,8 @@ alternative_transitions(Found,_,History,History,Found).
 
 label_bfs(string_dom(S),S).
 label_bfs(_,_) :-
-  fail. 
+  fail.
+
+label_id_dfs(string_dom(S),S).
+label_id_dfs(_,_) :-
+  fail.
