@@ -49,8 +49,8 @@ test(simple_repeat1_automaton,[true(Res == ""),nondet]) :-
   repeat(Dom,TestDom),
   labeling([any],TestDom,""),
   labeling([any],TestDom,"a"),
-  labeling([any],TestDom,"aa"),
-  labeling([any],TestDom,"aaa"),
+  \+ labeling([any],TestDom,"aa"),
+  \+ labeling([any],TestDom,"aaa"),
   labeling([any],TestDom,Res).
 
 test(simple_repeat2_automaton,[all(Res == ["aaa"])]) :-
@@ -90,41 +90,41 @@ test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
 test(simple_infinite_domain,[true(Res == "a"),nondet]) :-
   TestDom = automaton_dom([1,2],[(1,range(97,97),2),(2,range(97,97),1)],[1],[2]),
   labeling([any],TestDom,"a"),
-  labeling([any],TestDom,"aaa"),
-  labeling([any],TestDom,"aaaaa"),
+  \+ labeling([any],TestDom,"aaa"),
+  \+ labeling([any],TestDom,"aaaaa"),
   labeling([any],TestDom,Res).
 
 test(one_infinite_trans_domain,[true(Res == "aa"),nondet]) :-
   TestDom = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(97,97),1),(2,range(97,97),3)],[1],[3]),
   labeling([any],TestDom,"aa"),
-  labeling([any],TestDom,"aaaa"),
-  labeling([any],TestDom,"aaaaaa"),
+  \+ labeling([any],TestDom,"aaaa"),
+  \+ labeling([any],TestDom,"aaaaaa"),
   labeling([any],TestDom,Res).
 
 test(two_infinite_trans_domain1,[true(Res == "aaa"),nondet]) :-
   TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(97,97),3),(3,range(97,97),1),(3,range(97,97),4)],[1],[4]),
   labeling([any],TestDom,"aaa"),
-  labeling([any],TestDom,"aaaaaa"),
-  labeling([any],TestDom,"aaaaaaaaa"),
+  \+ labeling([any],TestDom,"aaaaaa"),
+  \+ labeling([any],TestDom,"aaaaaaaaa"),
   labeling([any],TestDom,Res).
 
 test(two_infinite_trans_domain2,[true(Res == "a"),nondet]) :-
   TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,1),(1,range(97,97),4)],[1],[4]),
   labeling([any],TestDom,"a"),
-  labeling([any],TestDom,"aba"),
-  labeling([any],TestDom,"ababa"),
-  labeling([any],TestDom,"abababa"),
+  \+ labeling([any],TestDom,"aba"),
+  \+ labeling([any],TestDom,"ababa"),
+  \+ labeling([any],TestDom,"abababa"),
   labeling([any],TestDom,Res).
 
-test(repeat_concat_automaton,[true(Res == "b"),nondet]) :-
+test(repeat_concat_automaton,[true(Res == "ab"),nondet]) :-
   single_char_domain("a",DomA),
   repeat(DomA,RepDomA),
   single_char_domain("b",DomB),
   concatenation(RepDomA,DomB,TestDom),
   labeling([any],TestDom,"b"),
   labeling([any],TestDom,"ab"),
-  labeling([any],TestDom,"aab"),
-  labeling([any],TestDom,"aaab"),
+  \+ labeling([any],TestDom,"aab"),
+  \+ labeling([any],TestDom,"aaab"),
   labeling([any],TestDom,Res).
 
 test(infinite_loop_no_goal,[true(Res == "a"),nondet]) :-
