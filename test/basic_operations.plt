@@ -163,12 +163,6 @@ test(un2_un3_scd,[true(Un2 == Un3)]) :-
 
 :- begin_tests(is_empty).
 
-is_empty(automaton_dom([],_,_,_)) :- !.
-is_empty(automaton_dom(_,_,[],_)) :- !.
-is_empty(automaton_dom(_,_,_,[])) :- !.
-is_empty(empty) :- !.
-is_empty(D) :- !, \+ label(D,_).
-
 test(empty,[true(Res == empty)]) :-
   is_empty(Res).
 
