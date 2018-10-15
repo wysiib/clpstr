@@ -179,14 +179,14 @@ test(labeling_specific_size_three,[all(Res == ["aba"])]) :-
   intersection(TestDom1,TestDom2,LabelDom),
   label(LabelDom,Res).
 
-test(labeling_specific_size_five,[all(Res == ["ababa","ababa"])]) :-
+test(labeling_specific_size_five,[all(Res == ["ababa","ababa"]),fixme("remove duplicate options")]) :-
   TestDom1 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,1),(3,range(97,97),4)],[1],[4]),
   any_char_domain(AnyDom),
   repeat(AnyDom,5,TestDom2),
   intersection(TestDom1,TestDom2,LabelDom),
   label(LabelDom,Res).
 
-test(labeling_specific_size_five,[all(Res == ["abababa","abababa","abababa","abababa"])]) :-
+test(labeling_specific_size_five,[all(Res == ["abababa","abababa","abababa","abababa"]),fixme("remove duplicate options")]) :-
   TestDom1 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,1),(3,range(97,97),4)],[1],[4]),
   any_char_domain(AnyDom),
   repeat(AnyDom,7,TestDom2),
@@ -335,6 +335,7 @@ test(uf_unreachable_end,[fail]) :-
 
 :- end_tests(unfold_tailrec).
 
+
 :- begin_tests(unfold_tailrec_bfs).
 
 test(uf_bfs_simple_automaton,[true(Res == [range(97,97)]),nondet]) :-
@@ -386,6 +387,7 @@ test(uf_bfs_unreachable_end,[fail]) :-
   labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,_).
 
 :- end_tests(unfold_tailrec_bfs).
+
 
 :- begin_tests(find_next_transition_any).
 
