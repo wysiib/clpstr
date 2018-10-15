@@ -23,7 +23,7 @@ str_in(_,D) ==>  is_empty(D) | fail.
 str_in(X,D1), str_in(X,D2)
             <=> intersection(D1,D2,D3), str_in(X,D3).
 
-% the variables in the list Vars are suppoed to be labeled.
+% the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
 % that is associated which a variable in the list
 % (we do not use member to check since that would unify variables!)

@@ -2,7 +2,7 @@
 
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
-:- use_module('../src/domains/basic_operations',[state_in_state_product/4]).
+%:- use_module('../src/domains/basic_operations',[state_in_state_product/4]).
 
 /**
 * basic_operations intersection tests.
@@ -126,25 +126,25 @@ test(single_trans1,[true(Res == Expected)]) :-
   Expected = (1,range(97,97),5),
   Testdelta1 = [(1,range(97,98),2)],
   Testdelta2 = [(1,range(97,97),2)],
-  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,3,Res).
 
 test(single_trans2,[true(Res == Expected)]) :-
   Expected = (2,range(98,98),6),
   Testdelta1 = [(1,range(97,98),2)],
   Testdelta2 = [(2,range(98,98),3)],
-  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,3,Res).
 
 test(single_trans3,[true(Res == Expected)]) :-
   Expected = (1,epsilon,2),
   Testdelta1 = [(1,range(97,98),2)],
   Testdelta2 = [(1,epsilon,2)],
-  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,3,Res).
 
 test(double_trans,all(Res == [(1,range(97,97),5),(1,epsilon,2)])) :-
   %Expected = [(1,range(97,97),2),(1,epsilon,2)],
   Testdelta1 = [(1,range(97,98),2)],
   Testdelta2 = [(1,range(97,97),2),(1,epsilon,2)],
-  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,3,Res).
 
 
 % For this testcase
@@ -157,7 +157,7 @@ test(double_trans,all(Res == [(1,range(97,97),5),(1,epsilon,2)])) :-
 test(double_eps_trans,[true(Res == Expected)]) :-
   Expected = (1,epsilon,4),
   Testdelta = [(1,epsilon,2)],
-  state_in_state_product(Testdelta,Testdelta,2,Res).
+  basic_operations:state_in_state_product(Testdelta,Testdelta,2,Res).
 
 
 % For this testcase
@@ -172,7 +172,7 @@ test(single_eps_trans_two_times,all(Res == [(1,epsilon,4),(2,epsilon,6),(4,range
   % (8,epsilon,9) is missing because no epsilon selfloops on state 3
   Testdelta1 = [(1,epsilon,2),(2,range(97,97),3)],
   Testdelta2 = [(1,range(97,97),2),(2,epsilon,3)],
-  state_in_state_product(Testdelta1,Testdelta2,3,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,3,Res).
 
 
 % For this testcase
@@ -188,20 +188,20 @@ test(simple_delta,[true(Res == Expected)]) :-
   Expected = (5,range(97,97),10),
   Testdelta1 = [(2,range(97,98),3)],
   Testdelta2 = [(1,range(97,97),2)],
-  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,4,Res).
 
 test(cross_epsilon,[true(Res == Expected)]) :-
   Expected = (6,epsilon,7),
   Testdelta1 = [(2,range(97,98),3)],
   Testdelta2 = [(2,epsilon,3)],
-  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,4,Res).
 
 % same result as in concat_intersec above
 test(cross_epsilon,[true(Res == Expected)]) :-
   Expected = (6,epsilon,7),
   Testdelta1 = [(2,range(97,98),3)],
   Testdelta2 = [(2,epsilon,3)],
-  state_in_state_product(Testdelta1,Testdelta2,4,Res).
+  basic_operations:state_in_state_product(Testdelta1,Testdelta2,4,Res).
 
 
 % For this testcase
@@ -222,7 +222,7 @@ test(concat_sisproduct_findall,[true(Actual == Expected)]) :-
   Expected = [(1,range(97,97),6),(2,epsilon,3),(4,epsilon,4),(6,epsilon,7),(7,range(98,98),12),(8,epsilon,8),(9,epsilon,9),(10,epsilon,11),(11,epsilon,11),(12,epsilon,12)],
   Testdelta1 = [(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,3)],
   Testdelta2 = [(1,range(97,97),2),(2,epsilon,3),(3,range(98,98),4),(4,epsilon,4)],
-  findall(Delta,state_in_state_product(Testdelta1,Testdelta2,4,Delta),Actual).
+  findall(Delta,basic_operations:state_in_state_product(Testdelta1,Testdelta2,4,Delta),Actual).
 
 
 :- end_tests(sisproduct).
