@@ -18,9 +18,10 @@
 % end states or no states at all and by containing the empty fact in all other
 % cases.
 % @Domain is the Domain to be tested whether it is empty.
+is_empty(empty) :- !.
 is_empty(automaton_dom([],_,_,_)) :- !.
 is_empty(automaton_dom(_,_,[],_)) :- !.
-is_empty(empty) :- !.
+is_empty(automaton_dom(_,_,_,[])) :- !.
 is_empty(D) :- !, \+ label(D,_).
 
 %! intersection(Domain1,Domain2,ResultingDomain) is det

@@ -160,3 +160,44 @@ test(un2_un3_scd,[true(Un2 == Un3)]) :-
   union([D1,D2],Un2).
 
 :- end_tests(union_2_union3_comparision).
+
+:- begin_tests(is_empty).
+
+is_empty(automaton_dom([],_,_,_)) :- !.
+is_empty(automaton_dom(_,_,[],_)) :- !.
+is_empty(automaton_dom(_,_,_,[])) :- !.
+is_empty(empty) :- !.
+is_empty(D) :- !, \+ label(D,_).
+
+test(empty,[true(Res == empty)]) :-
+  is_empty(Res).
+
+test(simple_empty,[true]) :-
+  TestDom = empty,
+  is_empty(TestDom).
+
+test(empty_no_states,[true]) :-
+  TestDom = automaton_dom([],_,_,_),
+  is_empty(TestDom).
+
+test(empty_no_start,[true]) :-
+  TestDom = automaton_dom(_,_,[],_),
+  is_empty(TestDom).
+
+test(empty_no_end,[true]) :-
+  TestDom = automaton_dom(_,_,_,[]),
+  is_empty(TestDom).
+
+test(empty_simple_no_label,[true]) :-
+  TestDom = automaton_dom([1,2,3],[(1,epsilon,2)],[1],[3]),
+  is_empty(TestDom).
+
+test(empty_no_label_loop,[true]) :-
+  TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,2)],[1],[4]),
+  is_empty(TestDom).
+
+test(empty_fail_loop,[fail]) :-
+  TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,2),(1,range(97,97),4)],[1],[4]),
+  is_empty(TestDom).
+
+:- end_tests(is_empty).
