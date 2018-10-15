@@ -63,6 +63,22 @@ test(simple_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
   repeat(Dom,1,3,TestDom),
   labeling([dfs],TestDom,Res).
 
+test(any_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
+  any_char_domain(Dom),
+  repeat(Dom,1,3,TestDom),
+  labeling([dfs],TestDom,Res).
+
+test(any_repeat3_automaton,[true(Res == " "),nondet]) :-
+  any_char_domain(Dom),
+  repeat(Dom,1,3,TestDom),
+  labeling([dfs],TestDom,"a"),
+  labeling([dfs],TestDom,"ab"),
+  labeling([dfs],TestDom,"abc"),
+  labeling([dfs],TestDom,"A"),
+  labeling([dfs],TestDom,"AB"),
+  labeling([dfs],TestDom,"ABC"),
+  labeling([dfs],TestDom,Res).
+
 test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
   TestDom2 = automaton_dom([1,2,3],[(1,range(97,98),2),(2,range(97,98),3)],[1],[3]),
   single_char_domain("a",Dom1),
@@ -115,6 +131,14 @@ test(repeat_concat_automaton,[true(Res == "ab"),nondet]) :-
   labeling([dfs],TestDom,"aab"),
   labeling([dfs],TestDom,"aaab"),
   labeling([dfs],TestDom,Res).
+
+test(infinite_loop_no_goal,[true(Res == "a")]) :-
+  TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,2),(1,range(97,97),4)],[1],[4]),
+  labeling([dfs],TestDom,"a"),
+  \+ labeling([dfs],TestDom,"ab"),
+  \+ labeling([dfs],TestDom,"abab"),
+  \+ labeling([dfs],TestDom,"aba"),
+  \+ labeling([dfs],TestDom,Res).
 
 :- end_tests(infinite_domains).
 
