@@ -18,7 +18,10 @@ labeling([id_dfs],Dom,Label) :-
 labeling([id_dfs],Dom,Label) :-
   label_id_dfs(Dom,Label).
 labeling([bfs],Dom,Label) :-
-  label_bfs(Dom,Label). %NOTE currently does not work!
+  ground(Label),!,
+  label_dfs(Dom,Label).
+labeling([bfs],Dom,Label) :-
+  label_bfs(Dom,Label).
 
 %! label(Domain,Label) is nondet
 % Labels a domain to get exactly one value.
@@ -104,6 +107,19 @@ alternative_transitions((CS,_,NextState),Trans,History,NewHistory,Alt) :-
 alternative_transitions(Found,_,History,History,Found).
 
 
+translate_ranges(RangeList,Label) :-
+  gen_charlist(RangeList,CharList),
+  string_codes(Label,CharList).
+
+%! gen_charlist(RangeList,CharList)
+gen_charlist(RangeList,Res):-
+  gen_charlist_acc(RangeList,[],Res).
+gen_charlist_acc([],Res,Res).
+gen_charlist_acc([range(From,To)|RangeT],[C|AccT],Res) :-
+  between(From,To,C),
+  gen_charlist_acc(RangeT,AccT,Res).
+
+
 label_id_dfs(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
@@ -118,11 +134,60 @@ label_id_dfs(Dom,Label) :-
   unfold_tailrec(StartState,Trans,Ends,NewHistory,List),
   string_codes(Label,List)).
 
+%%%% List generation %%%%
+
 lst([]).
 lst([_|T]) :-
   lst(T).
 
 
-label_bfs(_,_) :-
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+label_bfs(Dom,Label) :-
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  member(StartState,Starts),
+  queue_new(Queue),
+  unfold_tailrec_bfs(StartState,Trans,Ends,Queue,RangeList),
+  translate_ranges(RangeList,Label).
+
+unfold_tailrec_bfs(CurrentState,_,FinalStates,_,[]) :-
+  member(CurrentState,FinalStates).
+unfold_tailrec_bfs(CurrentState,Transitions,FinalStates,Queue,RangeList) :-
+  findall((CurrentState,R,NextState),member((CurrentState,R,NextState),Transitions),NextTransitions),
+  queue_push_all(NextTransitions,Queue,NewQueue),
+  queue_pop(NewQueue,(_,Char,NextState),PopedQueue),
+  (Char == epsilon
+  -> RangeList = Cs
+  ;  Char = range(_,_), RangeList = [Char|Cs]),
+  unfold_tailrec_bfs(NextState,Transitions,FinalStates,PopedQueue,Cs).
+unfold_tailrec_bfs(CurrentState,_,FinalStates,Queue,_,[]) :-
+  quque_is_empty(Queue),
+  \+ member(CurrentState,FinalStates),!,
   fail.
-  
+
+
+%%%% Queue handling %%%%
+
+%! queue_new(Empty_Queue).
+queue_new(Q-Q).
+
+%! queue_push(Old_Queue, NewElement, NewQueue).
+queue_push(E,Q-[E|T],Q-T).
+
+%! queue_push_all(Old_Queue, ListOfNewElements, New_queue).
+queue_push_all([],Q,Q).
+queue_push_all([H|T],Q,NewQ) :-
+  queue_push_all(T,Q,TempQ),
+  queue_push(H,TempQ,NewQ).
+
+%! qget(Old_queue, Next_element, Remaining_queue).
+% Fails on empty queue.
+queue_pop(Q,_,_) :-
+  quque_is_empty(Q), !, fail.
+queue_pop([X|Xs]-T,X,Xs-T).
+
+quque_is_empty(Q-_) :- var(Q).
+
+%%%%%%%%%%%%%%%%%%%%%%%%
