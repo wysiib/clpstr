@@ -25,6 +25,12 @@ test_reduc:
 test_label:
 	swipl --quiet -l test/labeling.plt -t "run_tests"
 
+test_label_dfs:
+	swipl --quiet -l test/labeling_dfs.plt -t "run_tests"
+
+test_label_id_dfs:
+	swipl --quiet -l test/labeling_id_dfs.plt -t "run_tests"
+
 test_label_all:
 	swipl --quiet -l test/labeling.plt -t "run_tests"
 	swipl --quiet -l test/labeling_dfs.plt -t "run_tests"
