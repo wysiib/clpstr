@@ -3,7 +3,6 @@
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
 :- use_module('../src/domains/labeling').
-%:- use_module('../src/domains/labeling',[unfold_tailrec/5,find_next_transition/5,alternative_transitions/5]).
 
 :- begin_tests(basic_domains).
 
