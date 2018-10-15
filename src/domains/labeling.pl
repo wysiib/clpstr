@@ -1,5 +1,7 @@
 :- module(labeling, [label/2,labeling/3]).
 
+:- use_module(basic_domains).
+
 label(string_dom(S),S) :- !.
 label(Dom,Label) :-
   ground(Label),!,
@@ -123,3 +125,4 @@ lst([_|T]) :-
 
 label_bfs(_,_) :-
   fail.
+  
