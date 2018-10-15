@@ -10,6 +10,8 @@ label(Dom,Label) :-
   label_id_dfs(Dom,Label).
 
 labeling(_,string_dom(S),S) :- !.
+labeling([any],Dom,Label) :-
+  label_any_dfs(Dom,Label).
 labeling([dfs],Dom,Label) :-
   label_dfs(Dom,Label).
 labeling([id_dfs],Dom,Label) :-
@@ -191,3 +193,30 @@ queue_pop([X|Xs]-T,X,Xs-T).
 quque_is_empty(Q-_) :- var(Q).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
+
+label_any_dfs(Dom,Label) :-
+  % string is var: enumerate all solutions
+  get_start_states(Dom,Starts),
+  get_end_states(Dom,Ends),
+  get_transition(Dom,Trans),
+  member(StartState,Starts),
+  History = history{},
+  put_dict(StartState,History,visited,NewHistory),
+  unfold_tailrec_any(StartState,Trans,Ends,NewHistory,CharList),
+  string_codes(Label,CharList).
+
+unfold_tailrec_any(CurrentState,_,FinalStates,_,[]) :-
+  member(CurrentState,FinalStates).
+unfold_tailrec_any(CurrentState,Transitions,FinalStates,History,CodeList) :-
+  find_next_transition_any(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
+  (Char == epsilon
+  -> CodeList = Cs
+  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
+  unfold_tailrec_any(NextState,Transitions,FinalStates,NewHistory,Cs).
+
+find_next_transition_any(CurrentState,Transitions,History,NewHistory,Alternative) :-
+  member((CurrentState,C,NextState),Transitions),
+  (get_dict(NextState,History,visited)
+  ->  fail
+  ;   put_dict(NextState,History,visited,NewHistory),
+      Alternative = (CurrentState,C,NextState)).
