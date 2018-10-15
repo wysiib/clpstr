@@ -132,13 +132,13 @@ test(repeat_concat_automaton,[true(Res == "ab"),nondet]) :-
   labeling([dfs],TestDom,"aaab"),
   labeling([dfs],TestDom,Res).
 
-test(infinite_loop_no_goal,[true(Res == "a")]) :-
+test(infinite_loop_no_goal,[blocked("currently no loop detection in dfs labeling"),true(Res == "a")]) :-
   TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,2),(1,range(97,97),4)],[1],[4]),
   labeling([dfs],TestDom,"a"),
   \+ labeling([dfs],TestDom,"ab"),
   \+ labeling([dfs],TestDom,"abab"),
   \+ labeling([dfs],TestDom,"aba"),
-  \+ labeling([dfs],TestDom,Res).
+  labeling([dfs],TestDom,Res).
 
 :- end_tests(infinite_domains).
 

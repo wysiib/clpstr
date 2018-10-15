@@ -138,7 +138,7 @@ test(infinite_loop_no_goal,[true(Res == "a")]) :-
   \+ labeling([id_dfs],TestDom,"ab"),
   \+ labeling([id_dfs],TestDom,"abab"),
   \+ labeling([id_dfs],TestDom,"aba"),
-  \+ labeling([id_dfs],TestDom,Res).
+  labeling([id_dfs],TestDom,Res).
 
 :- end_tests(infinite_domains).
 

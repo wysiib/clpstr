@@ -133,13 +133,13 @@ test(repeat_concat_automaton,[true(Res == "b"),nondet]) :-
   label(TestDom,"aaab"),
   label(TestDom,Res).
 
-test(infinite_loop_no_goal,[true(Res == "a")]) :-
+test(infinite_loop_no_goal,[true(Res == "a"),nondet]) :-
   TestDom = automaton_dom([1,2,3,4],[(1,range(97,97),2),(2,range(98,98),3),(3,epsilon,2),(1,range(97,97),4)],[1],[4]),
   label(TestDom,"a"),
   \+ label(TestDom,"ab"),
   \+ label(TestDom,"abab"),
   \+ label(TestDom,"aba"),
-  \+ label(TestDom,Res).
+  label(TestDom,Res).
 
 :- end_tests(infinite_domains).
 
@@ -339,3 +339,55 @@ test(uf_unreachable_end,[fail]) :-
   labeling:unfold_tailrec(1,Trans,Ends,History,_).
 
 :- end_tests(unfold_tailrec).
+
+:- begin_tests(unfold_tailrec_bfs).
+
+test(uf_bfs_simple_automaton,[true(Res == [range(97,97)]),nondet]) :-
+  single_char_domain("a",TestDom),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,Res).
+
+test(uf_bfs_epsilon_can_be_labeled,[true(Res == []),nondet]) :-
+  TestDom = automaton_dom([1,2],[(1,epsilon,2)],[1],[2]),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,Res).
+
+test(uf_bfs_simple_infinite_domain,[true(Res == [range(97,97)]),nondet]) :-
+  TestDom = automaton_dom([1,2],[(1,range(97,97),2),(2,range(97,97),1)],[1],[2]),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97),range(97,97),range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,Res).
+
+test(uf_bfs_one_infinite_trans_domain,[fixme("currently no labeling in bfs"),true(Res == [range(97,97),range(97,97)]),nondet]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(97,97),1),(2,range(97,97),3)],[1],[3]),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97),range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97),range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,[range(97,97),range(97,97),range(97,97),range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,Res).
+
+test(uf_bfs_fail_no_end_states,[fail]) :-
+  TestDom = unfold_tailrec_bfs([1,2],[(1,range(97,97),2)],[1],[]),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,_).
+
+test(uf_bfs_unreachable_end,[fail]) :-
+  TestDom = automaton_dom([1,2,3],[(1,range(97,97),2)],[1],[3]),
+  get_end_states(TestDom,Ends),
+  get_transition(TestDom,Trans),
+  labeling:queue_new(Queue),
+  labeling:unfold_tailrec_bfs(1,Trans,Ends,Queue,_).
+
+:- end_tests(unfold_tailrec_bfs).
