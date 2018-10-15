@@ -31,16 +31,29 @@ test_label_dfs:
 test_label_id_dfs:
 	swipl --quiet -l test/labeling_id_dfs.plt -t "run_tests"
 
+test_label_bfs:
+	swipl --quiet -l test/labeling_bfs.plt -t "run_tests"
+
 test_label_all:
 	swipl --quiet -l test/labeling.plt -t "run_tests"
 	swipl --quiet -l test/labeling_dfs.plt -t "run_tests"
 	swipl --quiet -l test/labeling_id_dfs.plt -t "run_tests"
+	swipl --quiet -l test/labeling_bfs.plt -t "run_tests"
 
 test_label_dfs_time:
 	swipl --quiet -l test/labeling_dfs.plt -t "time(run_tests)"
 
 test_label_id_dfs_time:
 	swipl --quiet -l test/labeling_id_dfs.plt -t "time(run_tests)"
+
+test_label_bfs_time:
+	swipl --quiet -l test/labeling_bfs.plt -t "time(run_tests)"
+
+test_label_all_time:
+	swipl --quiet -l test/labeling.plt -t "time(run_tests)"
+	swipl --quiet -l test/labeling_dfs.plt -t "time(run_tests)"
+	swipl --quiet -l test/labeling_id_dfs.plt -t "time(run_tests)"
+	swipl --quiet -l test/labeling_bfs.plt -t "time(run_tests)"
 
 test_dom_conv:
 	swipl --quiet -l test/domain_conversion.plt -t "run_tests"
