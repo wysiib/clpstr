@@ -63,11 +63,6 @@ test(simple_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
   repeat(Dom,1,3,TestDom),
   labeling([dfs],TestDom,Res).
 
-test(any_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
-  any_char_domain(Dom),
-  repeat(Dom,1,3,TestDom),
-  labeling([dfs],TestDom,Res).
-
 test(any_repeat3_automaton,[true(Res == " "),nondet]) :-
   any_char_domain(Dom),
   repeat(Dom,1,3,TestDom),
