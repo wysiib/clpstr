@@ -22,7 +22,7 @@ is_empty(empty) :- !.
 is_empty(automaton_dom([],_,_,_)) :- !.
 is_empty(automaton_dom(_,_,[],_)) :- !.
 is_empty(automaton_dom(_,_,_,[])) :- !.
-is_empty(D) :- !, \+ label(D,_).
+is_empty(D) :- !, \+ labeling([any],D,_).
 
 %! intersection(Domain1,Domain2,ResultingDomain) is det
 % Generates a domain from the intersection of two domains.
