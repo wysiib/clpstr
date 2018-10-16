@@ -34,14 +34,14 @@ labeling([any],Dom,Label) :-
 % @Label is the resulting label as a list of characters.
 label_dfs(Dom,Label) :-
   ground(Label), !, % string is ground: verify if in language
-  string_codes(Label,CharList),
+  translate_labels(Label,RangeList),
   get_start_states(Dom,Starts),
   member(StartState,Starts),
   History = history{},
   put_dict(StartState,History,visited,NewHistory),
   get_end_states(Dom,Ends),
   get_transition(Dom,Trans),
-  unfold_tailrec(StartState,Trans,Ends,NewHistory,CharList).
+  unfold_tailrec(StartState,Trans,Ends,NewHistory,RangeList).
 label_dfs(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
@@ -65,12 +65,23 @@ label_dfs(Dom,Label) :-
 % @ListOfCharacterCodes is the generated list of charactercodes.
 unfold_tailrec(CurrentState,_,FinalStates,_,[]) :-
   member(CurrentState,FinalStates).
-unfold_tailrec(CurrentState,Transitions,FinalStates,History,CodeList) :-
+unfold_tailrec(CurrentState,Transitions,FinalStates,History,RangeList) :-
+  find_next_transition(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
+  (Char == epsilon
+  -> RangeList = Chars
+  ;  Char = range(_,_), RangeList = [Char|Chars]),
+  unfold_tailrec(NextState,Transitions,FinalStates,NewHistory,Chars).
+
+unfold_tailrec_ground(CurrentState,_,FinalStates,_,[]) :-
+  member(CurrentState,FinalStates).
+unfold_tailrec_ground(CurrentState,Transitions,FinalStates,History,CodeList) :-
   find_next_transition(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
   (Char == epsilon
   -> CodeList = Cs
-  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
+  ;  Char = range(From,To), CodeList = [C|Cs], between(From,To,C)),
   unfold_tailrec(NextState,Transitions,FinalStates,NewHistory,Cs).
+
+
 
 %!find_next_transition(CurrentState,ListOfTransitions,HistoryDict,NewHistoryDict,ResTrans)
 % Helper predicate of unfold_tailrec/5.
@@ -120,6 +131,16 @@ gen_charlist([range(From,To)|RangeT],[C|ResT]):-
   gen_charlist(RangeT,ResT).
 
 
+in_range(range(X,Y),range(A,B)) :-
+  X =< A, Y >= B.
+
+
+translate_labels(Label,RangeList) :-
+  string_codes(Label,CharList),
+  findall(range(Code,Code),member(Code,CharList),RangeList).
+
+
+
 label_id_dfs(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
@@ -132,7 +153,7 @@ label_id_dfs(Dom,Label) :-
   length(List,L), % some arbitrary termination condition.
   (L >= 10000 -> !, fail;
   unfold_tailrec(StartState,Trans,Ends,NewHistory,List),
-  string_codes(Label,List)).
+  translate_ranges(List,Label)).
 
 %%%% List generation %%%%
 
