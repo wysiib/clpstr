@@ -10,8 +10,6 @@ label(Dom,Label) :-
   label_id_dfs(Dom,Label).
 
 labeling(_,string_dom(S),S) :- !.
-labeling([any],Dom,Label) :-
-  label_any_dfs(Dom,Label).
 labeling([dfs],Dom,Label) :-
   label_dfs(Dom,Label).
 labeling([id_dfs],Dom,Label) :-
@@ -24,6 +22,8 @@ labeling([bfs],Dom,Label) :-
   label_dfs(Dom,Label).
 labeling([bfs],Dom,Label) :-
   label_bfs(Dom,Label).
+labeling([any],Dom,Label) :-
+  label_any_dfs(Dom,Label).
 
 %! label(Domain,Label) is nondet
 % Labels a domain to get exactly one value.
@@ -114,12 +114,10 @@ translate_ranges(RangeList,Label) :-
   string_codes(Label,CharList).
 
 %! gen_charlist(RangeList,CharList)
-gen_charlist(RangeList,Res):-
-  gen_charlist_acc(RangeList,[],Res).
-gen_charlist_acc([],Res,Res).
-gen_charlist_acc([range(From,To)|RangeT],[C|AccT],Res) :-
+gen_charlist([],[]).
+gen_charlist([range(From,To)|RangeT],[C|ResT]):-
   between(From,To,C),
-  gen_charlist_acc(RangeT,AccT,Res).
+  gen_charlist(RangeT,ResT).
 
 
 label_id_dfs(Dom,Label) :-
@@ -151,21 +149,22 @@ label_bfs(Dom,Label) :-
   get_transition(Dom,Trans),
   member(StartState,Starts),
   queue_new(Queue),
-  unfold_tailrec_bfs(StartState,Trans,Ends,Queue,RangeList),
+  unfold_tailrec_bfs(StartState,Trans,Ends,[],Queue,RangeList),
   translate_ranges(RangeList,Label).
 
-unfold_tailrec_bfs(CurrentState,_,FinalStates,_,[]) :-
-  member(CurrentState,FinalStates).
-unfold_tailrec_bfs(CurrentState,Transitions,FinalStates,Queue,RangeList) :-
-  findall((CurrentState,R,NextState),member((CurrentState,R,NextState),Transitions),NextTransitions),
+unfold_tailrec_bfs(CurrentState,_,FinalStates,History,_,RangeList) :-
+  member(CurrentState,FinalStates),
+  reverse(History,RangeList).
+unfold_tailrec_bfs(CurrentState,Transitions,FinalStates,History,Queue,RangeList) :-
+  findall(((CurrentState,R,NextState),History),member((CurrentState,R,NextState),Transitions),NextTransitions),
   queue_push_all(NextTransitions,Queue,NewQueue),
-  queue_pop(NewQueue,(_,Char,NextState),PopedQueue),
+  queue_pop(NewQueue,((_,Char,NextState),OldHistory),PopedQueue),
   (Char == epsilon
-  -> RangeList = Cs
-  ;  Char = range(_,_), RangeList = [Char|Cs]),
-  unfold_tailrec_bfs(NextState,Transitions,FinalStates,PopedQueue,Cs).
-unfold_tailrec_bfs(CurrentState,_,FinalStates,Queue,_,[]) :-
-  quque_is_empty(Queue),
+  -> NewHistory = OldHistory
+  ;  Char = range(_,_), NewHistory = [Char|OldHistory]),
+  unfold_tailrec_bfs(NextState,Transitions,FinalStates,NewHistory,PopedQueue,RangeList).
+unfold_tailrec_bfs(CurrentState,_,FinalStates,_,Queue,[]) :-
+  queue_is_empty(Queue),
   \+ member(CurrentState,FinalStates),!,
   fail.
 
@@ -181,16 +180,16 @@ queue_push(E,Q-[E|T],Q-T).
 %! queue_push_all(Old_Queue, ListOfNewElements, New_queue).
 queue_push_all([],Q,Q).
 queue_push_all([H|T],Q,NewQ) :-
-  queue_push_all(T,Q,TempQ),
-  queue_push(H,TempQ,NewQ).
+  queue_push(H,Q,TempQ),
+  queue_push_all(T,TempQ,NewQ).
 
-%! qget(Old_queue, Next_element, Remaining_queue).
+%! queue_pop(Old_queue, Next_element, Remaining_queue).
 % Fails on empty queue.
 queue_pop(Q,_,_) :-
-  quque_is_empty(Q), !, fail.
+  queue_is_empty(Q), !, fail.
 queue_pop([X|Xs]-T,X,Xs-T).
 
-quque_is_empty(Q-_) :- var(Q).
+queue_is_empty(Q-_) :- var(Q).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -214,9 +213,9 @@ unfold_tailrec_any(CurrentState,Transitions,FinalStates,History,CodeList) :-
   ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
   unfold_tailrec_any(NextState,Transitions,FinalStates,NewHistory,Cs).
 
-find_next_transition_any(CurrentState,Transitions,History,NewHistory,Alternative) :-
+find_next_transition_any(CurrentState,Transitions,History,NewHistory,Next) :-
   member((CurrentState,C,NextState),Transitions),
   (get_dict(NextState,History,visited)
   ->  fail
   ;   put_dict(NextState,History,visited,NewHistory),
-      Alternative = (CurrentState,C,NextState)).
+      Next = (CurrentState,C,NextState)).
