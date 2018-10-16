@@ -67,13 +67,12 @@ test(simple_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
 test(any_repeat3_automaton,[true(Res == " "),nondet]) :-
   any_char_domain(Dom),
   repeat(Dom,1,3,TestDom),
-  trace,
   label(TestDom,"a"),
-  /*label(TestDom,"ab"),
+  label(TestDom,"ab"),
   label(TestDom,"abc"),
   label(TestDom,"A"),
   label(TestDom,"AB"),
-  label(TestDom,"ABC"),*/
+  label(TestDom,"ABC"),
   label(TestDom,Res).
 
 test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
@@ -359,28 +358,6 @@ test(no_rangelist,[true(Res == ""),nondet]) :-
   labeling:translate_ranges(_,Res).
 
 :- end_tests(translate_ranges).
-
-
-:- begin_tests(translate_labels).
-
-test(simple_label,[true(Res == [range(97,97),range(98,98),range(99,99)])]) :-
-  Test = "abc",
-  labeling:translate_labels(Test,Res).
-
-test(empty_label,[true(Res == [])]) :-
-  Test = "",
-  labeling:translate_labels(Test,Res).
-
-test(wrong_label,[throws(Error)]) :-
-  subsumes_chk(Error, "'character Code' expected"),
-  Test = [range(97,97),range(98,98),range(99,99)],
-  labeling:translate_labels(Test,_).
-
-test(no_label,[throws(Error)]) :-
-  subsumes_chk(Error, "Arguments are not sufficiently instantiated"),
-  labeling:translate_labels(_,_).
-
-:- end_tests(translate_labels).
 
 
 :- begin_tests(unfold_tailrec_bfs).

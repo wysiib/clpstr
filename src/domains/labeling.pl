@@ -34,14 +34,14 @@ labeling([any],Dom,Label) :-
 % @Label is the resulting label as a list of characters.
 label_dfs(Dom,Label) :-
   ground(Label), !, % string is ground: verify if in language
-  translate_labels(Label,RangeList),
+  string_codes(Label,CharList),
   get_start_states(Dom,Starts),
   member(StartState,Starts),
   History = history{},
   put_dict(StartState,History,visited,NewHistory),
   get_end_states(Dom,Ends),
   get_transition(Dom,Trans),
-  unfold_tailrec(StartState,Trans,Ends,NewHistory,RangeList).
+  unfold_tailrec_ground(StartState,Trans,Ends,NewHistory,CharList).
 label_dfs(Dom,Label) :-
   % string is var: enumerate all solutions
   get_start_states(Dom,Starts),
@@ -50,8 +50,8 @@ label_dfs(Dom,Label) :-
   member(StartState,Starts),
   History = history{},
   put_dict(StartState,History,visited,NewHistory),
-  unfold_tailrec(StartState,Trans,Ends,NewHistory,CharList),
-  string_codes(Label,CharList).
+  unfold_tailrec(StartState,Trans,Ends,NewHistory,RangeList),
+  translate_ranges(RangeList,Label).
 
 %! unfold_tailrec(CurrentState,Trans,EndStates,ListOfCharacterCodes) is nondet
 % Tailrecursively constructs a list of character codes from an automaton.
@@ -79,8 +79,7 @@ unfold_tailrec_ground(CurrentState,Transitions,FinalStates,History,CodeList) :-
   (Char == epsilon
   -> CodeList = Cs
   ;  Char = range(From,To), CodeList = [C|Cs], between(From,To,C)),
-  unfold_tailrec(NextState,Transitions,FinalStates,NewHistory,Cs).
-
+  unfold_tailrec_ground(NextState,Transitions,FinalStates,NewHistory,Cs).
 
 
 %!find_next_transition(CurrentState,ListOfTransitions,HistoryDict,NewHistoryDict,ResTrans)
@@ -129,16 +128,6 @@ gen_charlist([],[]).
 gen_charlist([range(From,To)|RangeT],[C|ResT]):-
   between(From,To,C),
   gen_charlist(RangeT,ResT).
-
-
-in_range(range(X,Y),range(A,B)) :-
-  X =< A, Y >= B.
-
-
-translate_labels(Label,RangeList) :-
-  string_codes(Label,CharList),
-  findall(range(Code,Code),member(Code,CharList),RangeList).
-
 
 
 label_id_dfs(Dom,Label) :-
