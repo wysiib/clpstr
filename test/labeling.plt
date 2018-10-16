@@ -67,12 +67,13 @@ test(simple_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
 test(any_repeat3_automaton,[true(Res == " "),nondet]) :-
   any_char_domain(Dom),
   repeat(Dom,1,3,TestDom),
+  trace,
   label(TestDom,"a"),
-  label(TestDom,"ab"),
+  /*label(TestDom,"ab"),
   label(TestDom,"abc"),
   label(TestDom,"A"),
   label(TestDom,"AB"),
-  label(TestDom,"ABC"),
+  label(TestDom,"ABC"),*/
   label(TestDom,Res).
 
 test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
@@ -285,7 +286,7 @@ test(fnt_two_visited_alt,[true((Actual,ActualHis) == (Expected,ExpectedHis)),non
 
 :- begin_tests(unfold_tailrec).
 
-test(uf_simple_automaton,[true(Res == [97]),nondet]) :-
+test(uf_simple_automaton,[true(Res == [range(97,97)]),nondet]) :-
   single_char_domain("a",TestDom),
   get_end_states(TestDom,Ends),
   get_transition(TestDom,Trans),
@@ -299,24 +300,24 @@ test(uf_epsilon_can_be_labeled,[true(Res == []),nondet]) :-
   History = history{1:visited},
   labeling:unfold_tailrec(1,Trans,Ends,History,Res).
 
-test(uf_simple_infinite_domain,[true(Res == [97]),nondet]) :-
+test(uf_simple_infinite_domain,[true(Res == [range(97,97)]),nondet]) :-
   TestDom = automaton_dom([1,2],[(1,range(97,97),2),(2,range(97,97),1)],[1],[2]),
   get_end_states(TestDom,Ends),
   get_transition(TestDom,Trans),
   History = history{1:visited},
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97]),
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97,97,97]),
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97,97,97,97,97]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97)]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97),range(97,97),range(97,97),range(97,97),range(97,97)]),
   labeling:unfold_tailrec(1,Trans,Ends,History,Res).
 
-test(uf_one_infinite_trans_domain,[true(Res == [97,97]),nondet]) :-
+test(uf_one_infinite_trans_domain,[true(Res == [range(97,97),range(97,97)]),nondet]) :-
   TestDom = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(97,97),1),(2,range(97,97),3)],[1],[3]),
   get_end_states(TestDom,Ends),
   get_transition(TestDom,Trans),
   History = history{1:visited},
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97,97]),
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97,97,97,97]),
-  labeling:unfold_tailrec(1,Trans,Ends,History,[97,97,97,97,97,97]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97),range(97,97)]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97),range(97,97),range(97,97),range(97,97)]),
+  labeling:unfold_tailrec(1,Trans,Ends,History,[range(97,97),range(97,97),range(97,97),range(97,97),range(97,97),range(97,97)]),
   labeling:unfold_tailrec(1,Trans,Ends,History,Res).
 
 test(uf_fail_no_end_states,[fail]) :-
@@ -334,6 +335,52 @@ test(uf_unreachable_end,[fail]) :-
   labeling:unfold_tailrec(1,Trans,Ends,History,_).
 
 :- end_tests(unfold_tailrec).
+
+
+:- begin_tests(translate_ranges).
+
+test(simple_pure_rangelist,[true(Res == "abc")]) :-
+  Test = [range(97,97),range(98,98),range(99,99)],
+  labeling:translate_ranges(Test,Res).
+
+test(simple_mixed_rangelist,[all(Res == ["abc","acc","bbc","bcc","cbc","ccc"])]) :-
+  Test = [range(97,99),range(98,99),range(99,99)],
+  labeling:translate_ranges(Test,Res).
+
+test(empty_rangelist,[true(Res == "")]) :-
+  Test = [],
+  labeling:translate_ranges(Test,Res).
+
+test(wrong_rangelist,[fail]) :-
+  Test = ["a","b","c"],
+  labeling:translate_ranges(Test,_).
+
+test(no_rangelist,[true(Res == ""),nondet]) :-
+  labeling:translate_ranges(_,Res).
+
+:- end_tests(translate_ranges).
+
+
+:- begin_tests(translate_labels).
+
+test(simple_label,[true(Res == [range(97,97),range(98,98),range(99,99)])]) :-
+  Test = "abc",
+  labeling:translate_labels(Test,Res).
+
+test(empty_label,[true(Res == [])]) :-
+  Test = "",
+  labeling:translate_labels(Test,Res).
+
+test(wrong_label,[throws(Error)]) :-
+  subsumes_chk(Error, "'character Code' expected"),
+  Test = [range(97,97),range(98,98),range(99,99)],
+  labeling:translate_labels(Test,_).
+
+test(no_label,[throws(Error)]) :-
+  subsumes_chk(Error, "Arguments are not sufficiently instantiated"),
+  labeling:translate_labels(_,_).
+
+:- end_tests(translate_labels).
 
 
 :- begin_tests(unfold_tailrec_bfs).
