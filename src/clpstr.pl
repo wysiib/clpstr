@@ -45,3 +45,13 @@ word_size(X,I) \ str_in(X,D1)
          <=> integer(I) | generate_any_size(D2,I),
              intersection(D1,D2,D3), stri_in(X,D3).
 word_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
+
+
+% Take the constraint and the variables domain and repeat it the specific
+% amount of times.
+clp_repeat(X), str_in(X,D1)
+        <=> repeat(D1,D2), str_in(X,D2).
+clp_repeat(X,Nmb), str_in(X,D1)
+        <=> repeat(D1,Nmb,D2), str_in(X,D2).
+clp_repeat(X,From,To), str_in(X,D1)
+        <=> repeat(D1,From,To,D2), str_in(X,D2).
