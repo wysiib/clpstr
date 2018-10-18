@@ -1,12 +1,17 @@
  :- module(clpstr,[str_in/2,
-                   word_size/2]).
+                   word_size/2,
+                   clp_repeat/1,
+                   clp_repeat/2,
+                   clp_repeat/3,
+                   clp_intersection/3]).
 
 :- use_module(library(chr)).
 
 :- use_module('domains/basic_operations').
 :- use_module('domains/labeling').
 
-:- chr_constraint str_in/2, str_labeling/1, word_size/2.
+:- chr_constraint str_in/2, str_labeling/1, clp_size/2, clp_repeat/1,
+   clp_repeat/2, clp_repeat/3, clp_intersection/3.
 
 % chr rule wakes up each time a new or updated str_in is added
 % in case the domain is empty, no sulution is possible anymore:
@@ -42,10 +47,10 @@ var_is_member(X,[_|T]) :- var_is_member(X,T).
 % If you already know Domain, set it up to be in the intersection of the two
 % domains. If not set it up to be as a new domain.
 % Dismiss old domain and constraint.
-word_size(X,I), str_in(X,D1)
+clp_size(X,I), str_in(X,D1)
          <=> integer(I) | generate_any_size(D2,I),
              intersection(D1,D2,D3), stri_in(X,D3).
-word_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
+clp_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
 
 
 % Take the variable  and repeat it the specific amount of times.
