@@ -12,7 +12,8 @@
                            add_several_end_states/3,
                            adjust_transition/3,
                            adjust_domain/3,
-                           combine_domain/3]).
+                           combine_domain/3,
+                           generate_any_size/2]).
 
 :- use_module(domain_conversion).
 
@@ -187,3 +188,35 @@ add_end_states(automaton_dom(States,Delta,Start,Ends),AdditionalEnds,automaton_d
 
 add_several_end_states(automaton_dom(States,Delta,Start,Ends),ListOfAdditionalEnds,automaton_dom(States,Delta,Start,NewEnds)) :-
     ord_union([Ends|ListOfAdditionalEnds],NewEnds).
+
+
+%! generate_any_size(Size,Dom)
+% Takes an integer Size and puts together an automaton accepting any
+% word with length Size.
+% @Size is the size of the words length.
+% @Dom is the resulting automaton.
+generate_any_size(X,automaton_dom(States,Delta,Start,End)) :-
+  integer(X),
+  X > 0,
+  Y is X + 1,
+  findall(Z,between(1,Y,Z),States), % List of states
+  generate_any_size_trans(X,1,[],Delta), % List of statetransitions
+  Start = [1], % List of start states
+  End = [Y].  % List of end states
+
+%! generate_any_size_trans(Size,Count,Trans,Dom)
+% Takes an integer Size and puts together a transition list accepting any
+% word with length Size.
+% Helper predicate of generate_any_size
+% @Size is the size of the words length.
+% @Count is a counter from 1 to Size  to count the generated transitions.
+% @Trans is the transtion accumulator. Initially [].
+% @Dom is the resulting automaton.
+generate_any_size_trans(X,Y,Trans,Dom) :-
+  X >= Y, !,
+  Z is Y + 1,
+  any_range(Any),
+  append(Trans,[(Y,Any,Z)],NewTrans),
+  generate_any_size_trans(X,Z,NewTrans,Dom).
+generate_any_size_trans(X,Y,Dom,Dom) :-
+  X < Y.
