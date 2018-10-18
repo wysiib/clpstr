@@ -41,17 +41,23 @@ var_is_member(X,[_|T]) :- var_is_member(X,T).
 
 % If you already know Domain, set it up to be in the intersection of the two
 % domains. If not set it up to be as a new domain.
-word_size(X,I) \ str_in(X,D1)
+% Dismiss old domain and constraint.
+word_size(X,I), str_in(X,D1)
          <=> integer(I) | generate_any_size(D2,I),
              intersection(D1,D2,D3), stri_in(X,D3).
 word_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
 
 
-% Take the constraint and the variables domain and repeat it the specific
-% amount of times.
+% Take the variable  and repeat it the specific amount of times.
+% Dismiss old domain and constraint.
 clp_repeat(X), str_in(X,D1)
         <=> repeat(D1,D2), str_in(X,D2).
 clp_repeat(X,Nmb), str_in(X,D1)
         <=> repeat(D1,Nmb,D2), str_in(X,D2).
 clp_repeat(X,From,To), str_in(X,D1)
         <=> repeat(D1,From,To,D2), str_in(X,D2).
+
+% Take 3 variables and calc the intersection of the three.
+% Dismiss the constraint and keep the str_in of the other var.
+clp_intersection(X1,X2,X3) \ str_in(X2,D2), str_in(X3,D3)
+        <=> intersection(D2,D3,D1), str_in(X1,D1).
