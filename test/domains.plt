@@ -72,3 +72,28 @@ test(comb_simple,[true(Res == automaton_dom([1,2,1,2],[(1,range(32,126),2),(1,ra
   combine_domain(D1,D2,Res).
 
 :- end_tests(combine_domains).
+
+
+:- begin_tests(size_operator).
+
+test(simple_size_three,[true(Res == Expected)]) :-
+  %trace,
+  Expected = automaton_dom([1,2,3,4],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4)],[1],[4]),
+  generate_any_size(3,Res).
+
+test(simple_size_six,[true(Res == Expected)]) :-
+  Expected = automaton_dom([1,2,3,4,5,6,7],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4),(4,range(32,126),5),(5,range(32,126),6),(6,range(32,126),7)],[1],[7]),
+  generate_any_size(6,Res).
+
+/*test(var_size,[true(Res == Expected),nondet]) :-
+  Expected = automaton_dom([1,2],[(1,range(32,126),2)],[1],[2]),
+  generate_any_size(_,Res).*/
+
+test(size_control,[true]) :-
+  Expected = automaton_dom([1,2],[(1,range(32,126),2)],[1],[2]),
+  generate_any_size(1,Expected).
+
+test(size_fail_no_number,[fail]) :-
+  generate_any_size(a,_).
+
+:- end_tests(size_operator).
