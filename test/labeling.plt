@@ -202,6 +202,30 @@ test(labeling_specific_size_fail,[fail]) :-
 
 :- end_tests(more_complex_domains).
 
+:- begin_tests(same_test_different_labeling_method).
+% Tests in this area should run every labeling method.
+
+
+% Blocked: potentailly not terminating algorithm.
+% Catch this on CHR level!
+test(infinite_loop_no_accepting_states_dfs,[fail,blocked("Potentailly not terminating algorithm. Catch this on CHR level")]) :-
+  Test = automaton_dom([1,2,3,4],[(1,range(97,97),2),(1,range(97,97),4),(2,epsilon,3),(3,range(98,98),2)],[1],[]),
+  labeling([dfs],Test,_).
+
+test(infinite_loop_no_accepting_states_bfs,[fail,blocked("Potentailly not terminating algorithm. Catch this on CHR level")]) :-
+  Test = automaton_dom([1,2,3,4],[(1,range(97,97),2),(1,range(97,97),4),(2,epsilon,3),(3,range(98,98),2)],[1],[]),
+  labeling([bfs],Test,_).
+
+test(infinite_loop_no_accepting_states_id_dfs,[fail,blocked("Potentailly not terminating algorithm. Catch this on CHR level")]) :-
+  Test = automaton_dom([1,2,3,4],[(1,range(97,97),2),(1,range(97,97),4),(2,epsilon,3),(3,range(98,98),2)],[1],[]),
+  labeling([id_dfs],Test,_).
+
+test(infinite_loop_no_accepting_states_any,[fail]) :-
+  Test = automaton_dom([1,2,3,4],[(1,range(97,97),2),(1,range(97,97),4),(2,epsilon,3),(3,range(98,98),2)],[1],[]),
+  labeling([any],Test,_).
+
+
+:- end_tests(same_test_different_labeling_method).
 
 :- begin_tests(alternative_transitions).
 
