@@ -195,3 +195,35 @@ test(empty_fail_loop,[fail]) :-
   is_empty(TestDom).
 
 :- end_tests(is_empty).
+
+
+:- begin_tests(is_domain).
+
+test(is_empty_a_domain,[true]) :-
+  Test = empty,
+  is_domain_template(Test).
+
+test(is_string_a_domain,[true]) :-
+  Test = string_dom("string"),
+  is_domain_template(Test).
+
+test(is_automaton_a_domain,[true]) :-
+  Test = automaton_dom([],[],[],[]),
+  is_domain_template(Test).
+
+test(is_var_a_domain,[fail]) :-
+  is_domain_template(_).
+
+test(is_mayonnaise_a_domain,[fail]) :-
+  Test = mayonnaise,
+  is_domain_template(Test).
+
+test(is_horseradish_a_domain,[fail]) :-
+  Test = string_dom(horseradish),
+  is_domain_template(Test).
+
+test(is_patrick_a_domain,[fail]) :-
+  Test = automaton_dom(Patrick,[Patrick],"patrick",patrick),
+  is_domain_template(Test).
+
+:- end_tests(is_domain).
