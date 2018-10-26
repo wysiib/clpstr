@@ -45,6 +45,12 @@ test(simple_union_automaton,[all(Res == ["a","b"])]) :-
   union(Dom1,Dom2,TestDom),
   label(TestDom,Res).
 
+test(two_char_union_automaton,[all(Res == ["ab","cd"])]) :-
+  Dom1 = automaton_dom([1,2,3],[(1,range(97,97),2),(2,range(98,98),3)],[1],[3]),
+  Dom2 = automaton_dom([1,2,3],[(1,range(99,99),2),(2,range(100,100),3)],[1],[3]),
+  union(Dom1,Dom2,TestDom),
+  label(TestDom,Res).
+
 test(simple_repeat1_automaton,[true(Res == ""),nondet]) :-
   single_char_domain("a",Dom),
   repeat(Dom,TestDom),
