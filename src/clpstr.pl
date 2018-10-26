@@ -70,12 +70,12 @@ var_is_member(X,[_|T]) :- var_is_member(X,T).
             <=> integer(I) | generate_any_size(D2,I),
                   intersection(D1,D2,D3), stri_in(X,D3).*/
 % Note the first clause is already covered via str_in
-str_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
+str_size(X,I) <=> integer(I) | generate_any_size(I,D), str_in(X,D).
 
 
 % Take 3 variables and calc the conatenation of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_concatenation(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+str_in(X1,D1), str_in(X2,D2) \ str_concatenation(X1,X2,X3)
             <=> concatenation(D1,D2,D3), str_in(X3,D3).
 
 
@@ -129,4 +129,6 @@ str_infix(Dom1,X) <=>
 
 
 generate_domain(String,Dom) :-
-  generate(String, Dom).
+  string(String),
+  atom_codes(String,Codes),
+  generate(Codes, Dom).
