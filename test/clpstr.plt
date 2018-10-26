@@ -86,19 +86,170 @@ test(size_in_collision_succeed,[true]) :-
 
 :- begin_tests(operational_constraints).
 
-test(concat_no_res,[true]):-
+test(simple_str_concat,[true]):-
   generate_domain("tr",Dom1),
   str_in(X,Dom1),
   generate_domain("ue",Dom2),
   str_in(Y,Dom2),
   str_concatenation(X,Y,_).
 
-/*test(concat_no_res,[true]):-
-  generate_domain("tr",Dom),
-  str_in(X,Dom),
-  generate_domain("ue",Dom),
-  str_in(Y,Dom),
-  str_concatenation(X,Y,Z).*/
+test(str_concat_compare_string,[true,nondet]):-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Dom3),
+  % in this case concat will accept strings, because of reg_ex_parser
+  %EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
+  %EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
+  constant_string_domain("tr",EDom1),
+  constant_string_domain("ue",EDom2),
+  concatenation(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
 
+test(str_concat_compare_automaton,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
+  EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
+  str_in(X,EDom1),
+  str_in(Y,EDom2),
+  str_concatenation(X,Y,Dom3),
+  concatenation(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
+
+test(simple_str_repeat1,[true]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,_).
+
+test(str_repeat1_compare_string,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,Y),
+  %EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  constant_string_domain("true",EDom1),
+  repeat(EDom1,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(str_repeat1_compare_automaton,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  str_in(X,EDom1),
+  str_repeat(X,Y),
+  repeat(EDom1,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(simple_str_repeat2,[true]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,5,_).
+
+test(str_repeat2_compare_string,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,2,Y),
+  %EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  constant_string_domain("true",EDom1),
+  repeat(EDom1,2,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(str_repeat2_compare_string,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  str_in(X,EDom1),
+  str_repeat(X,2,Y),
+  repeat(EDom1,2,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(simple_str_repeat3,[true]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,5,10,_).
+
+test(str_repeat3_compare_string,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_repeat(X,5,10,Y),
+  %EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  constant_string_domain("true",EDom1),
+  repeat(EDom1,5,10,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(str_repeat3_compare_string,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  str_in(X,EDom1),
+  str_repeat(X,5,10,Y),
+  repeat(EDom1,5,10,Edom2),
+  find_chr_constraint(str_in(Y,Edom2)).
+
+test(simple_str_union,[true]):-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_union(X,Y,_).
+
+test(str_union_compare_string,[true,nondet]):-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_union(X,Y,Dom3),
+  % in this case concat will accept strings, because of reg_ex_parser
+  %EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
+  %EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
+  constant_string_domain("tr",EDom1),
+  constant_string_domain("ue",EDom2),
+  union(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
+
+test(str_union_compare_automaton,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
+  EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
+  str_in(X,EDom1),
+  str_in(Y,EDom2),
+  str_union(X,Y,Dom3),
+  union(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
+
+test(simple_str_intersection_no_res,[fail]):-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,_).
+
+test(simple_str_intersection_no_res,[true]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  generate_domain("true",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,_).
+
+test(simple_str_intersection_no_res,[true]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  generate_domain("....",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,_).
+
+test(str_intersection_compare_string,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  generate_domain("....",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,Dom3),
+  % in this case concat will accept strings, because of reg_ex_parser
+  %EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  EDom2 = automaton_dom([1,2,3,4,5],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4),(4,range(32,126),5)],[1],[5]),
+  constant_string_domain("true",EDom1),
+  intersection(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
+
+test(str_intersection_compare_automaton,[true,nondet]):-
+  EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  EDom2 = automaton_dom([1,2,3,4,5],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4),(4,range(32,126),5)],[1],[5]),
+  str_in(X,EDom1),
+  str_in(Y,EDom2),
+  str_intersection(X,Y,Dom3),
+  intersection(EDom1,EDom2,Edom3),
+  find_chr_constraint(str_in(Dom3,Edom3)).
 
 :- end_tests(operational_constraints).
