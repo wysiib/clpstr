@@ -90,9 +90,11 @@ ws --> ``.
 
 % regular expressions
 %expression0([exp(X)]) --> expression(X).
-expression(concat(X,Y)) --> expression2(X), ws, expression(Y), !.
-expression(set(X,Y)) --> expression2(X), ws, `|`, !, ws, expression(Y).
-expression(X) --> expression2(X).
+expression(set(X,Y)) --> expression1(X), ws, `|`, !, ws, expression(Y).
+expression(X) --> expression1(X).
+
+expression1(concat(X,Y)) --> expression2(X), ws, expression1(Y), !.
+expression1(X) --> expression2(X).
 
 expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
 expression2(quantity(+,X)) --> expression3(X), ws, `+`, !.
