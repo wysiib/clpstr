@@ -85,9 +85,9 @@ test(simple_size_six,[true(Res == Expected)]) :-
   Expected = automaton_dom([1,2,3,4,5,6,7],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4),(4,range(32,126),5),(5,range(32,126),6),(6,range(32,126),7)],[1],[7]),
   generate_any_size(6,Res).
 
-/*test(var_size,[true(Res == Expected),nondet]) :-
+test(var_size,[true(Res == Expected),nondet,fixme("currently no var size")]) :-
   Expected = automaton_dom([1,2],[(1,range(32,126),2)],[1],[2]),
-  generate_any_size(_,Res).*/
+  generate_any_size(_,Res).
 
 test(size_control,[true]) :-
   Expected = automaton_dom([1,2],[(1,range(32,126),2)],[1],[2]),
