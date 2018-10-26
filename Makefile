@@ -68,6 +68,9 @@ test_dom_conv:
 test_str_in:
 	swipl --quiet -l test/str_in.plt -t "run_tests"
 
+test_clpstr:
+	swipl --quiet -l test/clpstr.plt -t "run_tests"
+
 test_re_parser:
 	swipl --quiet -l test/reg_ex_parser.plt -t "run_tests"
 

@@ -1,20 +1,28 @@
  :- module(clpstr,[str_in/2,
                    str_size/2,
-                   str_labeling/1,
+                   str_labeling/2,
+                   str_label/1,
                    str_concatenation/3,
-                   str_repeat/1,
                    str_repeat/2,
                    str_repeat/3,
-                   str_intersection/3]).
+                   str_repeat/4,
+                   str_union/3,
+                   str_intersection/3,
+                   str_prefix/2,
+                   str_suffix/2,
+                   str_infix/2,
+                   generate_domain/2]).
 
 :- use_module(library(chr)).
 
+:- use_module('domains/basic_domains').
 :- use_module('domains/basic_operations').
 :- use_module('domains/labeling').
 :- use_module('reg_ex_parser').
 
-:- chr_constraint str_in/2, str_labeling/1, str_size/2, str_concatenation/3,
-   str_repeat/1, str_repeat/2, str_repeat/3, str_intersection/3.
+:- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
+   str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
+   str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2.
 
 
 % chr rule for generating a str_in directly from a String.
@@ -67,30 +75,58 @@ str_size(X,I) <=> integer(I) | generate_any_size(D,I), stri_in(X,D).
 
 % Take 3 variables and calc the conatenation of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_concatenation(X1,X2,X3) \ str_in(X2,D2), str_in(X3,D3)
-            <=> concatenation(D2,D3,D1), str_in(X1,D1).
+str_concatenation(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+            <=> concatenation(D1,D2,D3), str_in(X3,D3).
 
 
 % Take the variable  and repeat it the specific amount of times.
-% Dismiss old domain and constraint.
-str_repeat(X), str_in(X,D1)
-            <=> repeat(D1,D2), str_in(X,D2).
-str_repeat(X,Nmb), str_in(X,D1)
-            <=> repeat(D1,Nmb,D2), str_in(X,D2).
-str_repeat(X,From,To), str_in(X,D1)
-            <=> repeat(D1,From,To,D2), str_in(X,D2).
+% Dismiss old domain and constraint and put it into a new varable.
+str_repeat(X1,X2), str_in(X1,D1)
+            <=> repeat(D1,D2), str_in(X2,D2).
+str_repeat(X1,Nmb,X2), str_in(X1,D1)
+            <=> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
+str_repeat(X1,From,To,X2), str_in(X1,D1)
+            <=> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
 
 
 % Take 3 variables and calc the union of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_union(X1,X2,X3) \ str_in(X2,D2), str_in(X3,D3)
-            <=> union(D2,D3,D1), str_in(X1,D1).
+str_union(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+            <=> union(D1,D2,D3), str_in(X3,D3).
 
 
 % Take 3 variables and calc the intersection of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_intersection(X1,X2,X3) \ str_in(X2,D2), str_in(X3,D3)
-            <=> intersection(D2,D3,D1), str_in(X1,D1).
+str_intersection(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+            <=> intersection(D1,D2,D3), str_in(X3,D3).
+
+
+
+str_prefix(String,X) <=>
+            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
+            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,ResDom), str_in(ResDom,X).
+str_prefix(Dom1,X) <=>
+            any_char_domain(Dom2), repeat(Dom2,Dom3),
+            concatenation(Dom1,Dom3,ResDom), str_in(ResDom,X).
+
+
+str_suffix(String,X) <=>
+            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
+            repeat(Dom2,Dom3), concatenation(Dom3,Dom1,ResDom), str_in(ResDom,X).
+str_suffix(Dom1,X) <=>
+            any_char_domain(Dom2), repeat(Dom2,Dom3),
+            concatenation(Dom3,Dom1,ResDom), str_in(ResDom,X).
+
+
+str_infix(String,X) <=>
+            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
+            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,Dom4),
+            concatenation(Dom3,Dom4,ResDom), str_in(ResDom,X).
+str_infix(Dom1,X) <=>
+            any_char_domain(Dom2), repeat(Dom2,Dom3),
+            concatenation(Dom1,Dom3,Dom4), concatenation(Dom3,Dom4,ResDom),
+            str_in(ResDom,X).
+
 
 generate_domain(String,Dom) :-
   generate(String, Dom).

@@ -110,7 +110,6 @@ parse_2_tree(RegEx,Tree) :-
 
 
 generate(RegEx,ResDom) :-
-  string(RegEx),
   parse_2_tree(RegEx,Tree),
   %nl,print(Tree),nl,
   build(Tree,ResDom).
