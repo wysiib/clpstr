@@ -91,13 +91,13 @@ str_repeat(X1,From,To,X2), str_in(X1,D1)
 
 % Take 3 variables and calc the union of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_union(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+str_in(X1,D1), str_in(X2,D2) \ str_union(X1,X2,X3)
             <=> union(D1,D2,D3), str_in(X3,D3).
 
 
 % Take 3 variables and calc the intersection of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_intersection(X1,X2,X3) \ str_in(X1,D1), str_in(X2,D2)
+str_in(X1,D1), str_in(X2,D2) \ str_intersection(X1,X2,X3) 
             <=> intersection(D1,D2,D3), str_in(X3,D3).
 
 
