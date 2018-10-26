@@ -1,4 +1,5 @@
 :- module(basic_operations, [is_empty/1,
+                            is_domain_template/1,
                             intersection/3,
                             repeat/2,
                             repeat/3,
@@ -12,6 +13,17 @@
 :- use_module(labeling).
 :- use_module(domain_conversion).
 :- use_module(reductions).
+
+%! is_domain_template(Dom)
+% Verifies if Dom is of a Domain template form.
+% Does not valid automaton domains, but does for empty and string domains.
+% @Dom is the Domain to be tested.
+is_domain_template(X) :- var(X), !, false.
+is_domain_template(empty) :- !.
+is_domain_template(string_dom(S)) :-
+  string(S), !.
+is_domain_template(automaton_dom(States,Trans,Starts,Ends)) :-
+  maplist(is_list, [States, Trans, Starts, Ends]), !.
 
 %! is_empty(Domain) is det
 % Checks whether an domain is empty, in case of an automaton_dom by having no
