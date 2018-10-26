@@ -43,6 +43,14 @@ test(multi_alternative,[Actual == Expected]) :- %true(Res == [exp(set([a,b,c,d])
   Expected = set(char(a),set(char(b),char(c))),
   parse_2_tree(Test,Actual).
 
+test(alternative_brackets_two_char,[true(Res == set(concat(char(a),char(b)),concat(char(c),char(d))))]) :-
+  Test = `(ab) | (cd)`,
+  parse_2_tree(Test,Res).
+
+test(alternative_no_bracket_two_char,[true(Res == set(concat(char(a),char(b)),concat(char(c),char(d))))]) :-
+  Test = `ab | cd`,
+  parse_2_tree(Test,Res).
+
 test(complex_alternative,[true(Res == set(quantity(+,char(a)),quantity(*,char(b))))]) :-
   Test = `a+ | b*`,
   parse_2_tree(Test,Res).
@@ -66,6 +74,10 @@ test(quantity_questionmark,[true(Res == quantity(?,char(a)))]) :-
 
 test(multi_operations,[true(Res == quantity(*,set(char(a),set(char(b),char(c)))))]) :-
   Test = `(a | b | c)*`,
+  parse_2_tree(Test,Res).
+
+test(quantity_star_two_char,[true(Res == concat(char(a),quantity(*,char(b))))]) :-
+  Test = `ab*`,
   parse_2_tree(Test,Res).
 
 :- end_tests(tree_parser_reg_ex_operations).
