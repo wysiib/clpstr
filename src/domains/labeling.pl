@@ -7,9 +7,11 @@ label(Dom,Label) :-
   ground(Label),!,
   label_dfs(Dom,Label).
 label(Dom,Label) :-
-  label_id_dfs(Dom,Label).
+  labeling([id_dfs],Dom,Label).
 
 labeling(_,string_dom(S),S) :- !.
+labeling([],Dom,Label) :-
+  labeling([id_dfs],Dom,Label).
 labeling([dfs],Dom,Label) :-
   label_dfs(Dom,Label).
 labeling([id_dfs],Dom,Label) :-
