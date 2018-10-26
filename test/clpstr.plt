@@ -3,6 +3,7 @@
 :- use_module('../src/clpstr').
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
+:- use_module('../src/domains/labeling').
 
 :- begin_tests(str_labeling).
 
@@ -25,6 +26,26 @@ test(simple_concat_dom,[true(Res == ["tr","ue","true"])]) :-
   Res = [X,Y,Z],
   str_labeling([],Res).
 
+test(simple_concat_dom_label_twice,[true((Res,Res2) == (["true"],["tr","ue"]))]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Z),
+  Res = [Z],
+  Res2 = [X,Y],
+  str_labeling([],Res),
+  str_labeling([],Res2).
+
+test(simple_concat_dom_only_label_concat,[true(Res == ["true"])]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Z),
+  Res = [Z],
+  str_labeling([],Res).
+
 test(simple_label_twice,[true(Res == ["tr","ue"])]) :-
   generate_domain("tr",Dom1),
   str_in(X,Dom1),
@@ -33,12 +54,10 @@ test(simple_label_twice,[true(Res == ["tr","ue"])]) :-
   Res = [X,Y],
   str_labeling([],Res).
 
-test(simple_label_choice_twice,[all(Res == ["tr","ue"]),fixme("not yet correct behavior")]) :-
-  generate_domain("(tr)|(ue)",Dom),
-  %nl,nl,print(Dom),nl,nl,
+test(simple_label_choice_twice,[all(X == ["tr","ue"])]) :-
+  generate_domain("tr|ue",Dom),
   str_in(X,Dom),
-  Res = [X],
-  str_labeling([],Res).
+  str_labeling([],[X]).
 
 :- end_tests(str_labeling).
 
