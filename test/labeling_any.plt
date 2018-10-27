@@ -18,7 +18,7 @@ test(any_char_domain,[true(Res == " "),nondet]) :-
   any_char_domain(D),
   labeling([any],D,Res).
 
-test(any_char_domain_can_return_different_character,[nondet]) :-
+test(any_char_domain_can_return_different_character,[fail]) :-
   any_char_domain(D),
   labeling([any],D,Res),
   Res == "~".
@@ -72,12 +72,12 @@ test(simple_repeat3_automaton,[all(Res == ["a","aa","aaa"])]) :-
 test(any_repeat3_automaton,[true(Res == " "),nondet]) :-
   any_char_domain(Dom),
   repeat(Dom,1,3,TestDom),
-  labeling([any],TestDom,"a"),
-  labeling([any],TestDom,"ab"),
-  labeling([any],TestDom,"abc"),
-  labeling([any],TestDom,"A"),
-  labeling([any],TestDom,"AB"),
-  labeling([any],TestDom,"ABC"),
+  labeling([any],TestDom," "),
+  labeling([any],TestDom,"  "),
+  labeling([any],TestDom,"   "),
+  \+ labeling([any],TestDom,"A"),
+  \+ labeling([any],TestDom,"AB"),
+  \+ labeling([any],TestDom,"ABC"),
   labeling([any],TestDom,Res).
 
 test(simple_intersect_automaton,[all(Res == ["ab"])]) :-
