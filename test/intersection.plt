@@ -226,3 +226,73 @@ test(concat_sisproduct_findall,[true(Actual == Expected)]) :-
 
 
 :- end_tests(sisproduct).
+
+
+:- begin_tests(infinite_domains).
+
+% These testcases represent the str_prefix str_infix and str_suffix testcases
+% from clpstr.plt respectively  
+
+test(intersec_prefix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7],
+    [(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5),
+    (5,epsilon,6),(6,range(32,126),7),(7,epsilon,6)],
+    [1],[6,7]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+test(intersec_suffix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7],
+    [(1,range(32,126),2),(2,epsilon,1),(1,epsilon,3),(2,epsilon,3),
+    (3,range(116,116),4),(4,range(114,114),5),(5,range(117,117),6),(6,range(101,101),7)],
+    [1],[7]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+test(intersec_infix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7],
+    [(1,range(32,126),2),(2,epsilon,1),(1,epsilon,3),(2,epsilon,3),
+    (3,range(116,116),4),(4,range(114,114),5),(5,range(117,117),6),(6,range(101,101),7),
+    (7,epsilon,8),(8,range(32,126),9),(9,epsilon,8)],
+    [1],[8,9]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+test(intersec_prefix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5,6,7],
+    [(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5),
+    (5,epsilon,6),(6,range(32,126),7),(7,epsilon,6)],
+    [1],[6,7]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7,8],
+    [(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4),(4,epsilon,5),(5,range(32,126),6),(6,epsilon,7),(7,range(32,126),8)],
+    [1],[8]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+test(intersec_suffix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5,6,7],
+    [(1,range(32,126),2),(2,epsilon,1),(1,epsilon,3),
+    (3,range(116,116),4),(4,range(114,114),5),(5,range(117,117),6),(6,range(101,101),7)],
+    [1],[7]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7,8],
+    [(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4),(4,epsilon,5),(5,range(32,126),6),(6,epsilon,7),(7,range(32,126),8)],
+    [1],[8]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+test(intersec_infix,[true]) :-
+  Dom1 = automaton_dom([1,2,3,4,5,6,7,8,9,10,11,12],
+    [(1,range(32,126),2),(2,epsilon,1),(1,epsilon,3),(2,epsilon,3),
+    (3,range(116,116),4),(4,epsilon,5),(5,range(114,114),6),(6,epsilon,7),(7,range(117,117),8),(8,epsilon,9),(9,range(101,101),10),
+    (10,epsilon,11),(11,range(32,126),12),(12,epsilon,11)],
+    [1],[11,12]),
+  Dom2 = automaton_dom([1,2,3,4,5,6,7,8],
+    [(1,range(32,126),2),(2,epsilon,3),(3,range(32,126),4),(4,epsilon,5),(5,range(32,126),6),(6,epsilon,7),(7,range(32,126),8)],
+    [1],[8]),
+  intersection(Dom1,Dom2,Res),
+  Res \= empty, Res \= [].
+
+:- end_tests(infinite_domains).
