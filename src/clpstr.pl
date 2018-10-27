@@ -97,35 +97,35 @@ str_in(X1,D1), str_in(X2,D2) \ str_union(X1,X2,X3)
 
 % Take 3 variables and calc the intersection of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_in(X1,D1), str_in(X2,D2) \ str_intersection(X1,X2,X3) 
+str_in(X1,D1), str_in(X2,D2) \ str_intersection(X1,X2,X3)
             <=> intersection(D1,D2,D3), str_in(X3,D3).
 
 
 
 str_prefix(X,String) <=>
             string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
-            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,ResDom), str_in(ResDom,X).
+            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
 str_prefix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
-            concatenation(Dom1,Dom3,ResDom), str_in(ResDom,X).
+            concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
 
 
 str_suffix(X,String) <=>
             string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
-            repeat(Dom2,Dom3), concatenation(Dom3,Dom1,ResDom), str_in(ResDom,X).
+            repeat(Dom2,Dom3), concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
 str_suffix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
-            concatenation(Dom3,Dom1,ResDom), str_in(ResDom,X).
+            concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
 
 
 str_infix(X,String) <=>
             string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
             repeat(Dom2,Dom3), concatenation(Dom1,Dom3,Dom4),
-            concatenation(Dom3,Dom4,ResDom), str_in(ResDom,X).
+            concatenation(Dom3,Dom4,ResDom), str_in(X,ResDom).
 str_infix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom1,Dom3,Dom4), concatenation(Dom3,Dom4,ResDom),
-            str_in(ResDom,X).
+            str_in(X,ResDom).
 
 
 generate_domain(String,Dom) :-
