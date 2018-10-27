@@ -98,23 +98,23 @@ test(str_concat_compare_string,[true,nondet]):-
   str_in(X,Dom1),
   generate_domain("ue",Dom2),
   str_in(Y,Dom2),
-  str_concatenation(X,Y,Dom3),
+  str_concatenation(X,Y,Z),
   % in this case concat will accept strings, because of reg_ex_parser
   %EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
   %EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
   constant_string_domain("tr",EDom1),
   constant_string_domain("ue",EDom2),
   concatenation(EDom1,EDom2,Edom3),
-  find_chr_constraint(str_in(Dom3,Edom3)).
+  find_chr_constraint(str_in(Z,Edom3)).
 
 test(str_concat_compare_automaton,[true,nondet]):-
   EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
   EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
   str_in(X,EDom1),
   str_in(Y,EDom2),
-  str_concatenation(X,Y,Dom3),
+  str_concatenation(X,Y,Z),
   concatenation(EDom1,EDom2,Edom3),
-  find_chr_constraint(str_in(Dom3,Edom3)).
+  find_chr_constraint(str_in(Z,Edom3)).
 
 test(simple_str_repeat1,[true]):-
   generate_domain("true",Dom1),
@@ -191,23 +191,23 @@ test(str_union_compare_string,[true,nondet]):-
   str_in(X,Dom1),
   generate_domain("ue",Dom2),
   str_in(Y,Dom2),
-  str_union(X,Y,Dom3),
+  str_union(X,Y,Z),
   % in this case concat will accept strings, because of reg_ex_parser
   %EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
   %EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
   constant_string_domain("tr",EDom1),
   constant_string_domain("ue",EDom2),
   union(EDom1,EDom2,Edom3),
-  find_chr_constraint(str_in(Dom3,Edom3)).
+  find_chr_constraint(str_in(Z,Edom3)).
 
 test(str_union_compare_automaton,[true,nondet]):-
   EDom1 = automaton_dom([1,2,3],[(1,range(116,116),2),(2,range(114,114),3)],[1],[3]),
   EDom2 = automaton_dom([1,2,3],[(1,range(117,117),2),(2,range(101,101),3)],[1],[3]),
   str_in(X,EDom1),
   str_in(Y,EDom2),
-  str_union(X,Y,Dom3),
+  str_union(X,Y,Z),
   union(EDom1,EDom2,Edom3),
-  find_chr_constraint(str_in(Dom3,Edom3)).
+  find_chr_constraint(str_in(Z,Edom3)).
 
 test(simple_str_intersection_no_res,[fail]):-
   generate_domain("tr",Dom1),
@@ -235,13 +235,13 @@ test(str_intersection_compare_string,[true,nondet]):-
   str_in(X,Dom1),
   generate_domain("....",Dom2),
   str_in(Y,Dom2),
-  str_intersection(X,Y,Dom3),
+  str_intersection(X,Y,Z),
   % in this case concat will accept strings, because of reg_ex_parser
   %EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
   EDom2 = automaton_dom([1,2,3,4,5],[(1,range(32,126),2),(2,range(32,126),3),(3,range(32,126),4),(4,range(32,126),5)],[1],[5]),
   constant_string_domain("true",EDom1),
   intersection(EDom1,EDom2,Edom3),
-  find_chr_constraint(str_in(Dom3,Edom3)).
+  find_chr_constraint(str_in(Z,Edom3)).
 
 test(str_intersection_compare_automaton,[true,nondet]):-
   EDom1 = automaton_dom([1,2,3,4,5],[(1,range(116,116),2),(2,range(114,114),3),(3,range(117,117),4),(4,range(101,101),5)],[1],[5]),
@@ -253,3 +253,82 @@ test(str_intersection_compare_automaton,[true,nondet]):-
   find_chr_constraint(str_in(Dom3,Edom3)).
 
 :- end_tests(operational_constraints).
+
+
+:- begin_tests(prefix).
+
+test(compare_prefix1,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_prefix(X,Dom1),
+  str_prefix(X,"true").
+
+test(compare_prefix2,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_prefix(X,Dom1),
+  str_prefix(X,"true"),
+  generate_domain("true.*",Dom2),
+  str_in(X,Dom2).
+
+test(compare_prefix3,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_prefix(X,Dom1),
+  str_prefix(X,"true"),
+  generate_domain("....",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,Z),
+  str_in(Z,"true").
+
+:- end_tests(prefix).
+
+
+:- begin_tests(suffix).
+
+test(compare_suffix1,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_suffix(X,Dom1),
+  str_suffix(X,"true").
+
+test(compare_suffix2,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_suffix(X,Dom1),
+  str_suffix(X,"true"),
+  generate_domain(".*true",Dom2),
+  str_suffix(X,Dom2).
+
+test(compare_suffix3,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_suffix(X,Dom1),
+  str_suffix(X,"true"),
+  generate_domain("....",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,Z),
+  str_in(Z,"true").
+
+:- end_tests(suffix).
+
+
+:- begin_tests(infix).
+
+test(compare_infix1,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_infix(X,Dom1),
+  str_infix(X,"true").
+
+test(compare_infix2,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_infix(X,Dom1),
+  str_infix(X,"true"),
+  generate_domain(".*true.*",Dom2),
+  %nl,nl,print(Dom2),nl,nl,
+  str_in(X,Dom2).
+
+test(compare_infix3,[true,nondet]):-
+  generate_domain("true",Dom1),
+  str_infix(X,Dom1),
+  str_infix(X,"true"),
+  generate_domain("....",Dom2),
+  str_in(Y,Dom2),
+  str_intersection(X,Y,Z),
+  str_in(Z,"true").
+
+:- end_tests(infix).
