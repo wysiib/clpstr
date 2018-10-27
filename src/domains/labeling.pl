@@ -222,12 +222,11 @@ unfold_tailrec_any(CurrentState,Transitions,FinalStates,History,CodeList) :-
   find_next_transition_any(CurrentState,Transitions,History,NewHistory,(CurrentState,Char,NextState)),
   (Char == epsilon
   -> CodeList = Cs
-  ;  Char = range(From,To), between(From,To,C), CodeList = [C|Cs]),
+  ;  Char = range(From,To), From=<To, CodeList = [From|Cs]),
   unfold_tailrec_any(NextState,Transitions,FinalStates,NewHistory,Cs).
 
 find_next_transition_any(CurrentState,Transitions,History,NewHistory,Next) :-
   member((CurrentState,C,NextState),Transitions),
-  (get_dict(NextState,History,visited)
-  ->  fail
-  ;   put_dict(NextState,History,visited,NewHistory),
-      Next = (CurrentState,C,NextState)).
+  \+ get_dict(NextState,History,visited),
+  put_dict(NextState,History,visited,NewHistory),
+  Next = (CurrentState,C,NextState).
