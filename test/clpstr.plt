@@ -61,6 +61,62 @@ test(simple_label_choice_twice,[all(X == ["tr","ue"])]) :-
 
 :- end_tests(str_labeling).
 
+:- begin_tests(str_label).
+
+test(str_label_simple_string,[true(X == "true")]) :-
+  constant_string_domain("true",Dom),
+  str_in(X,Dom),
+  str_label([X]).
+
+test(str_label_simple_generated_dom,[true(X == "true")]) :-
+  generate_domain("true",Dom),
+  str_in(X,Dom),
+  str_label([X]).
+
+test(str_label_simple_concat_dom,[true(Res == ["tr","ue","true"])]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Z),
+  Res = [X,Y,Z],
+  str_label(Res).
+
+test(str_label_simple_concat_dom_label_twice,[true((Res,Res2) == (["true"],["tr","ue"]))]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Z),
+  Res = [Z],
+  Res2 = [X,Y],
+  str_label(Res),
+  str_label(Res2).
+
+test(str_label_simple_concat_dom_only_label_concat,[true(Res == ["true"])]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  str_concatenation(X,Y,Z),
+  Res = [Z],
+  str_label(Res).
+
+test(str_label_simple_label_twice,[true(Res == ["tr","ue"])]) :-
+  generate_domain("tr",Dom1),
+  str_in(X,Dom1),
+  generate_domain("ue",Dom2),
+  str_in(Y,Dom2),
+  Res = [X,Y],
+  str_label(Res).
+
+test(str_label_simple_label_choice_twice,[all(X == ["tr","ue"])]) :-
+  generate_domain("tr|ue",Dom),
+  str_in(X,Dom),
+  str_label([X]).
+
+:- end_tests(str_label).
+
 :- begin_tests(str_size).
 
 test(simple_size_without_labeling,[true]) :-
