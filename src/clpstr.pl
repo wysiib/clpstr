@@ -80,12 +80,12 @@ str_in(X1,D1), str_in(X2,D2) \ str_concatenation(X1,X2,X3)
 
 
 % Take the variable  and repeat it the specific amount of times.
-% Dismiss old domain and constraint and put it into a new varable.
-str_repeat(X1,X2), str_in(X1,D1)
+% Dismiss the constraint and put result into a new varable.
+str_in(X1,D1) \ str_repeat(X1,X2)
             <=> repeat(D1,D2), str_in(X2,D2).
-str_repeat(X1,Nmb,X2), str_in(X1,D1)
+str_in(X1,D1) \ str_repeat(X1,Nmb,X2)
             <=> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
-str_repeat(X1,From,To,X2), str_in(X1,D1)
+str_in(X1,D1) \ str_repeat(X1,From,To,X2)
             <=> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
 
 
@@ -103,25 +103,21 @@ str_in(X1,D1), str_in(X2,D2) \ str_intersection(X1,X2,X3)
 
 
 str_prefix(X,String) <=>
-            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
-            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
+            string(String) | generate_domain(String,Dom), str_prefix(X,Dom).
 str_prefix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
 
 
 str_suffix(X,String) <=>
-            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
-            repeat(Dom2,Dom3), concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
+            string(String) | generate_domain(String,Dom), str_suffix(X,Dom).
 str_suffix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
 
 
 str_infix(X,String) <=>
-            string(String) | generate_domain(String,Dom1), any_char_domain(Dom2),
-            repeat(Dom2,Dom3), concatenation(Dom1,Dom3,Dom4),
-            concatenation(Dom3,Dom4,ResDom), str_in(X,ResDom).
+            string(String) | generate_domain(String,Dom), str_infix(X,Dom).
 str_infix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom1,Dom3,Dom4), concatenation(Dom3,Dom4,ResDom),
