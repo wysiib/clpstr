@@ -11,6 +11,8 @@
                    str_prefix/2,
                    str_suffix/2,
                    str_infix/2,
+                   str_upper_case/1,
+                   str_lower_case/1,
                    generate_domain/2]).
 
 :- use_module(library(chr)).
@@ -22,7 +24,8 @@
 
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
-   str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2.
+   str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
+   str_upper_case/1, str_lower_case/1.
 
 
 % chr rule for generating a str_in directly from a String.
@@ -122,6 +125,12 @@ str_infix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom1,Dom3,Dom4), concatenation(Dom3,Dom4,ResDom),
             str_in(X,ResDom).
+
+
+str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
+
+
+str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
 
 
 generate_domain(String,Dom) :-

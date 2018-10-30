@@ -10,6 +10,7 @@
 
 :- use_module(library(clpfd)).
 :- use_module(basic_domains).
+:- use_module(basic_operations).
 
 %! epsilon_reduce(OldDomain,ResultingDomain)
 % Takes a Domain and applies an epsilon reduction.

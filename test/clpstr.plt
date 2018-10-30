@@ -388,3 +388,73 @@ test(compare_infix3,[true,nondet]):-
   str_in(Z,"true").
 
 :- end_tests(infix).
+
+
+:- begin_tests(case_sensitive).
+
+test(simple_lower_case,[true]) :-
+  generate_domain("true",Dom1),
+  str_infix(X,Dom1),
+  str_lower_case(X).
+
+test(simple_upper_case,[true]) :-
+  generate_domain("TRUE",Dom1),
+  str_infix(X,Dom1),
+  str_upper_case(X).
+
+test(intersec_lower_case,[true]) :-
+  generate_domain("....",Dom1),
+  str_in(X1,Dom1),
+  str_lower_case(X1),
+  generate_domain("true",Dom2),
+  str_in(X2,Dom2),
+  str_lower_case(X2),
+  str_intersection(X1,X2,_).
+
+test(intersec_upper_case,[true]) :-
+  generate_domain("....",Dom1),
+  str_in(X1,Dom1),
+  str_upper_case(X1),
+  generate_domain("TRUE",Dom2),
+  str_in(X2,Dom2),
+  str_upper_case(X2),
+  str_intersection(X1,X2,_).
+
+test(label_lower_case,[true(X=="true"),nondet]) :-
+  generate_domain("true|TRUE",Dom1),
+  str_in(X,Dom1),
+  str_lower_case(X),
+  %find_chr_constraint(str_in(X,Dom2)),
+  %nl,nl,print(Dom2),nl,nl,
+  str_label([X]).
+
+test(label_upper_case,[true(X=="TRUE"),nondet]) :-
+  generate_domain("true|TRUE",Dom1),
+  str_in(X,Dom1),
+  str_upper_case(X),
+  %find_chr_constraint(str_in(X,Dom2)),
+  %nl,nl,print(Dom2),nl,nl,
+  str_label([X]).
+
+test(lower_case_fail,[fail]) :-
+  generate_domain("TRUE",Dom1),
+  str_in(X,Dom1),
+  str_lower_case(X).
+
+test(upper_case_fail,[fail]) :-
+  generate_domain("true",Dom1),
+  str_in(X,Dom1),
+  str_upper_case(X).
+
+test(lower_case_fail,[fail]) :-
+  generate_domain("TRUE",Dom1),
+  str_in(X,Dom1),
+  str_lower_case(X).
+
+test(case_sensitive_fail,[fail]) :-
+  generate_domain("....",Dom1),
+  str_in(X,Dom1),
+  str_upper_case(X),
+  str_lower_case(X).
+
+:- end_tests(case_sensitive).
