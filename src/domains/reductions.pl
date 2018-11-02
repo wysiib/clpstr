@@ -72,7 +72,7 @@ make_accept_states(State,_,End,ResEnd) :-
 
 
 %! make_transitions(AllStates,CurrentState,EpsilonClosure,CurrentDelta,ResDelta)
-% Takes a state its EpsilonClosure and the list of all transitions and
+% Takes a state, its EpsilonClosure and the list of all transitions and
 % returns a new list of transitions that bypass epsilon transitions.
 % Helper predicate for epsilon_reduce_recursive.
 % The new transitions are created by considering all pairs of states from the
@@ -180,23 +180,25 @@ bin_2_new_state_recursive([1|T],Acc,N,Res) :-
 % include the StartState itself, although it is obviously always reachable via an epsilon
 % transition from the initial StartState.
 % Also if this ever breaks, its propably because it does not test whether
-% S is actually included in T or because it expects the transition in an
-% ordered state.
+% S is actually included in T.
 % @StartState is the state from which the epsilon closure shall be calculated.
 % @TransitionList shall be initiialized by the List of reachable transitions
 % by StartState.
 % @EpsilonClosure is the resulting list of states representing the epsilon
 % closure of StartState.
-epsilon_closure(S,[TH|TT],[Next|ResT]) :-
-  TH = (S,epsilon,Next),
-  !,
-  epsilon_closure(Next,TT,Res1),
-  epsilon_closure(S,TT,Res2),
-  append(Res1,Res2,ResT).
-epsilon_closure(S,[_|TT],Res) :-
-  epsilon_closure(S,TT,Res),!.
-epsilon_closure(_,[],[]).
+epsilon_closure(S,Trans,ResClo) :-
+  eps_clo_acc(Trans,[],S,[],ResClo).
 
+eps_clo_acc([(S,epsilon,Next)|TT],RemainTrans,S,Stack,[Next|Res]) :-
+  !, eps_clo_acc(TT,RemainTrans,S,[Next|Stack],Res).
+eps_clo_acc([(R,epsilon,Next)|TT],RemainTrans,S,Stack,Res) :-
+  !, eps_clo_acc(TT,[(R,epsilon,Next)|RemainTrans],S,Stack,Res).
+eps_clo_acc([_|TT],RemainTrans,S,Stack,Res) :-
+  eps_clo_acc(TT,RemainTrans,S,Stack,Res).
+eps_clo_acc([],[],_,_,[]):- !.
+eps_clo_acc([],RemainTrans,_,[Next|ST],Res) :-
+  !,eps_clo_acc(RemainTrans,[],Next,ST,Res).
+eps_clo_acc([],_,_,[],[]).
 
 
 %!ordered_eps_closure(StartState,TransitionList,EpsilonClosure) is det
