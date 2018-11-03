@@ -94,7 +94,7 @@ make_transitions([],_,_,Delta,Delta).
 make_transitions([S|T],S,EpClo,Delta,ResDelta) :-
   !, make_transitions(T,S,EpClo,Delta,ResDelta).
 make_transitions([Tar|T],S,EpClo,Delta,ResDelta) :-
-  findall((S,Char,Tar),(member(C,EpClo),member((C,Char,Tar),Delta)),SomeOtherDelta),
+  findall((S,range(From,To),Tar),(member(C,EpClo),member((C,range(From,To),Tar),Delta)),SomeOtherDelta),
   append(SomeOtherDelta,Delta,TempDelta),
   make_transitions(T,S,EpClo,TempDelta,ResDelta).
 
