@@ -30,7 +30,7 @@
 
 % chr rule for generating a str_in directly from a String.
 % S should be bound to a str.
-str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D), writeln(X).
+str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).%, writeln(X).
 
 
 % chr rule wakes up each time a new or updated str_in is added
@@ -55,9 +55,9 @@ str_in(X,D1), str_in(X,D2)
 % (we do not use member to check since that would unify variables!)
 % in case the string variable Var is indeed supposed to be labeled,
 % we call the domain operation for labeling.
-str_labeling(Options,Vars), str_in(Var,Dom)
-            <=> is_list(Options), var_is_member(Var,Vars)
-            | writeln(Var),labeling(Options,Dom,Var), str_in(Var,Var),writeln(Var).
+str_labeling(Options,Vars) \ str_in(Var,Dom)
+            <=> var(Var), is_list(Options), var_is_member(Var,Vars)
+            | labeling(Options,Dom,Var), str_in(Var,Var).%,writeln(Var).
 
 str_label(Vars) <=> str_labeling([],Vars).
 
@@ -81,28 +81,33 @@ str_size(X,I) <=> integer(I) | generate_any_size(I,D), str_in(X,D).
 % Dismiss the constraint and keep the str_in of the other var.
 str_in(X1,D1), str_in(X2,D2), str_concatenation(X1,X2,X3)
             ==> concatenation(D1,D2,D3), str_in(X3,D3).
+str_in(X1,D1), str_concatenation(X1,X1,X3)
+            ==> concatenation(D1,D1,D3), str_in(X3,D3).
 
 
 % Take the variable  and repeat it the specific amount of times.
 % Dismiss the constraint and put result into a new varable.
-str_in(X1,D1) \ str_repeat(X1,X2)
-            <=> repeat(D1,D2), str_in(X2,D2).
-str_in(X1,D1) \ str_repeat(X1,Nmb,X2)
-            <=> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
-str_in(X1,D1) \ str_repeat(X1,From,To,X2)
-            <=> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
+str_in(X1,D1), str_repeat(X1,X2)
+            ==> repeat(D1,D2), str_in(X2,D2).
+str_in(X1,D1), str_repeat(X1,Nmb,X2)
+            ==> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
+str_in(X1,D1), str_repeat(X1,From,To,X2)
+            ==> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
 
 
 % Take 3 variables and calc the union of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_in(X1,D1), str_in(X2,D2) \ str_union(X1,X2,X3)
-            <=> union(D1,D2,D3), str_in(X3,D3).
+str_in(X1,D1), str_in(X2,D2), str_union(X1,X2,X3)
+            ==> union(D1,D2,D3), str_in(X3,D3).
+str_in(X1,D1), str_union(X1,X1,X3)
+            ==> union(D1,D1,D3), str_in(X3,D3).
 
 
 % Take 3 variables and calc the intersection of the three.
 % Dismiss the constraint and keep the str_in of the other var.
-str_in(X1,D1), str_in(X2,D2) \ str_intersection(X1,X2,X3)
-            <=> intersection(D1,D2,D3), str_in(X3,D3).
+str_in(X1,D1), str_in(X2,D2), str_intersection(X1,X2,X3)
+            ==> intersection(D1,D2,D3), str_in(X3,D3).
+str_in(X1,_) \ str_intersection(X1,X1,X3) <=> X1 = X3.
 
 
 
