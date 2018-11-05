@@ -70,18 +70,32 @@
 /* ----- Generating an AST from a given regular expression  ----- */
 
 % characters
-%characters(string(I)) --> characters2(D), {atom_codes(I, D)}.
+%characters(string(I)) --> characters2(D), {atom_codes(I, D)}. depricated!
 characters(char(I)) --> char_or_digit(D), !, {atom_codes(I, D)}.
-characters(any) --> `.`. % any
-characters(char(I)) --> `_`, {atom_codes(I, [32])}. % space
-%characters(nonliteral(D)) --> nonlit(D), !. % TODO add some more
-%characters2([D|T]) --> char(D), !, characters2(T).
+characters(X) --> nonlit(X),!.
+%characters(char(I)) --> visible(D), !, {atom_codes(I, D)}.
+%characters2([D|T]) --> char(D), !, characters2(T). depricated!
+
 char_or_digit([D]) --> [D], {code_type(D, alnum)}.
 % not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
 % letters like ö,ü,a and so on.
 % (D>=48, D=<57) for digits
-nonlit(any) --> `.`.
 
+nonlit(any) --> `.`.
+nonlit(char(I)) --> `_`, {atom_codes(I, [32])}. % space
+nonlit(char(I)) --> [D], {code_type(D,quote), atom_codes(I, [D])}. % ", ', `
+%nonlit(char(I)) --> [92,D], {code_type(D,paren), atom_codes(I, [D])}. % (", ', `
+nonlit(char(I)) --> `\\(`, {atom_codes(I, "(")}.
+nonlit(char(I)) --> `\\)`, {atom_codes(I, ")")}.
+nonlit(char(*)) --> `\\*`.
+nonlit(char(+)) --> `\\+`.
+nonlit(char(.)) --> `\\.`.
+nonlit(char(?)) --> `\\?`.
+nonlit(char(I)) --> `\\_`, {atom_codes(I, "_")}. % _
+nonlit(char(\)) --> `\\`.
+
+nonlit(char(=)) --> `=`.
+%visible([D]) --> [D], {between(32,126,D)}.
 
 % white space
 ws --> [D], {code_type(D, white), !}, ws.
