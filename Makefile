@@ -74,6 +74,10 @@ test_clpstr:
 test_re_parser:
 	swipl --quiet -l test/reg_ex_parser.plt -t "run_tests"
 
+.PHONY: examples
+examples:
+	swipl --quiet -l examples/sql_detection.pl -t "run_tests"
+
 help:
 	@echo	'make tests - To run all tests.'
 	@echo 'make profile - To run all tests and return resource calculation.'
