@@ -77,6 +77,7 @@ test_re_parser:
 .PHONY: examples
 examples:
 	swipl --quiet -l examples/sql_detection.pl -t "run_tests"
+	swipl --quiet -l examples/date_form_gen.pl -t "run_tests"
 
 help:
 	@echo	'make tests - To run all tests.'
