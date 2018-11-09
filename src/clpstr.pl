@@ -48,7 +48,10 @@ str_in(_,D) ==>  is_empty(D) | fail.
 % the two old str_in constraints are removed, a single update one is added
 % as a result, the string variable X has again an unambiguous domain
 str_in(X,D1), str_in(X,D2)
-            <=> intersection(D1,D2,D3), str_in(X,D3).
+            <=> D1 \= D2 | intersection(D1,D2,D3), str_in(X,D3). % see comment below
+str_in(X,D1) \ str_in(X,D2) 
+            <=>  D1 == D2 | true. % sebastians idea 9.11.18: only propagate if change expected, otherwise just drop
+
 
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
