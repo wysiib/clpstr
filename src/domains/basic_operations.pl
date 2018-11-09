@@ -186,7 +186,7 @@ repeat(D,C,DOut) :-
 % @OutputDomain is the resulting Domain as an automaton.
 repeat(Dom,automaton_dom(States,DeltaRes,Start,EndRes)) :-
   constant_string_domain_to_automaton(Dom,automaton_dom(States,Delta,Start,End)),
-  flatten([Start,End],EndRes),
+  ord_union(Start,End,EndRes),
   findall((E,epsilon,S),(member(E,End),member(S,Start)),Trans),
   flatten([Delta,Trans],DeltaRes).
 
