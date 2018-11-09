@@ -166,6 +166,7 @@ label_id_dfs(Dom,Label) :-
 
 %%%% List generation %%%%
 
+% generates a continuesly longer list for id_dfs
 lst([]).
 lst([_|T]) :-
   lst(T).
