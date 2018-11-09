@@ -129,7 +129,25 @@ translate_ranges(RangeList,Label) :-
 gen_charlist([],[]).
 gen_charlist([range(From,To)|RangeT],[C|ResT]):-
   between(From,To,C),
+  % parser_translate(C,ResC),
   gen_charlist(RangeT,ResT).
+
+
+%! parser_translate(CharCode,ResCode)
+% tranlates labeled codes so the reg ex parser understands them.
+% NOTE not funtioning for anything but space!
+% if neccessary translate!
+parser_translate(32,95). % " "
+parser_translate(40,_). % "("
+parser_translate(41,_). % ")"
+parser_translate(42,_). % "*"
+parser_translate(43,_). % "+"
+parser_translate(46,_). % "."
+parser_translate(63,_). % "?"
+parser_translate(95,_). % "_"
+parser_translate(92,_). % "\"
+parser_translate(CharCode,CharCode).
+
 
 
 label_id_dfs(Dom,Label) :-
