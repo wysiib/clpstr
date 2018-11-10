@@ -2,4 +2,4 @@
 
 benchmark(Options) :-
   str_in(X,".........."),
-  labeling(Options,[X]).
+  str_labeling(Options,[X]).

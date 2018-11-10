@@ -58,7 +58,7 @@ str_in(X,D1), str_in(X,D2)
 % we call the domain operation for labeling.
 str_labeling(Options,Vars) \ str_in(Var,Dom)
             <=> var(Var), is_list(Options), var_is_member(Var,Vars)
-            | labeling(Options,Dom,Var), constant_string_domain(Var,VarDom), writeln([Var,VarDom]),str_in(Var,VarDom).%,writeln(Var).
+            | labeling(Options,Dom,Var), constant_string_domain(Var,VarDom), str_in(Var,VarDom).%,writeln(Var).
 
 str_label(Vars) <=> str_labeling([],Vars).
 
@@ -91,7 +91,7 @@ str_in(X1,D1), str_concatenation(X1,X1,X3)
 str_in(X1,D1), str_repeat(X1,X2)
             ==> repeat(D1,D2), str_in(X2,D2).
 str_in(X1,D1), str_repeat(X1,Nmb,X2)
-            ==> integer(Nmb)| repeat(D1,Nmb,D2), writeln(D2), ((D2=='string_dom()') -> abort; true), str_in(X2,D2).
+            ==> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
 str_in(X1,D1), str_repeat(X1,From,To,X2)
             ==> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
 
@@ -139,8 +139,8 @@ str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
 
 generate_domain("",Dom) :-
-  constant_string_domain("",Dom).
+  !,constant_string_domain("",Dom).
 generate_domain(String,Dom) :-
   string(String),
   atom_codes(String,Codes),
-  generate(Codes, Dom).
+  generate(Codes, Dom),!.

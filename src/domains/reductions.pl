@@ -19,6 +19,7 @@
 % NOTE: this is very expensive because it calls epsilon_reduce_recursive.
 % @OldDomain the automaton domain to be reduced.
 % @ResultingDomain the domain after the reduction.
+epsilon_reduce(string_dom(X),string_dom(X)):- !.
 epsilon_reduce(Dom,Res) :-
   get_all_states(Dom,States),
   get_transition(Dom,Delta),
