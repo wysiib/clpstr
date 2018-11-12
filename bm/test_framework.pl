@@ -16,7 +16,7 @@ benchmark_test(ResultName,DirectoryName,Options,FileName) :-
   atom_concat(DirectoryName,'/',Directory),
   atom_concat(Directory,FileName,FileLocation),
   consult(FileLocation),
-  run_benchmark(Options,Time,Inferences),!,
+  on_exception(time_limit_exceeded,call_with_time_limit(900,run_benchmark(Options,Time,Inferences)),time_out_handler(900)),
   retractall(benchmark(_)),
   write_data(FileName,ResultName,Time,Inferences).
 
@@ -38,3 +38,8 @@ run_benchmark(Options,Time,Inferences) :-
   statistics(inferences,Y),
   statistics(walltime,[_,Time]),
   Inferences is Y-X.
+
+
+time_out_handler(X) :-
+  string_concat("The Given Timeout has been reachen. Time Out was: ",X, Err),
+  writeln(Err).

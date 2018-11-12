@@ -9,6 +9,30 @@ label(Dom,Label) :-
 label(Dom,Label) :-
   labeling([id_dfs],Dom,Label).
 
+/*labeling(L,Dom,Label) :-
+  is_list(L),
+  get_time_out(L,TO),
+  get_search(L,Search),
+  on_exception(X,call_with_time_limit(TO,call_with_time_limit(TO,labeling_with_opt([Search],Dom,Label)),time_out_handler(TO)).
+  NOTE: unfortuneately this can't be used, since it does not allow
+  for backtracking. Future work: implement timeout!
+
+get_time_out(L,TO) :-
+  member(time_out=TO,L),!.
+get_time_out(_,900).
+
+get_search(L,dfs) :-
+  member(dfs,L),!.
+get_search(L,bfs) :-
+  member(bfs,L),!.
+get_search(L,id_dfs) :-
+  member(id_dfs,L),!.
+get_search(_,id_dfs).
+
+time_out_handler(X) :-
+  string_concat("The Given Timeout has been reachen. Time Out was: ",X, Err),
+  writeln(Err).*/
+
 labeling(_,string_dom(S),S) :- !.
 labeling([],Dom,Label) :-
   labeling([id_dfs],Dom,Label).

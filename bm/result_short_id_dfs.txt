@@ -1,0 +1,5 @@
+benchmarks(repeat1_1000.pl,182887,2019175727)
+benchmarks(repeat1_1000.pl,182661,2019175727)
+benchmarks(repeat1_1000.pl,170259,2019175727)
+benchmarks(repeat1_1000.pl,184759,2019175727)
+benchmarks(repeat1_1000.pl,181178,2019175727)

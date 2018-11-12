@@ -74,6 +74,9 @@ test_clpstr:
 test_re_parser:
 	swipl --quiet -l test/reg_ex_parser.plt -t "run_tests"
 
+test_re_interpreter:
+	swipl --quiet -l test/reg_ex_interpreter.plt -t "run_tests"
+
 .PHONY: examples
 examples:
 	swipl --quiet -l examples/sql_detection.pl -t "run_tests"
