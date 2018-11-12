@@ -39,7 +39,7 @@ str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).%, writeln(X).
 % we have a variable (_) which should be assigned a value,
 % but no value is available for said variable.
 % In consequence, we fail and backtrack.
-str_in(_,D) ==>  is_empty(D) | fail.
+str_in(_,D) ==>  /*print([X,D]),nl,*/ is_empty(D) | fail.
 
 % two domains are available for the same string variable X
 % this might happen when an updated domain is posted to CHR
@@ -48,8 +48,8 @@ str_in(_,D) ==>  is_empty(D) | fail.
 % the two old str_in constraints are removed, a single update one is added
 % as a result, the string variable X has again an unambiguous domain
 str_in(X,D1), str_in(X,D2)
-            <=> D1 \= D2 | intersection(D1,D2,D3), str_in(X,D3). % see comment below
-str_in(X,D1) \ str_in(X,D2) 
+            <=> D1 \= D2 | intersection(D1,D2,D3), str_in(X,D3). % see comment below
+str_in(X,D1) \ str_in(X,D2)
             <=>  D1 == D2 | true. % sebastians idea 9.11.18: only propagate if change expected, otherwise just drop
 
 
@@ -61,7 +61,7 @@ str_in(X,D1) \ str_in(X,D2)
 % we call the domain operation for labeling.
 str_labeling(Options,Vars) \ str_in(Var,Dom)
             <=> var(Var), is_list(Options), var_is_member(Var,Vars)
-            | labeling(Options,Dom,Var), constant_string_domain(Var,VarDom), str_in(Var,VarDom).%,writeln(Var).
+            | labeling(Options,Dom,Var), constant_string_domain(Var,VarDom), str_in(Var,VarDom).
 
 str_label(Vars) <=> str_labeling([],Vars).
 
@@ -93,16 +93,21 @@ str_in(X1,D1), str_concatenation(X1,X1,X3)
 % Dismiss the constraint and put result into a new varable.
 str_in(X1,D1), str_repeat(X1,X2)
             ==> repeat(D1,D2), str_in(X2,D2).
-str_in(X1,D1), str_repeat(X1,Nmb,X2)
-            ==> integer(Nmb)| repeat(D1,Nmb,D2), str_in(X2,D2).
-str_in(X1,D1), str_repeat(X1,From,To,X2)
-            ==> integer(From),integer(To) | repeat(D1,From,To,D2), str_in(X2,D2).
+str_in(X1,D1), str_repeat(X1,Nmb,X2) % see comment below
+            ==> integer(Nmb), var(X2) | repeat(D1,Nmb,D2), str_in(X2,D2).
+str_in(X1,D1), str_repeat(X1,From,To,X2) % see comment below
+            ==> integer(From),integer(To),var(X2) | repeat(D1,From,To,D2), str_in(X2,D2).
+            % NOTE Malte's idea 10.11.18:
+            %  added var(X2) to make sure repeat does not get
+            % calculated after labeling. not sure whether this is smart.
+            % theoretically X1 should not change after X2 is labeled and should
+            % always be labeled before X2. also done in union.
 
 
 % Take 3 variables and calc the union of the three.
 % Dismiss the constraint and keep the str_in of the other var.
 str_in(X1,D1), str_in(X2,D2), str_union(X1,X2,X3)
-            ==> union(D1,D2,D3), str_in(X3,D3).
+            ==> var(X3) | union(D1,D2,D3), str_in(X3,D3).
 str_in(X1,_) \ str_union(X1,X1,X3) <=> X1 = X3.
 
 

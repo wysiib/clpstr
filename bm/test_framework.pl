@@ -6,12 +6,13 @@ make_all_benchmarks(Directory,Name) :-
 
 make_all_benchmarks(Directory,Name,Options) :-
   directory_files(Directory,Files),
-  %writeln(Files),
+  writeln(Files),
   maplist(benchmark_test(Name,Directory,Options),Files).
 
 benchmark_test(_,_,_,.) :- !.
 benchmark_test(_,_,_,..) :- !.
 benchmark_test(ResultName,DirectoryName,Options,FileName) :-
+  writeln(FileName),
   atom_concat(DirectoryName,'/',Directory),
   atom_concat(Directory,FileName,FileLocation),
   consult(FileLocation),
