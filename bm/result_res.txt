@@ -1,0 +1,4 @@
+benchmarks(concat_1000.pl,3437,32439141)
+benchmarks(union_1000.pl,2224,26452160)
+benchmarks(union_1000.pl,2534,26458312)
+benchmarks(concat_1000.pl,3696,32352928)

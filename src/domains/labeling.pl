@@ -184,7 +184,7 @@ label_id_dfs(Dom,Label) :-
   put_dict(StartState,History,visited,NewHistory),
   lst(List),
   length(List,L), % some arbitrary termination condition.
-  (L >= 10000 -> !, fail;
+  (L >= 10000 -> !, /*writeln("reached 10000 length in search"),*/ fail;
   unfold_tailrec(StartState,Trans,Ends,NewHistory,List),
   translate_ranges(List,Label)).
 

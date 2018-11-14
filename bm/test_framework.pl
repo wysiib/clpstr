@@ -13,10 +13,12 @@ benchmark_test(_,_,_,.) :- !.
 benchmark_test(_,_,_,..) :- !.
 benchmark_test(ResultName,DirectoryName,Options,FileName) :-
   writeln(FileName),
+  get_time_out(Options,TO),
+  get_search(Options,Search),
   atom_concat(DirectoryName,'/',Directory),
   atom_concat(Directory,FileName,FileLocation),
   consult(FileLocation),
-  on_exception(time_limit_exceeded,call_with_time_limit(900,run_benchmark(Options,Time,Inferences)),time_out_handler(900)),
+  on_exception(time_limit_exceeded,call_with_time_limit(TO,run_benchmark([Search],Time,Inferences)),time_out_handler(TO)),
   retractall(benchmark(_)),
   write_data(FileName,ResultName,Time,Inferences).
 
@@ -41,5 +43,17 @@ run_benchmark(Options,Time,Inferences) :-
 
 
 time_out_handler(X) :-
-  string_concat("The Given Timeout has been reachen. Time Out was: ",X, Err),
+  string_concat("The Given Timeout has been reached. Time Out was: ",X, Err),
   writeln(Err).
+
+get_time_out(L,TO) :-
+  member(time_out=TO,L),!.
+get_time_out(_,600).
+
+get_search(L,dfs) :-
+  member(dfs,L),!.
+get_search(L,bfs) :-
+  member(bfs,L),!.
+get_search(L,id_dfs) :-
+  member(id_dfs,L),!.
+get_search(_,id_dfs).

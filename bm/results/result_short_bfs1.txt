@@ -1,0 +1,5 @@
+benchmarks(repeat1_1000.pl,1720,16194773)
+benchmarks(size_100.pl,29,379753)
+benchmarks(concat_10.pl,2,12930)
+benchmarks(repeat2_10.pl,11,68228)
+benchmarks(union_100.pl,55,555465)

@@ -8,7 +8,7 @@ input_check(Input) :-
 
 check_for_attack_code(Input) :-
   str_in(X,Input),
-  str_infix(X,"\' OR \'1\' = \'1").
+  str_infix(X,"\' OR \'(0|1|2|3|4|5|6|7|8|9|0)*\' = \'(0|1|2|3|4|5|6|7|8|9|0)*").
 
 
 %
