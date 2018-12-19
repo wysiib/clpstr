@@ -282,11 +282,12 @@ concatenation(A1,A2,automaton_dom(States3,Delta3,Start1,End2Star)) :-
   %length(States1,L),
   max_list([0|States1],L),
   maplist(plus(L),States2,States2Star), % create new state space.
-  flatten([States1,States2Star],States3),
+  append(States1,States2Star,States3),
   maplist(plus(L),Start2,Start2Star), % create new delta transition.
   findall((S,epsilon,T),(member(S,End1),member(T,Start2Star)),Trans),
   adjust_transition(L,Delta2,Delta2Star),
-  flatten([Delta1,Trans,Delta2Star],Delta3),
+  append(Trans,Delta2Star,Delta2StarTrans),
+  append(Delta1,Delta2StarTrans,Delta3),
   maplist(plus(L),End2,End2Star). % create new Endspaces.
 
 

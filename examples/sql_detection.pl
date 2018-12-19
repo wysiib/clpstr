@@ -32,6 +32,14 @@ test(simple_fail_no_whitespace,[fail]) :-
   Test = "\'OR\'1\'=\'1",
   input_check(Test).
 
+test(simple_fail_different_numbers,[fail]) :-
+  Test = "\' OR \'9\' = \'2",
+  input_check(Test).
+
+test(simple_fail_more_numbers,[fail]) :-
+  Test = "\' OR \'12\' = \'12",
+  input_check(Test).
+
 test(embeded_fail_Prefix,[fail]) :-
   Test = "\' OR \'1\' = \'1\'abc",
   input_check(Test).
