@@ -87,6 +87,7 @@ upper_case_domain(automaton_dom(States,Delta,Start,End)) :-
   Start = [1], % List of start states
   End = [2]. % List of end states
 
+% TODO: implement States, Start, End, and the transitions Delta using difference lists
 
 %! get_all_states(AutomatonDom,ReturnStates) is det
 % Returns the List of all states of a given automaton_dom.
@@ -211,7 +212,7 @@ adjust_domain(L,automaton_dom(States,Delta,Start,End),automaton_dom(ResStates,Re
 % @ResultingDomain is the combined domain.
 combine_domain(automaton_dom(States1,Delta1,Start1,End1),automaton_dom(States2,Delta2,Start2,End2),automaton_dom(ResStates,ResDelta,ResStart,ResEnd)) :-
   append(States1,States2,ResStates),
-  append(Delta1,Delta2,ResDelta),
+  append(Delta1,Delta2,ResDelta), % TODO: bottleneck for performance, as mentioned above, use difference lists to append in constant time
   append(Start1,Start2,ResStart),
   append(End1,End2,ResEnd).
 

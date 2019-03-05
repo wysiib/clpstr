@@ -141,7 +141,7 @@ generate_dfa_transitions([Start|PowT],Trans,Acc,Res) :-
 
 
 gen_bin_states(OldStates,ResStates) :-
-  length(OldStates,L),
+  length(OldStates,L),  % TODO: this can probably be faster, partial evaluation by providing several cases for specific size L?
   findall(X,(length(X,L),X ins 0..1,labeling([],X)),ResStates).
 
 gen_pow_set(Set,Res) :-
@@ -215,7 +215,7 @@ ordered_eps_closure(State,Trans,Res) :-
   list_to_ord_set(Clo,Res).
 
 
-remove_unused(string_dom(X),string_dom(X)) :- !.
+remove_unused(string_dom(X),string_dom(X)) :- !.  % TODO: use a set (maybe ordered set?) in the first place so we do not need to remove any duplicates later on
 remove_unused(Dom,Res) :-
   get_start_states(Dom,Starts),\+ Starts == [], !,
   findall(SingleState,(member(X,Starts),
@@ -238,7 +238,7 @@ remove_unused(Dom,Res) :-
 breadth_first_state_search(Dom,Start,Res) :-
   get_all_states(Dom,States),
   ord_memberchk(Start,States),
-  breadth_first_state_search_acc(Dom,[Start],[Start],[Start],Res).
+  breadth_first_state_search_acc(Dom,[Start],[Start],[Start],Res). % TODO: implement 'Seen' (i.e. the history) using a dictionary
 
 
 breadth_first_state_search_acc(_,[],_,Acc,Acc) :- !.
@@ -275,8 +275,8 @@ clean_automaton(Dom,CleanDom) :-
   gen_matched_states(Ends,MatchedStates,ResEnds),
   % generate new transitions
   % remve epsilon self loops and dummy transitions from reachable call
-  gen_matched_trans(ReachTrans,MatchedStates,ResTrans),
-  reverse(ResTrans,RevResTrans), % TODO! Do this directly in gen_matched_trans
+  gen_matched_trans(ReachTrans,MatchedStates,ResTrans), % TODO: implement gen_matched_trans/3 using an accumulator so we don't need to reverse anymore
+  reverse(ResTrans,RevResTrans), 
   CleanDom = automaton_dom(ResStates,RevResTrans,ResStarts,ResEnds).
 
 

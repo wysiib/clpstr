@@ -44,7 +44,7 @@ is_empty(D) :- !, \+ labeling([any],D,_).
 intersection(D,D,D) :-
   !.
 intersection(string_dom(S1),string_dom(S2),empty) :-
-  S1 \= S2,
+  S1 \== S2,
   !.
 intersection(Dom1,string_dom(S), string_dom(S)) :-
   label(Dom1,S),

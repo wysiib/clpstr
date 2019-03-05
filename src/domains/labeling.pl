@@ -161,7 +161,7 @@ gen_charlist([range(From,To)|RangeT],[C|ResT]):-
 % tranlates labeled codes so the reg ex parser understands them.
 % NOTE not funtioning for anything but space!
 % if neccessary translate!
-parser_translate(32,95). % " "
+parser_translate(32,95). % " "  % TODO: what is this? remove parser_translate/2 if it is not used anywhere
 parser_translate(40,_). % "("
 parser_translate(41,_). % ")"
 parser_translate(42,_). % "*"
