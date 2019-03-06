@@ -3,9 +3,11 @@
 ## Refactoring
 
 * [ ] Change internal representation of automata
-  * [ ] Reduce list of states to single integer
-    * State names are 1..n. Instead of having the whole list to traverse,
-      simply use n as value.
+  * [ ] Change naming convention of states to `id-num` format,
+    `id` being a unique identifier for the automaton,
+    `num` being the name of the state
+    * [ ] Change list of states to list of tuples of `id` and number of states
+    * [ ] Add `id` to automaton term so each carries its own id
   * [ ] Change lists to difference lists
 * [ ] Increase performance of several predicates
   * See todos in code
@@ -18,3 +20,4 @@
   * [ ] Make entries more relevant
     * Documenting an argument called `Domain1` as "the first domain" carries
       no further information (cf. `combine_domain/3`)
+* [ ] Merge [project todo list](ProjektToDoListe.md) into this one
