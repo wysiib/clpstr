@@ -87,7 +87,8 @@ upper_case_domain(automaton_dom(States,Delta,Start,End)) :-
   Start = [1], % List of start states
   End = [2]. % List of end states
 
-% TODO: implement States, Start, End, and the transitions Delta using difference lists
+% TODO: implement Start, End, and the transitions Delta using difference lists
+% TODO: implement States as single integer
 
 %! get_all_states(AutomatonDom,ReturnStates) is det
 % Returns the List of all states of a given automaton_dom.

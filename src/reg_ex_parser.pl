@@ -34,7 +34,7 @@
             information.
           - digits (0 - 9)
           - The . is used to represent an arbitrary character.
-          - The _ represents the space character, " ", in an regex.
+          - The _ represents the space character, " ", in an regex. TODO: Make white space available
       - All quantity operations:
         Repeats the given regex a set amount of times.
           - * for zero to infinit repeats

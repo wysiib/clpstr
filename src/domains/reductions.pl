@@ -153,7 +153,7 @@ pow_set([_|T], P) :- pow_set(T,P).
 
 bin_2_new_state(binstate([]),0) :- !.
 bin_2_new_state(binstate(L),ResState) :-
-  is_list(L),
+  is_list(L), % TODO: Unsure if necessary. length/2 throws error if L is not a list. Should we check for non-list entries in binstate though?
   length(L,Temp),
   N is Temp - 1,
   bin_2_new_state_recursive(L,0,N,ResState).
@@ -276,7 +276,7 @@ clean_automaton(Dom,CleanDom) :-
   % generate new transitions
   % remve epsilon self loops and dummy transitions from reachable call
   gen_matched_trans(ReachTrans,MatchedStates,ResTrans), % TODO: implement gen_matched_trans/3 using an accumulator so we don't need to reverse anymore
-  reverse(ResTrans,RevResTrans), 
+  reverse(ResTrans,RevResTrans),
   CleanDom = automaton_dom(ResStates,RevResTrans,ResStarts,ResEnds).
 
 
