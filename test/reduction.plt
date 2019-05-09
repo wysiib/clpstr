@@ -293,7 +293,7 @@ test(gen_matched_trans_empty,[true(Actual == Expected)]) :-
   reductions:gen_matched_trans([],Matches,Actual).
 
 test(gen_matched_trans_all_states_available,[true(Actual == Expected)]) :-
-  Expected = [(1,range(97,97),2),(2,range(98,98),3)],
+  Expected = [(2,range(98,98),3),(1,range(97,97),2)],
   Matches = matchedStates{1:1, 3:2, 5:3},
   Test = [(1,range(97,97),3),(3,range(98,98),5)],
   reductions:gen_matched_trans(Test,Matches,Actual).
