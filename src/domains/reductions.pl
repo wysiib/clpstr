@@ -2,8 +2,6 @@
                       dfa_reduce/2,
                       epsilon_closure/3,
                       ordered_eps_closure/3,
-                      bin_2_new_state/2,
-                      gen_bin_states/2,
                       remove_unused/2,
                       breadth_first_state_search/3,
                       clean_automaton/2]).
@@ -139,36 +137,12 @@ generate_dfa_transitions([Start|PowT],Trans,Acc,Res) :-
   append(NewDelta,Acc,NewAcc),
   generate_dfa_transitions(PowT,NewAcc,Res).
 
-
-gen_bin_states(OldStates,ResStates) :-
-  length(OldStates,L),  % TODO: this can probably be faster, partial evaluation by providing several cases for specific size L?
-  findall(X,(length(X,L),X ins 0..1,labeling([],X)),ResStates).
-
 gen_pow_set(Set,Res) :-
   findall(Pow,pow_set(Set,Pow),Res).
 
 pow_set([],[]).
 pow_set([H|T], [H|P]) :- pow_set(T,P).
 pow_set([_|T], P) :- pow_set(T,P).
-
-bin_2_new_state(binstate([]),0) :- !.
-bin_2_new_state(binstate(L),ResState) :-
-  is_list(L), % TODO: Unsure if necessary. length/2 throws error if L is not a list. Should we check for non-list entries in binstate though?
-  length(L,Temp),
-  N is Temp - 1,
-  bin_2_new_state_recursive(L,0,N,ResState).
-
-bin_2_new_state_recursive([],Acc,_,Acc).
-bin_2_new_state_recursive([0|T],Acc,N,Res) :-
-  !, NewN is N - 1,
-  bin_2_new_state_recursive(T,Acc,NewN,Res).
-bin_2_new_state_recursive([1|T],Acc,N,Res) :-
-  NewN is N - 1,
-  NewAcc is 2 ** N + Acc,
-  bin_2_new_state_recursive(T,NewAcc,NewN,Res).
-
-
-
 
 %! epsilon_closure(StartState,TransitionList,EpsilonClosure) is det
 % Takes a state and a list of transitions and returns all states reachable
