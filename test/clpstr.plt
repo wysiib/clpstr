@@ -1,4 +1,5 @@
 :- use_module(library(plunit)).
+:- use_module(library(chr), [find_chr_constraint/1]).
 
 :- use_module('../src/clpstr').
 :- use_module('../src/domains/basic_domains').
