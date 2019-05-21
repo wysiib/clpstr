@@ -1,5 +1,6 @@
  :- module(clpstr,[str_in/2,
                    str_size/2,
+                   str_max_size/2,
                    str_labeling/2,
                    str_label/1,
                    str_concatenation/3,
@@ -8,6 +9,7 @@
                    str_repeat/4,
                    str_union/3,
                    str_intersection/3,
+                   str_to_int/2,
                    str_prefix/2,
                    str_suffix/2,
                    str_infix/2,
@@ -16,6 +18,7 @@
                    generate_domain/2]).
 
 :- use_module(library(chr)).
+:- use_module(library(clpfd)).
 
 :- use_module('domains/basic_domains').
 :- use_module('domains/basic_operations').
@@ -26,12 +29,11 @@
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
-   str_upper_case/1, str_lower_case/1.
-
+   str_upper_case/1, str_lower_case/1, str_to_int/2, str_max_size/2.
 
 % chr rule for generating a str_in directly from a String.
 % S should be bound to a str.
-str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).%, writeln(X).
+str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).
 
 
 % chr rule wakes up each time a new or updated str_in is added
@@ -39,7 +41,7 @@ str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).%, writeln(X).
 % we have a variable (_) which should be assigned a value,
 % but no value is available for said variable.
 % In consequence, we fail and backtrack.
-str_in(_,D) ==>  /*print([X,D]),nl,*/ is_empty(D) | fail.
+str_in(_,D) ==>  is_empty(D) | fail.
 
 % two domains are available for the same string variable X
 % this might happen when an updated domain is posted to CHR
@@ -55,7 +57,7 @@ str_in(X,D1) \ str_in(X,D2)
 
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
-% that is associated which a variable in the list
+% that is associated with a variable in the list
 % (we do not use member to check since that would unify variables!)
 % in case the string variable Var is indeed supposed to be labeled,
 % we call the domain operation for labeling.
@@ -80,6 +82,7 @@ var_is_member(X,[_|T]) :- var_is_member(X,T).
 % Note the first clause is already covered via str_in
 str_size(X,I) <=> integer(I) | generate_any_size(I,D), str_in(X,D).
 
+str_max_size(X,I) <=> integer(I) | generate_any_up_to_size(I,D), str_in(X,D).
 
 % Take 3 variables and calc the conatenation of the three.
 % Dismiss the constraint and keep the str_in of the other var.
@@ -145,6 +148,50 @@ str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 
 
 str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
+
+%% string to integer
+%
+% fd var is negative so the string domain has a leading "-" and accepts integers only
+str_to_int(X,I) ==>
+  is_neg_fd_var(I) | generate_domain("- ((1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*)", Negative) , str_in(X, Negative).
+
+% fd var is positive so the string domain accepts positive integers only
+str_to_int(X,I) ==>
+  is_pos_fd_var(I) | generate_domain("0 | ((1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*)", Positive) , str_in(X, Positive).
+
+% fd var is constant
+str_to_int(X,I) ==>
+  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
+
+% string is constant
+str_to_int(X,I) ==>
+  find_chr_constraint(str_in(X,S)) ,  S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
+
+% otherwise, just set the string domain to accept integers only
+str_to_int(X,I) ==>
+  neither_pos_nor_neg_fd_var(I) |
+  generate_domain("-(1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)* | 0 | (1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*", IDom),
+  str_in(X,IDom).
+%%
+
+neither_pos_nor_neg_fd_var(Var) :-
+  fd_var(Var),
+  fd_inf(Var, Infimum),
+  (Infimum == inf ; Infimum < 0),
+  fd_sup(Var, Supremum),
+  (Supremum == sup ; Supremum >= 0).
+
+is_neg_fd_var(Var) :-
+  fd_var(Var),
+  fd_inf(Var, Infimum),
+  (Infimum == inf ; Infimum < 0),
+  fd_sup(Var, Supremum),
+  (Supremum \== sup , Supremum < 0).
+
+is_pos_fd_var(Var) :-
+  fd_var(Var),
+  fd_inf(Var, Infimum),
+  Infimum >= 0.
 
 generate_domain("",Dom) :-
   !,constant_string_domain("",Dom).
