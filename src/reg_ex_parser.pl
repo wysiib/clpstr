@@ -37,8 +37,8 @@
           - The _ represents the space character, " ", in an regex. TODO: Make white space available
       - All quantity operations:
         Repeats the given regex a set amount of times.
-          - * for zero to infinit repeats
-          - + for one to infinit repeats
+          - * for zero to arbitrary repeats
+          - + for one to arbitrary repeats
           - ? for one or zero repeats
       - Alternatives:
         Divide multiple regex and add choice points between them by using |.
@@ -77,6 +77,7 @@ characters(X) --> nonlit(X),!.
 %characters2([D|T]) --> char(D), !, characters2(T). depricated!
 
 char_or_digit([D]) --> [D], {code_type(D, alnum)}.
+char_or_digit([-]) --> `-`. % we need minus for negative integers
 % not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
 % letters like ö,ü,a and so on.
 % (D>=48, D=<57) for digits
