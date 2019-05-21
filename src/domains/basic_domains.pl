@@ -15,7 +15,8 @@
                            adjust_transition/3,
                            adjust_domain/3,
                            combine_domain/3,
-                           generate_any_size/2]).
+                           generate_any_size/2,
+                           generate_any_up_to_size/2]).
 
 :- use_module(domain_conversion).
 
@@ -239,6 +240,15 @@ generate_any_size(X,automaton_dom(States,Delta,Start,End)) :-
   generate_any_size_trans(X,1,[],Delta), % List of statetransitions
   Start = [1], % List of start states
   End = [Y].  % List of end states
+
+%! generate_any_size(Size,Dom)
+% Takes an integer Size and puts together an automaton accepting any
+% word with maximum length of Size, i.e., behaves like generate_any_size/2
+% but each state is accepting.
+% @Size is the maximum size of the words length.
+% @Dom is the resulting automaton.
+generate_any_up_to_size(X,automaton_dom(States,Delta,Start,States)) :-
+  generate_any_size(X, automaton_dom(States,Delta,Start,_)).
 
 %! generate_any_size_trans(Size,Count,Trans,Dom)
 % Takes an integer Size and puts together a transition list accepting any
