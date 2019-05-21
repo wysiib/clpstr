@@ -54,6 +54,9 @@ str_in(X,D1), str_in(X,D2)
 str_in(X,D1) \ str_in(X,D2)
             <=>  D1 == D2 | true. % sebastians idea 9.11.18: only propagate if change expected, otherwise just drop
 
+str_labeling(Options, Vars)
+            <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
+            | clpfd:labeling(Options, [Var]) , str_labeling(Options, RestVars).
 
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
