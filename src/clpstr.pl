@@ -179,19 +179,22 @@ neither_pos_nor_neg_fd_var(Var) :-
   fd_inf(Var, Infimum),
   (Infimum == inf ; Infimum < 0),
   fd_sup(Var, Supremum),
-  (Supremum == sup ; Supremum >= 0).
+  (Supremum == sup ; Supremum >= 0),!.
+neither_pos_nor_neg_fd_var(Cst) :-
+  integer(Cst).
 
 is_neg_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
   (Infimum == inf ; Infimum < 0),
   fd_sup(Var, Supremum),
-  (Supremum \== sup , Supremum < 0).
+  (Supremum \== sup , Supremum < 0),!.
 
 is_pos_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
-  Infimum >= 0.
+  Infimum \== inf,
+  Infimum >= 0,!.
 
 generate_domain("",Dom) :-
   !,constant_string_domain("",Dom).
