@@ -1,10 +1,65 @@
 :- use_module(library(plunit)).
+:- use_module(library(clpfd)).
 :- use_module(library(chr), [find_chr_constraint/1]).
 
 :- use_module('../src/clpstr').
 :- use_module('../src/domains/basic_domains').
 :- use_module('../src/domains/basic_operations').
 :- use_module('../src/domains/labeling').
+
+:- begin_tests(fd_vars).
+
+test(positive_fd_var) :-
+  X1 in 1..sup,
+  clpstr:is_pos_fd_var(X1),
+  X2 in 0..227,
+  clpstr:is_pos_fd_var(X2),
+  X3 in 12321..123123,
+  clpstr:is_pos_fd_var(X3),
+  X4 in inf..100,
+  \+ clpstr:is_pos_fd_var(X4),
+  X5 in -100..(-12),
+  \+ clpstr:is_pos_fd_var(X5),
+  X6 in 0..0, % zero is a constant and no fd var anymore
+  \+ clpstr:is_pos_fd_var(X6).
+
+test(negative_fd_var) :-
+  X1 in 1..sup,
+  \+ clpstr:is_neg_fd_var(X1),
+  X2 in 0..227,
+  \+ clpstr:is_neg_fd_var(X2),
+  X3 in 12321..123123,
+  \+ clpstr:is_neg_fd_var(X3),
+  X4 in inf..100,
+  \+ clpstr:is_neg_fd_var(X4),
+  X5 in -100..(-12),
+  clpstr:is_neg_fd_var(X5),
+  X6 in 0..0,
+  \+ clpstr:is_neg_fd_var(X6),
+  X7 in -11231..(-23),
+  clpstr:is_neg_fd_var(X7),
+  X8 in inf..(-10),
+  clpstr:is_neg_fd_var(X8).
+
+test(neither_pos_nor_neg_fd_var) :-
+  X1 in inf..sup,
+  clpstr:neither_pos_nor_neg_fd_var(X1),
+  X2 in -100..1234567,
+  clpstr:neither_pos_nor_neg_fd_var(X2),
+  X3 in inf..42,
+  clpstr:neither_pos_nor_neg_fd_var(X3),
+  X4 in -1..sup,
+  clpstr:neither_pos_nor_neg_fd_var(X4),
+  X5 in -7345657..3698765432,
+  clpstr:neither_pos_nor_neg_fd_var(X5),
+  X6 in -100..(-12),
+  \+ clpstr:neither_pos_nor_neg_fd_var(X6),
+  X7 in 0..0,
+  clpstr:neither_pos_nor_neg_fd_var(X7),
+  X8 in 0..227,
+  \+ clpstr:neither_pos_nor_neg_fd_var(X8).
+
+:- end_tests(fd_vars).
 
 :- begin_tests(str_labeling).
 
