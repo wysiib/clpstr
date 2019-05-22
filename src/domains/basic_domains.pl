@@ -1,5 +1,6 @@
 :- module(basic_domains, [constant_string_domain/2,
                           single_char_domain/2,
+                          char_range_domain/2,
                           any_char_domain/1,
                           lower_case_domain/1,
                           upper_case_domain/1,
@@ -55,6 +56,17 @@ single_char_domain(CharAsString, automaton_dom(States,Delta,Start,End)) :-
   Start = [1],
   End = [2].
 
+char_range_domain(ranges(Ranges), automaton_dom(States,Delta,Start,End)) :-
+  States = [1, 2],
+  char_range_delta(Ranges, 1, 2, Delta),
+  Start = [1],
+  End = [2].
+
+char_range_delta([], _, _, []).
+char_range_delta([From-To|Ranges], S, Target, [(S,range(F,T),Target)|Delta]) :-
+  char_code(From, F),
+  char_code(To, T),
+  char_range_delta(Ranges, S, Target, Delta).
 
 % ! any_char_domain(ResultingDomain) is det
 % Constructs an automaton domain containing any character.

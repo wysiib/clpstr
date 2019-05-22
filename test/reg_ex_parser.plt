@@ -115,3 +115,35 @@ test(long_term_example,[true(Res == concat(quantity(*,set(char(a),set(char(b),ch
   parse_2_tree(Test,Res).
 
 :- end_tests(tree_parser_nesting).
+
+:- begin_tests(character_ranges).
+
+test(parse_az) :-
+  Regex = `[a-z]`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == ranges([a-z])).
+
+test(parse_09) :-
+  Regex = `[0-9]`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == ranges(['0'-'9'])).
+
+test(dont_parse_ba, [fail]) :-
+  Regex = `[b-a]`,
+  parse_2_tree(Regex, _).
+
+test(dont_parse_empty, [fail]) :-
+  Regex = `[]`,
+  parse_2_tree(Regex, _).
+
+test(parse_azAZ) :-
+  Regex = `[a-zA-Z]`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == ranges([a-z,'A'-'Z'])).
+
+test(parse_acmqyz) :-
+  Regex = `[a-cm-qy-z]`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == ranges([a-c, m-q, y-z])).
+
+:- end_tests(character_ranges).

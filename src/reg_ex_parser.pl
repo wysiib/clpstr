@@ -140,6 +140,19 @@ expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
 expression3(X) -->
   characters(X),
   !.
+expression3(X) --> ws, char_range(X), ws, !.
+
+char_range(ranges(Ranges)) -->
+  `[`, char_range_tuples(Ranges), `]`.
+
+char_range_tuples([Tuple|Tuples]) -->
+  char_range_tuple(Tuple), char_range_tuples(Tuples).
+char_range_tuples([Tuple]) -->
+  char_range_tuple(Tuple).
+
+char_range_tuple(From-To) -->
+  char_or_digit([A]), `-`, char_or_digit([Z]),
+  {A =< Z, atom_codes(From, [A]), atom_codes(To, [Z])}.
 
 
 /* ----- Generating the Constraint system from the AST  ----- */
@@ -164,6 +177,9 @@ generate(RegEx, ResDom) :-
 build(char(X), ResDom) :-
   !,
   single_char_domain(X, ResDom).
+build(ranges(Ranges), ResDom) :-
+  !,
+  char_range_domain(ranges(Ranges), ResDom).
 build(any, ResDom) :-
   !,
   any_char_domain(ResDom).
