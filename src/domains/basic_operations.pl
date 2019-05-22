@@ -341,9 +341,7 @@ union(Dom1, Dom2, Res) :-
   get_all_states(AutomDom1, D1States),
   length(D1States, L),
   adjust_domain(L, AutomDom2, AdjDom2),
-  combine_domain(AutomDom1, AdjDom2, CombiDom),
-  UniDom = automaton_dom([1],[],[1],[1]),
-  concatenation(UniDom, CombiDom, Res).
+  combine_domain(AutomDom1, AdjDom2, Res).
 
 
 % ! union(InputDomainList,ResultingDomain) is det
@@ -354,10 +352,7 @@ union(Dom1, Dom2, Res) :-
 % @ResultingDomain is the union of all domains in InputDomainList.
 union([H|T], Res) :-
   constant_string_domain_to_automaton(H, AutomDomH),
-  union_recursive(T, AutomDomH, CombiDom),
-  UniDom = automaton_dom([1],[],[1],[1]),
-  concatenation(UniDom, CombiDom, Res).
-
+  union_recursive(T, AutomDomH, Res).
 
 % ! union(InputDomainList,Accumulator,ResultingDomain) is det
 % Helper predicate for union/2. Recursively builds a new Domain from the
