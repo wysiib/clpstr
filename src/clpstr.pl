@@ -64,9 +64,14 @@ str_in(X,D1) \ str_in(X,D2)
 str_labeling(Options,Vars) \ str_in(Var,Dom)
             <=> var(Var), Dom \= string_dom(_), is_list(Options), var_is_member(Var,Vars)
             | labeling(Options,Dom,Label),
+              Var = Label,
               constant_string_domain(Label,VarDom),
-              str_in(Var,VarDom), % a labelled string might trigger domain reduction of fd vars(see str_to_int/2)
-              Var = Label.
+              str_in(Var,VarDom). % a labelled string might trigger domain reduction of fd vars(see str_to_int/2)
+
+% no labeling if string var has a singleton domain
+str_labeling(_,Vars) , str_in(Var,Dom)
+            ==> var(Var), Dom = string_dom(Label) , var_is_member(Var,Vars)
+            | Var = Label.
 
 str_labeling(Options, Vars)
             <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
@@ -158,15 +163,23 @@ str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 
 str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
 
-%% string to integer
+%% String to integer conversion integrating CLP(FD) to the solver
 %
+% detect failure early without computing the intersection of domains
+str_to_int(X,I) ==>
+  string(X) , integer(I) , number_string(I, IString) , X \== IString | fail.
+
 % fd var is negative so the string domain accepts negative integers only
 str_to_int(X,I) ==>
-  is_neg_fd_var(I) | generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
+  is_neg_fd_var(I, MaxStrSize) |
+  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
+  generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
 
 % fd var is positive so the string domain accepts positive integers only
 str_to_int(X,I) ==>
-  is_pos_fd_var(I) | generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
+  is_pos_fd_var(I, MaxStrSize) |
+  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
+  generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
 
 % fd var is constant when propagating str_to_int/2
 str_to_int(X,I) ==>
@@ -181,7 +194,8 @@ str_to_int(X,I) , str_in(X,S) ==>
 
 % if I is an fd var but neither positive nor negative just set the string domain to accept integers only
 str_to_int(X,I) ==>
-  neither_pos_nor_neg_fd_var(I) |
+  neither_pos_nor_neg_fd_var(I, MaxStrSize) |
+  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
   generate_domain("0|-?[1-9][0-9]*", IDom),
   str_in(X,IDom).
 % otherwise, additionally define the integer variable to be an fd var
@@ -190,9 +204,8 @@ str_to_int(X,I) ==>
   generate_domain("0|-?[1-9][0-9]*", IDom),
   str_in(X,IDom),
   I in inf..sup.
-%%
 
-neither_pos_nor_neg_fd_var(Var) :-
+neither_pos_nor_neg_fd_var(Var, MaxStrSize) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
   (   Infimum == inf
@@ -202,11 +215,11 @@ neither_pos_nor_neg_fd_var(Var) :-
   (   Supremum == sup
   ;   Supremum >= 0
   ),
-  !.
-neither_pos_nor_neg_fd_var(Cst) :-
-  integer(Cst).
+  string_size_fd_bound(Infimum, ISize),
+  string_size_fd_bound(Supremum, SSize),
+  max_string_size_fd_bound(ISize, SSize, MaxStrSize),!.
 
-is_neg_fd_var(Var) :-
+is_neg_fd_var(Var, MaxStrSize) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
   (   Infimum == inf
@@ -216,14 +229,30 @@ is_neg_fd_var(Var) :-
   (   Supremum \== sup,
       Supremum < 0
   ),
-  !.
+  string_size_fd_bound(Infimum, MaxStrSize),!.
 
-is_pos_fd_var(Var) :-
+is_pos_fd_var(Var, MaxStrSize) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
   Infimum \== inf,
   Infimum >= 0,
+  fd_sup(Var, Supremum),
+  string_size_fd_bound(Supremum, MaxStrSize),!.
+
+string_size_fd_bound(I, StringSize) :-
+  integer(I),
+  !,
+  number_string(I, IString),
+  string_length(IString, StringSize).
+string_size_fd_bound(_, unbounded).
+
+max_string_size_fd_bound(unbounded, _, unbounded) :-
   !.
+max_string_size_fd_bound(_, unbounded, unbounded) :-
+  !.
+max_string_size_fd_bound(S1, S2, MaxStrSize) :-
+  MaxStrSize is max(S1, S2).
+%%
 
 generate_domain("", Dom) :-
   !,
