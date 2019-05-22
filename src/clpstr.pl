@@ -29,7 +29,7 @@
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
-   str_upper_case/1, str_lower_case/1, str_to_int/2, str_max_size/2.
+   str_upper_case/1, str_lower_case/1, str_to_int/2, str_max_size/2, int_cst/1.
 
 % chr rule for generating a str_in directly from a String.
 % S should be bound to a str.
@@ -54,9 +54,6 @@ str_in(X,D1), str_in(X,D2)
 str_in(X,D1) \ str_in(X,D2)
             <=>  D1 == D2 | true. % sebastians idea 9.11.18: only propagate if change expected, otherwise just drop
 
-str_labeling(Options, Vars)
-            <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
-            | clpfd:labeling([], [Var]) , str_labeling(Options, RestVars). % TODO: filter clpfd options
 
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
@@ -65,8 +62,17 @@ str_labeling(Options, Vars)
 % in case the string variable Var is indeed supposed to be labeled,
 % we call the domain operation for labeling.
 str_labeling(Options,Vars) \ str_in(Var,Dom)
-            <=> var(Var), is_list(Options), var_is_member(Var,Vars)
-            | labeling(Options,Dom,Var), constant_string_domain(Var,VarDom), str_in(Var,VarDom).
+            <=> var(Var), Dom \= string_dom(_), is_list(Options), var_is_member(Var,Vars)
+            | labeling(Options,Dom,Label),
+              constant_string_domain(Label,VarDom),
+              str_in(Var,VarDom), % a labelled string might trigger domain reduction of fd vars(see str_to_int/2)
+              Var = Label.
+
+str_labeling(Options, Vars)
+            <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
+            | clpfd:labeling([], [Var]) ,
+              int_cst(Var), % propagate that an fd var has been labelled
+              str_labeling(Options, RestVars). % TODO: filter clpfd options
 
 str_label(Vars) <=> str_labeling([],Vars).
 
@@ -154,7 +160,7 @@ str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 
 %% string to integer
 %
-% fd var is negative so the string domain has a leading "-" and accepts integers only
+% fd var is negative so the string domain accepts negative integers only
 str_to_int(X,I) ==>
   is_neg_fd_var(I) | generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
 
@@ -162,20 +168,30 @@ str_to_int(X,I) ==>
 str_to_int(X,I) ==>
   is_pos_fd_var(I) | generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
 
-% fd var is constant
+% fd var is constant when propagating str_to_int/2
 str_to_int(X,I) ==>
   integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
+% fd var has been labelled prior to string var
+str_to_int(X,I) , int_cst(I) ==>
+  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
 
-% string is constant
-str_to_int(X,I) ==>
-  find_chr_constraint(str_in(X,S)) ,  S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
+% string is constant either when propagating str_to_int/2 or string var has been labelled prior to fd var
+str_to_int(X,I) , str_in(X,S) ==>
+  S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
 
-% otherwise, just set the string domain to accept integers only
+% if I is an fd var but neither positive nor negative just set the string domain to accept integers only
 str_to_int(X,I) ==>
   neither_pos_nor_neg_fd_var(I) |
   generate_domain("0|-?[1-9][0-9]*", IDom),
   str_in(X,IDom).
+% otherwise, additionally define the integer variable to be an fd var
+str_to_int(X,I) ==>
+  var(I) , \+ fd_var(I) |
+  generate_domain("0|-?[1-9][0-9]*", IDom),
+  str_in(X,IDom),
+  I in inf..sup.
 %%
+
 neither_pos_nor_neg_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
