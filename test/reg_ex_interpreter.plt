@@ -205,7 +205,7 @@ test(long_term_example,[true(Actual == Expected)]) :-
 
 test(integer_parser) :-
   Regex = `0|-?[1-9][0-9]*`,
-  Expected = automaton_dom(EStates, EDelta, [1], [3,8,9]),
+  Expected = automaton_dom(EStates, EDelta, [1], [3,8]),
   EStates = [1,2,3,4,5,6,7,8,9],
   EDelta = [(1,epsilon,2),(1,epsilon,4),
             (2,range(48,48),3), % 0

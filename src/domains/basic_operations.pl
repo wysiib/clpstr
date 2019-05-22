@@ -209,9 +209,8 @@ repeat(D, C, DOut) :-
 % String domains are automatically converted to automatons.
 % @InputDomain is the Domain that shall be repeated.
 % @OutputDomain is the resulting Domain as an automaton.
-repeat(Dom, automaton_dom(States,DeltaRes,Start,EndRes)) :-
+repeat(Dom, automaton_dom(States,DeltaRes,Start,Start)) :-
   constant_string_domain_to_automaton(Dom, automaton_dom(States,Delta,Start,End)),
-  ord_union(Start, End, EndRes),
   findall((E,epsilon,S), (   member(E, End),
                              member(S, Start)
                          ), Trans),

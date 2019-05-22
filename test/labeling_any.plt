@@ -54,7 +54,7 @@ test(simple_repeat1_automaton,[true(Res == ""),nondet]) :-
   single_char_domain("a",Dom),
   repeat(Dom,TestDom),
   labeling([any],TestDom,""),
-  labeling([any],TestDom,"a"),
+  \+ labeling([any],TestDom,"a"),
   \+ labeling([any],TestDom,"aa"),
   \+ labeling([any],TestDom,"aaa"),
   labeling([any],TestDom,Res).
@@ -122,13 +122,13 @@ test(two_infinite_trans_domain2,[true(Res == "a"),nondet]) :-
   \+ labeling([any],TestDom,"abababa"),
   labeling([any],TestDom,Res).
 
-test(repeat_concat_automaton,[true(Res == "ab"),nondet]) :-
+test(repeat_concat_automaton,[true(Res == "b"),nondet]) :-
   single_char_domain("a",DomA),
   repeat(DomA,RepDomA),
   single_char_domain("b",DomB),
   concatenation(RepDomA,DomB,TestDom),
   labeling([any],TestDom,"b"),
-  labeling([any],TestDom,"ab"),
+  \+ labeling([any],TestDom,"ab"),
   \+ labeling([any],TestDom,"aab"),
   \+ labeling([any],TestDom,"aaab"),
   labeling([any],TestDom,Res).

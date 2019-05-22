@@ -95,7 +95,7 @@ test(simple_automaton_from_2_to_4_repeat,[true(Res == automaton_dom([1,2,3,4,5,6
   any_char_domain(D),
   repeat(D,2,4,Res).
 
-test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range(32,126),2),(2,epsilon,1)],[1],[1,2]))]) :-
+test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range(32,126),2),(2,epsilon,1)],[1],[1]))]) :-
   any_char_domain(D),
   repeat(D,Res).
 
