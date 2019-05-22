@@ -25,6 +25,11 @@ test(some_mixed_characters,[true(Res == concat(char(a),concat(any,char(b))))]) :
   Test = `a.b`,
   parse_2_tree(Test,Res).
 
+test(parse_minus) :-
+  Regex = `-1`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree = concat(char(-), char('1'))).
+
 :- end_tests(tree_parser_characters).
 
 

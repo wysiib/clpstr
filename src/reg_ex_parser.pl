@@ -69,7 +69,7 @@
 
 /* ----- Generating an AST from a given regular expression  ----- */
 % characters
-% characters(string(I)) --> characters2(D), {atom_codes(I, D)}. depricated!
+% characters(string(I)) --> characters2(D), {atom_codes(I, D)}. deprecated!
 characters(char(I)) -->
   char_or_digit(D),
   !,
@@ -78,11 +78,10 @@ characters(X) -->
   nonlit(X),
   !.
 % characters(char(I)) --> visible(D), !, {atom_codes(I, D)}.
-% characters2([D|T]) --> char(D), !, characters2(T). depricated!
+% characters2([D|T]) --> char(D), !, characters2(T). deprecated!
 char_or_digit([D]) -->
   [D],
   { code_type(D, alnum) }.
-char_or_digit([-]) --> `-`. % we need minus for negative integers
 % not only, (D>=65, D=<90); (D>=97, D=<122) alpha also includes special
 % letters like ö,ü,a and so on.
 % (D>=48, D=<57) for digits
@@ -103,6 +102,7 @@ nonlit(char(.)) --> `\\.`.
 nonlit(char(?)) --> `\\?`.
 nonlit(char(I)) --> `\\_`, {atom_codes(I, "_")}. % _
 nonlit(char(\)) --> `\\`.
+nonlit(char(-)) --> `-`. % we need minus for negative integers
 
 nonlit(char(=)) --> `=`.
 % visible([D]) --> [D], {between(32,126,D)}.
