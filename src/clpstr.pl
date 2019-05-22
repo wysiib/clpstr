@@ -176,32 +176,44 @@ str_to_int(X,I) ==>
   generate_domain("-(1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)* | 0 | (1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*", IDom),
   str_in(X,IDom).
 %%
-
 neither_pos_nor_neg_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
-  (Infimum == inf ; Infimum < 0),
+  (   Infimum == inf
+  ;   Infimum < 0
+  ),
   fd_sup(Var, Supremum),
-  (Supremum == sup ; Supremum >= 0),!.
+  (   Supremum == sup
+  ;   Supremum >= 0
+  ),
+  !.
 neither_pos_nor_neg_fd_var(Cst) :-
   integer(Cst).
 
 is_neg_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
-  (Infimum == inf ; Infimum < 0),
+  (   Infimum == inf
+  ;   Infimum < 0
+  ),
   fd_sup(Var, Supremum),
-  (Supremum \== sup , Supremum < 0),!.
+  (   Supremum \== sup,
+      Supremum < 0
+  ),
+  !.
 
 is_pos_fd_var(Var) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
   Infimum \== inf,
-  Infimum >= 0,!.
+  Infimum >= 0,
+  !.
 
-generate_domain("",Dom) :-
-  !,constant_string_domain("",Dom).
-generate_domain(String,Dom) :-
+generate_domain("", Dom) :-
+  !,
+  constant_string_domain("", Dom).
+generate_domain(String, Dom) :-
   string(String),
-  atom_codes(String,Codes),
-  generate(Codes, Dom),!.
+  atom_codes(String, Codes),
+  generate(Codes, Dom),
+  !.
