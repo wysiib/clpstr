@@ -106,12 +106,12 @@ test(simple_automaton_infinite_repeat,[true(Res == automaton_dom([1,2],[(1,range
 
 :- begin_tests(union_3).
 
-test(string_union,[true(Res == automaton_dom([1,2,3,4,5],[(1,epsilon,2),(1,epsilon,4),(2,range(97,97),3),(4,range(98,98),5)],[1],[3,5]))]) :-
+test(string_union,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),2),(3,range(98,98),4)],[1,3],[2,4]))]) :-
   constant_string_domain("a",D1),
   constant_string_domain("b",D2),
   union(D1,D2,Res).
 
-test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4,5],[(1,epsilon,2),(1,epsilon,4),(2,range(97,97),3),(4,range(32,126),5)],[1],[3,5]))]) :-
+test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),2),(3,range(32,126),4)],[1,3],[2,4]))]) :-
   constant_string_domain("a",D1),
   any_char_domain(D2),
   union(D1,D2,Res).
@@ -121,13 +121,13 @@ test(string_automaton_union,[true(Res == automaton_dom([1,2,3,4,5],[(1,epsilon,2
 
 :- begin_tests(union_2).
 
-test(string_union,[true(Res == automaton_dom([1,2,3,4,5,6,7],[(1,epsilon,2),(1,epsilon,4),(1,epsilon,6),(2,range(97,97),3),(4,range(98,98),5),(6,range(99,99),7)],[1],[3,5,7]))]) :-
+test(string_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(3,range(98,98),4),(5,range(99,99),6)],[1,3,5],[2,4,6]))]) :-
   constant_string_domain("a",D1),
   constant_string_domain("b",D2),
   constant_string_domain("c",D3),
   union([D1,D2,D3],Res).
 
-test(multi_union,[true(Res == automaton_dom([1,2,3,4,5,6,7],[(1,epsilon,2),(1,epsilon,4),(1,epsilon,6),(2,range(97,97),3),(4,range(32,126),5),(6,range(98,98),7)],[1],[3,5,7]))]) :-
+test(multi_union,[true(Res == automaton_dom([1,2,3,4,5,6],[(1,range(97,97),2),(3,range(32,126),4),(5,range(98,98),6)],[1,3,5],[2,4,6]))]) :-
   constant_string_domain("a",D1),
   any_char_domain(D2),
   single_char_domain("b",D3),

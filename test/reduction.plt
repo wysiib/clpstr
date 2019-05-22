@@ -20,7 +20,7 @@ test(simple_loop_eps_reduction,[true(Res == automaton_dom([1],[],[1],[1]))]) :-
   Test = automaton_dom([1],[(1,epsilon,1)],[1],[1]),
   epsilon_reduce(Test,Res).
 
-test(union_eps_reduction,[true(Res == automaton_dom([1,2,3,4,5],[(1,range(98,98),5),(1,range(97,97),3),(2,range(97,97),3),(4,range(98,98),5)],[1],[3,5]))]) :-
+test(union_eps_reduction,[true(Res == automaton_dom([1,2,3,4],[(1,range(97,97),2),(3,range(98,98),4)],[1,3],[2,4]))]) :-
   single_char_domain("a",A),
   single_char_domain("b",B),
   union(A,B,Test),
@@ -58,7 +58,7 @@ test(concat_eps_closure,[true(Res == [3])]) :-
   get_transition(Test,T),
   epsilon_closure(2,T,Res).
 
-test(union_eps_closure,[true(Res == [2,4])]) :-
+test(union_eps_closure,[true(Res == [])]) :-
   single_char_domain("a",A),
   single_char_domain("b",B),
   union(A,B,Test),

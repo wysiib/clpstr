@@ -203,20 +203,8 @@ test(long_term_example,[true(Actual == Expected)]) :-
   concatenation(TempDomTerm12,TempDomTerm3,Expected),
   generate(Test,Actual).
 
-test(integer_parser) :-
+test(integer_parser, [true(Actual == automaton_dom([1,2,3,4,5,6,7,8],[(1,range(48,48),2),(3,range(45,45),4),(3,epsilon,5),(4,epsilon,5),(5,range(49,57),6),(6,epsilon,7),(7,range(48,57),8),(8,epsilon,7)],[1,3],[2,7]))]) :-
   Regex = `0|-?[1-9][0-9]*`,
-  Expected = automaton_dom(EStates, EDelta, [1], [3,8]),
-  EStates = [1,2,3,4,5,6,7,8,9],
-  EDelta = [(1,epsilon,2),(1,epsilon,4),
-            (2,range(48,48),3), % 0
-            (4,range(45,45),5), % -
-            (4,epsilon,6),
-            (5,epsilon,6),
-            (6,range(49,57),7), % 1-9
-            (7,epsilon,8),
-            (8,range(48,57),9), % 0-9
-            (9,epsilon,8)],
-  generate(Regex, Actual),
-  assertion(Actual == Expected).
+  generate(Regex, Actual).
 
 :- end_tests(generater_nesting).
