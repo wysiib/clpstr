@@ -173,12 +173,12 @@ label_id_dfs(Dom,Label) :-
   get_start_states(Dom,Starts),
   get_end_states(Dom,Ends),
   get_transition(Dom,Trans),
+  lst(List),
   member(StartState,Starts),
   History = history{},
   put_dict(StartState,History,visited,NewHistory),
-  lst(List),
   length(List,L), % some arbitrary termination condition.
-  (L >= 10000 -> !, /*writeln("reached 10000 length in search"),*/ fail;
+  (L >= 10000 -> !, fail;
   unfold_tailrec(StartState,Trans,Ends,NewHistory,List),
   translate_ranges(List,Label)).
 
