@@ -56,7 +56,7 @@ str_in(X,D1) \ str_in(X,D2)
 
 str_labeling(Options, Vars)
             <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
-            | clpfd:labeling(Options, [Var]) , str_labeling(Options, RestVars).
+            | clpfd:labeling([], [Var]) , str_labeling(Options, RestVars). % TODO: filter clpfd options
 
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
@@ -156,11 +156,11 @@ str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 %
 % fd var is negative so the string domain has a leading "-" and accepts integers only
 str_to_int(X,I) ==>
-  is_neg_fd_var(I) | generate_domain("- ((1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*)", Negative) , str_in(X, Negative).
+  is_neg_fd_var(I) | generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
 
 % fd var is positive so the string domain accepts positive integers only
 str_to_int(X,I) ==>
-  is_pos_fd_var(I) | generate_domain("0 | ((1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*)", Positive) , str_in(X, Positive).
+  is_pos_fd_var(I) | generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
 
 % fd var is constant
 str_to_int(X,I) ==>
@@ -173,7 +173,7 @@ str_to_int(X,I) ==>
 % otherwise, just set the string domain to accept integers only
 str_to_int(X,I) ==>
   neither_pos_nor_neg_fd_var(I) |
-  generate_domain("-(1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)* | 0 | (1|2|3|4|5|6|7|8|9)+(0|1|2|3|4|5|6|7|8|9)*", IDom),
+  generate_domain("0|-?[1-9][0-9]*", IDom),
   str_in(X,IDom).
 %%
 neither_pos_nor_neg_fd_var(Var) :-
