@@ -2,6 +2,7 @@
                           single_char_domain/2,
                           char_range_domain/2,
                           any_char_domain/1,
+                          whitespace_domain/1,
                           lower_case_domain/1,
                           upper_case_domain/1,
                           get_all_states/2,
@@ -78,6 +79,22 @@ any_char_domain(automaton_dom(States,Delta,Start,End)) :-
   Start = [1],
   End = [2].
 
+%! whitespace_domain(?Domain) is det.
+% Unifies Domain with an automaton which accepts a single ASCII whitespace
+% character.
+% This includes
+%   \t (Tabulator),
+%   \n (New line),
+%   \v (Vertical tab),
+%   \f (Form feed),
+%   \r (Carriage return).
+whitespace_domain(automaton_dom(States,Delta,Start,End)) :-
+  States = [1,2],
+  Delta = [(1,range(9,13),2), % \t, \n, \v, \f, \r
+           (1,range(32,32),2) % space
+          ],
+  Start = [1],
+  End = [2].
 
 % ! lower_case_domain(ResultingDomain) is det
 % Constructs an automaton domain containing any lower case character.

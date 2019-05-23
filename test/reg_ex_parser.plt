@@ -87,6 +87,54 @@ test(quantity_star_two_char,[true(Res == concat(char(a),quantity(*,char(b))))]) 
 
 :- end_tests(tree_parser_reg_ex_operations).
 
+:- begin_tests(escaping).
+
+test(escape_operators) :-
+  Regex = `\\*\\+\\?`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(*), concat(char(+), char(?)))).
+
+test(escape_dot) :-
+  Regex = `\\.`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char(.)).
+
+:- end_tests(escaping).
+
+:- begin_tests(whitespace).
+
+test(ignore_space) :-
+  Regex = `a b`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), char(b))).
+
+test(ignore_tab) :-
+  Regex = `a\tb`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), char(b))).
+
+test(underscore_as_space) :-
+  Regex = `a_b`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), (concat(char(' '), char(b))))).
+
+test(escaped_underscore) :-
+  Regex = `a\\_b`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), (concat(char('_'), char(b))))).
+
+test(whitespace_s) :-
+  Regex = `\s`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == whitespace).
+
+test(escaped_whitespace_s) :-
+  Regex = `\\s`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(\), char(s))).
+
+:- end_tests(whitespace).
+
 
 :- begin_tests(tree_parser_nesting).
 

@@ -104,6 +104,9 @@ nonlit(char(I)) --> `\\_`, {atom_codes(I, "_")}. % _
 nonlit(char(\)) --> `\\`.
 nonlit(char(-)) --> `-`. % we need minus for negative integers
 
+% whitespace
+nonlit(whitespace) --> `\s`. % matches space, newline, tab, carriage return
+
 nonlit(char(=)) --> `=`.
 % visible([D]) --> [D], {between(32,126,D)}.
 % white space
@@ -180,6 +183,9 @@ build(char(X), ResDom) :-
 build(ranges(Ranges), ResDom) :-
   !,
   char_range_domain(ranges(Ranges), ResDom).
+build(whitespace, ResDom) :-
+  !,
+  whitespace_domain(ResDom).
 build(any, ResDom) :-
   !,
   any_char_domain(ResDom).
