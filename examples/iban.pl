@@ -23,4 +23,4 @@ iban :-
     %str_size(IBAN, 22),
     str_concatenation(IBANPrefix,BBANStr,IBAN),
     str_labeling([],[BBAN,ICalc,CheckSumInt,BBANStr,DE,ICalcTail,IBANPrefix,IBAN]),
-    format('iban found: ~w~n ~w~n',[CheckSumStr,CheckSumInt]).
+    format('iban found: ~w~n',[IBAN]).
