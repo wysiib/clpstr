@@ -218,6 +218,8 @@ neither_pos_nor_neg_fd_var(Var, MaxStrSize) :-
   string_size_fd_bound(Infimum, ISize),
   string_size_fd_bound(Supremum, SSize),
   max_string_size_fd_bound(ISize, SSize, MaxStrSize),!.
+neither_pos_nor_neg_fd_var(ICst, 1) :-
+  integer(ICst).
 
 is_neg_fd_var(Var, MaxStrSize) :-
   fd_var(Var),
