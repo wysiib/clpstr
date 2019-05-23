@@ -87,7 +87,6 @@ char_or_digit([D]) -->
 % (D>=48, D=<57) for digits
 
 nonlit(any) --> `.`.
-nonlit(char(I)) --> `_`, {atom_codes(I, [32])}. % space
 nonlit(char(I)) -->
   [D],
   {   code_type(D, quote),
@@ -100,7 +99,6 @@ nonlit(char(*)) --> `\\*`.
 nonlit(char(+)) --> `\\+`.
 nonlit(char(.)) --> `\\.`.
 nonlit(char(?)) --> `\\?`.
-nonlit(char(I)) --> `\\_`, {atom_codes(I, "_")}. % _
 nonlit(char(\)) --> `\\`.
 nonlit(char(-)) --> `-`. % we need minus for negative integers
 

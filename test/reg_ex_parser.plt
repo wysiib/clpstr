@@ -113,16 +113,6 @@ test(ignore_tab) :-
   parse_2_tree(Regex, Tree),
   assertion(Tree == concat(char(a), char(b))).
 
-test(underscore_as_space) :-
-  Regex = `a_b`,
-  parse_2_tree(Regex, Tree),
-  assertion(Tree == concat(char(a), (concat(char(' '), char(b))))).
-
-test(escaped_underscore) :-
-  Regex = `a\\_b`,
-  parse_2_tree(Regex, Tree),
-  assertion(Tree == concat(char(a), (concat(char('_'), char(b))))).
-
 test(whitespace_s) :-
   Regex = `\s`,
   parse_2_tree(Regex, Tree),
