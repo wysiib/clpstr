@@ -11,53 +11,65 @@
 
 test(positive_fd_var) :-
   X1 in 1..sup,
-  clpstr:is_pos_fd_var(X1),
+  clpstr:is_pos_fd_var(X1, B1),
+  B1 == unbounded,
   X2 in 0..227,
-  clpstr:is_pos_fd_var(X2),
+  clpstr:is_pos_fd_var(X2, B2),
+  B2 == 3,
   X3 in 12321..123123,
-  clpstr:is_pos_fd_var(X3),
+  clpstr:is_pos_fd_var(X3, B3),
+  B3 == 6,
   X4 in inf..100,
-  \+ clpstr:is_pos_fd_var(X4),
+  \+ clpstr:is_pos_fd_var(X4, _),
   X5 in -100..(-12),
-  \+ clpstr:is_pos_fd_var(X5),
+  \+ clpstr:is_pos_fd_var(X5, _),
   X6 in 0..0, % zero is a constant and no fd var anymore
-  \+ clpstr:is_pos_fd_var(X6).
+  \+ clpstr:is_pos_fd_var(X6, _).
 
 test(negative_fd_var) :-
   X1 in 1..sup,
-  \+ clpstr:is_neg_fd_var(X1),
+  \+ clpstr:is_neg_fd_var(X1, _),
   X2 in 0..227,
-  \+ clpstr:is_neg_fd_var(X2),
+  \+ clpstr:is_neg_fd_var(X2, _),
   X3 in 12321..123123,
-  \+ clpstr:is_neg_fd_var(X3),
+  \+ clpstr:is_neg_fd_var(X3, _),
   X4 in inf..100,
-  \+ clpstr:is_neg_fd_var(X4),
+  \+ clpstr:is_neg_fd_var(X4, _),
   X5 in -100..(-12),
-  clpstr:is_neg_fd_var(X5),
+  clpstr:is_neg_fd_var(X5, B5),
+  B5 == 4,
   X6 in 0..0,
-  \+ clpstr:is_neg_fd_var(X6),
+  \+ clpstr:is_neg_fd_var(X6, _),
   X7 in -11231..(-23),
-  clpstr:is_neg_fd_var(X7),
+  clpstr:is_neg_fd_var(X7, B7),
+  B7 == 6,
   X8 in inf..(-10),
-  clpstr:is_neg_fd_var(X8).
+  clpstr:is_neg_fd_var(X8, B8),
+  B8 == unbounded.
 
 test(neither_pos_nor_neg_fd_var) :-
   X1 in inf..sup,
-  clpstr:neither_pos_nor_neg_fd_var(X1),
+  clpstr:neither_pos_nor_neg_fd_var(X1, B1),
+  B1 == unbounded,
   X2 in -100..1234567,
-  clpstr:neither_pos_nor_neg_fd_var(X2),
+  clpstr:neither_pos_nor_neg_fd_var(X2, B2),
+  B2 == 7,
   X3 in inf..42,
-  clpstr:neither_pos_nor_neg_fd_var(X3),
+  clpstr:neither_pos_nor_neg_fd_var(X3, B3),
+  B3 == unbounded,
   X4 in -1..sup,
-  clpstr:neither_pos_nor_neg_fd_var(X4),
+  clpstr:neither_pos_nor_neg_fd_var(X4, B4),
+  B4 == unbounded,
   X5 in -7345657..3698765432,
-  clpstr:neither_pos_nor_neg_fd_var(X5),
+  clpstr:neither_pos_nor_neg_fd_var(X5, B5),
+  B5 == 10,
   X6 in -100..(-12),
-  \+ clpstr:neither_pos_nor_neg_fd_var(X6),
+  \+ clpstr:neither_pos_nor_neg_fd_var(X6, _),
   X7 in 0..0,
-  clpstr:neither_pos_nor_neg_fd_var(X7),
+  clpstr:neither_pos_nor_neg_fd_var(X7, B7),
+  B7 == 1,
   X8 in 0..227,
-  \+ clpstr:neither_pos_nor_neg_fd_var(X8).
+  \+ clpstr:neither_pos_nor_neg_fd_var(X8, _).
 
 :- end_tests(fd_vars).
 
@@ -514,3 +526,28 @@ test(case_sensitive_fail,[fail]) :-
   str_lower_case(X).
 
 :- end_tests(case_sensitive).
+
+equal_string_int_tuple((S,I)) :-
+  number_string(I, IStr),
+  S == IStr.
+
+:- begin_tests(str_to_int).
+
+% string and fd var should always label the same value
+test(str_to_int_equal_string_int1) :-
+  str_in(S, "0|-?[1-9]*"),
+  I in (-100)..(-1) ,
+  str_to_int(S, I),
+  findall((S,I), str_labeling([dfs], [I, S]), Tuples),
+  maplist(equal_string_int_tuple, Tuples).
+
+test(str_to_int_equal_string_int2) :-
+  str_in(S, "0|[1-9]*"),
+  I in 0..100 ,
+  str_to_int(S, I),
+  findall((S,I), str_labeling([dfs], [I, S]), Tuples),
+  maplist(equal_string_int_tuple, Tuples).
+
+% TODO: more tests for str_to_int/2
+
+:- end_tests(str_to_int).
