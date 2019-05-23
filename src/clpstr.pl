@@ -78,7 +78,8 @@ str_labeling(_,Vars) , str_in(Var,Dom)
 str_labeling(Options, Vars)
             <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
             | clpfd:labeling([], [Var]) ,
-              int_cst(Var), % propagate that an fd var has been labelled
+              %int_cst(Var), % propagate that an fd var has been labelled
+              % removed: this propagates anyway, since it sets the variable to a number, waking up other constraints
               str_labeling(Options, RestVars). % TODO: filter clpfd options
 
 str_label(Vars) <=> str_labeling([],Vars).
@@ -171,35 +172,38 @@ str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 str_to_int(X,I) ==>
   string(X) , integer(I) , number_string(I, IString) , X \== IString | fail.
 
+% Sebastian, 23.05.19: these propagation rules blow up the automaton
+% disabled for now
 % fd var is negative so the string domain accepts negative integers only
-str_to_int(X,I) ==>
-  is_neg_fd_var(I, MaxStrSize) |
-  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-  generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
+%str_to_int(X,I) ==>
+%  is_neg_fd_var(I, MaxStrSize) |
+%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
+%  generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
 
 % fd var is positive so the string domain accepts positive integers only
-str_to_int(X,I) ==>
-  is_pos_fd_var(I, MaxStrSize) |
-  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-  generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
+%str_to_int(X,I) ==>
+%  is_pos_fd_var(I, MaxStrSize) |
+%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
+%  generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
 
 % fd var is constant when propagating str_to_int/2
 str_to_int(X,I) ==>
   integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
 % fd var has been labelled prior to string var
-str_to_int(X,I) , int_cst(I) ==>
-  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
+% removed: in case I gets bound, the rule above is called anyway
+%str_to_int(X,I) , int_cst(I) ==>
+%  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
 
 % string is constant either when propagating str_to_int/2 or string var has been labelled prior to fd var
 str_to_int(X,I) , str_in(X,S) ==>
   S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
 
 % if I is an fd var but neither positive nor negative just set the string domain to accept integers only
-str_to_int(X,I) ==>
-  neither_pos_nor_neg_fd_var(I, MaxStrSize) |
-  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-  generate_domain("0|-?[1-9][0-9]*", IDom),
-  str_in(X,IDom).
+%str_to_int(X,I) ==>
+%  neither_pos_nor_neg_fd_var(I, MaxStrSize) |
+%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
+%  generate_domain("0|-?[1-9][0-9]*", IDom),
+%  str_in(X,IDom).
 % otherwise, additionally define the integer variable to be an fd var
 str_to_int(X,I) ==>
   var(I) , \+ fd_var(I) |
