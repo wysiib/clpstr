@@ -42,6 +42,8 @@ str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).
 % but no value is available for said variable.
 % In consequence, we fail and backtrack.
 str_in(_,D) ==>  is_empty(D) | fail.
+% in case the domain became constant, we propagate to the variable
+str_in(Var,Domain) ==> Domain = string_dom(Const) | Var = Const.
 
 % two domains are available for the same string variable X
 % this might happen when an updated domain is posted to CHR
