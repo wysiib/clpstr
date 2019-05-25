@@ -39,6 +39,16 @@ test(some_mixed_characters,[true(Actual == Expected)]) :-
 
 :- end_tests(generater_characters).
 
+:- begin_tests(whitespace).
+
+test(whitespace_s) :-
+  Regex = `\s`,
+  whitespace_domain(WsDom),
+  generate(Regex, RegDom),
+  assertion(RegDom == WsDom).
+
+:- end_tests(whitespace).
+
 
 :- begin_tests(generater_reg_ex_operations).
 
