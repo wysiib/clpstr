@@ -29,7 +29,7 @@
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
-   str_upper_case/1, str_lower_case/1, str_to_int/2, str_max_size/2, int_cst/1.
+   str_upper_case/1, str_lower_case/1, str_to_int/2, str_to_int2/2, str_max_size/2.
 
 % chr rule for generating a str_in directly from a String.
 % S should be bound to a str.
@@ -63,23 +63,21 @@ str_in(X,D1) \ str_in(X,D2)
 % (we do not use member to check since that would unify variables!)
 % in case the string variable Var is indeed supposed to be labeled,
 % we call the domain operation for labeling.
-str_labeling(Options,Vars) \ str_in(Var,Dom)
+str_labeling(Options,Vars)\ str_in(Var,Dom)
             <=> var(Var), Dom \= string_dom(_), is_list(Options), var_is_member(Var,Vars)
             | labeling(Options,Dom,Label),
               Var = Label,
-              constant_string_domain(Label,VarDom),
-              str_in(Var,VarDom). % a labelled string might trigger domain reduction of fd vars(see str_to_int/2)
+              constant_string_domain(Label,CstDom),
+              str_in(Var,CstDom).
 
 % no labeling if string var has a singleton domain
-str_labeling(_,Vars) , str_in(Var,Dom)
-            ==> var(Var), Dom = string_dom(Label) , var_is_member(Var,Vars)
+str_labeling(_, Vars) , str_in(Var, Dom)
+            ==> var(Var), Dom = string_dom(Label), var_is_member(Var, Vars)
             | Var = Label.
 
 str_labeling(Options, Vars)
-            <=> is_list(Options) , select(Var, Vars, RestVars) , fd_var(Var)
+            <=> is_list(Options), select(Var, Vars, RestVars), fd_var(Var)
             | clpfd:labeling([], [Var]) ,
-              %int_cst(Var), % propagate that an fd var has been labelled
-              % removed: this propagates anyway, since it sets the variable to a number, waking up other constraints
               str_labeling(Options, RestVars). % TODO: filter clpfd options
 
 str_label(Vars) <=> str_labeling([],Vars).
@@ -169,83 +167,41 @@ str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 %% String to integer conversion integrating CLP(FD) to the solver
 %
 % detect failure early without computing the intersection of domains
-str_to_int(X,I) ==>
+str_to_int2(X,I) ==>
   string(X) , integer(I) , number_string(I, IString) , X \== IString | fail.
 
-% Sebastian, 23.05.19: these propagation rules blow up the automaton
-% disabled for now
-% fd var is negative so the string domain accepts negative integers only
-%str_to_int(X,I) ==>
-%  is_neg_fd_var(I, MaxStrSize) |
-%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-%  generate_domain("-[1-9][0-9]*", Negative) , str_in(X, Negative).
-
-% fd var is positive so the string domain accepts positive integers only
-%str_to_int(X,I) ==>
-%  is_pos_fd_var(I, MaxStrSize) |
-%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-%  generate_domain("0|[1-9][0-9]*", Positive) , str_in(X, Positive).
-
-% fd var is constant when propagating str_to_int/2
-str_to_int(X,I) ==>
+% fd var is constant
+str_to_int2(X,I) ==>
   integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
-% fd var has been labelled prior to string var
-% removed: in case I gets bound, the rule above is called anyway
-%str_to_int(X,I) , int_cst(I) ==>
-%  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
 
-% string is constant either when propagating str_to_int/2 or string var has been labelled prior to fd var
-str_to_int(X,I) , str_in(X,S) ==>
+% string is constant
+str_to_int2(X,I) , str_in(X,S) ==>
   S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
 
-% if I is an fd var but neither positive nor negative just set the string domain to accept integers only
-%str_to_int(X,I) ==>
-%  neither_pos_nor_neg_fd_var(I, MaxStrSize) |
-%  (MaxStrSize \== unbounded -> str_max_size(X, MaxStrSize) ; true),
-%  generate_domain("0|-?[1-9][0-9]*", IDom),
-%  str_in(X,IDom).
-% otherwise, additionally define the integer variable to be an fd var
-str_to_int(X,I) ==>
-  var(I) , \+ fd_var(I) |
-  generate_domain("0|-?[1-9][0-9]*", IDom),
-  str_in(X,IDom),
-  I in inf..sup.
+% fail for non numeric string to integer
+str_to_int2(X,_) , str_in(X,S) ==>
+  S = string_dom(CstString) , \+ number_string(_, CstString) | fail.
 
-neither_pos_nor_neg_fd_var(Var, MaxStrSize) :-
+% terminate exhaustive search if string domain is regex with Kleene star
+% only called once so int domain has to be finite beforehand, not terminating:
+% str_in(X,"[0-9]*"),str_to_int(X,I),I in 0..2,findall(X,str_label([X]),L).
+str_to_int(S, I) ==>
+  finite_domain_len(I, MaxStrSize) |
+  str_max_size(S, MaxStrSize),
+  str_to_int2(S, I).
+
+finite_domain_len(Var, MaxStrSize) :-
   fd_var(Var),
   fd_inf(Var, Infimum),
-  (   Infimum == inf
-  ;   Infimum < 0
-  ),
   fd_sup(Var, Supremum),
-  (   Supremum == sup
-  ;   Supremum >= 0
-  ),
   string_size_fd_bound(Infimum, ISize),
   string_size_fd_bound(Supremum, SSize),
-  max_string_size_fd_bound(ISize, SSize, MaxStrSize),!.
-neither_pos_nor_neg_fd_var(ICst, 1) :-
-  integer(ICst).
-
-is_neg_fd_var(Var, MaxStrSize) :-
-  fd_var(Var),
-  fd_inf(Var, Infimum),
-  (   Infimum == inf
-  ;   Infimum < 0
-  ),
-  fd_sup(Var, Supremum),
-  (   Supremum \== sup,
-      Supremum < 0
-  ),
-  string_size_fd_bound(Infimum, MaxStrSize),!.
-
-is_pos_fd_var(Var, MaxStrSize) :-
-  fd_var(Var),
-  fd_inf(Var, Infimum),
-  Infimum \== inf,
-  Infimum >= 0,
-  fd_sup(Var, Supremum),
-  string_size_fd_bound(Supremum, MaxStrSize),!.
+  max_string_size_fd_bound(ISize, SSize, MaxStrSize),
+  MaxStrSize \== unbounded,!.
+finite_domain_len(Cst, MaxStrSize) :-
+  integer(Cst),
+  number_string(Cst, CstStr),
+  string_length(CstStr, MaxStrSize).
 
 string_size_fd_bound(I, StringSize) :-
   integer(I),
