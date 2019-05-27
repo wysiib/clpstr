@@ -57,6 +57,10 @@ str_in(X,D1) \ str_in(X,D2)
             <=>  D1 == D2 | true. % sebastians idea 9.11.18: only propagate if change expected, otherwise just drop
 
 
+str_labeling(Options, Vars)
+            <=> is_list(Options), select(Var, Vars, RestVars), fd_var(Var)
+            | clpfd:labeling([], [Var]) ,
+              str_labeling(Options, RestVars). % TODO: filter clpfd options
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
 % that is associated with a variable in the list
@@ -75,11 +79,6 @@ str_labeling(_, Vars) , str_in(Var, Dom)
             ==> var(Var), Dom = string_dom(Label), var_is_member(Var, Vars)
             | Var = Label.
 
-str_labeling(Options, Vars)
-            <=> is_list(Options), select(Var, Vars, RestVars), fd_var(Var)
-            | clpfd:labeling([], [Var]) ,
-              str_labeling(Options, RestVars). % TODO: filter clpfd options
-
 str_label(Vars) <=> str_labeling([],Vars).
 
 % just like member, but using variable identity check (==)
@@ -95,19 +94,30 @@ var_is_member(X,[_|T]) :- var_is_member(X,T).
             <=> integer(I) | generate_any_size(D2,I),
                   intersection(D1,D2,D3), stri_in(X,D3).*/
 % Note the first clause is already covered via str_in
-str_size(X,I) <=> integer(I) | generate_any_size(I,D), str_in(X,D).
+str_size(X, I) <=> integer(I) | generate_any_size(I, D), str_in(X, D).
 
-str_max_size(X,I) <=> integer(I) | generate_any_up_to_size(I,D), str_in(X,D).
+str_max_size(X, I) <=> integer(I) | generate_any_up_to_size(I, D), str_in(X, D).
 
-% Take 3 variables and calc the conatenation of the three.
-% Dismiss the constraint and keep the str_in of the other var.
 str_in(X1,D1), str_in(X2,D2), str_concatenation(X1,X2,X3)
-            ==> concatenation(D1,D2,D3), str_in(X3,D3).
+            ==> \+ find_chr_constraint(str_in(X3, _))|
+                concatenation(D1,D2,D3),
+                str_in(X3,D3).
+str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
+            ==> D3 \= string_dom(_)|
+                concatenation(D1,D2,D3),
+                str_in(X3,D3).
+% propagate constant values backwards if X3 is constant
+str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
+            ==> D3 = string_dom(CstStr)|
+                string_concat(X1Str, X2Str, CstStr),
+                label(D1, X1Str),
+                label(D2, X2Str),
+                str_in(X1, string_dom(X1Str)),
+                str_in(X2, string_dom(X2Str)).
 str_in(X1,D1), str_concatenation(X1,X1,X3)
             ==> concatenation(D1,D1,D3), str_in(X3,D3).
 
-
-% Take the variable  and repeat it the specific amount of times.
+% Take the variable and repeat it the specific amount of times.
 % Dismiss the constraint and put result into a new varable.
 str_in(X1,D1), str_repeat(X1,X2)
             ==> repeat(D1,D2), str_in(X2,D2).
@@ -143,13 +153,11 @@ str_prefix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
 
-
 str_suffix(X,String) <=>
             string(String) | generate_domain(String,Dom), str_suffix(X,Dom).
 str_suffix(X,Dom1) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
             concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
-
 
 str_infix(X,String) <=>
             string(String) | generate_domain(String,Dom), str_infix(X,Dom).
