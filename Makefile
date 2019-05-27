@@ -5,7 +5,7 @@ message:
 	@echo 'type make help for options.'
 
 tests:
-	for file in test/*.plt; do swipl --quiet -l $$file -t "run_tests"; done
+	for file in test/*.plt; do swipl -l $$file -t "run_tests"; done
 
 profile:
 	for file in test/*.plt; do swipl --quiet -l $$file -t "profile(run_tests)"; done
