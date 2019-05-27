@@ -98,14 +98,6 @@ str_size(X, I) <=> integer(I) | generate_any_size(I, D), str_in(X, D).
 
 str_max_size(X, I) <=> integer(I) | generate_any_up_to_size(I, D), str_in(X, D).
 
-str_in(X1,D1), str_in(X2,D2), str_concatenation(X1,X2,X3)
-            ==> \+ find_chr_constraint(str_in(X3, _))|
-                concatenation(D1,D2,D3),
-                str_in(X3,D3).
-str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
-            ==> D3 \= string_dom(_)|
-                concatenation(D1,D2,D3),
-                str_in(X3,D3).
 % propagate constant values backwards if X3 is constant
 str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
             ==> D3 = string_dom(CstStr)|
@@ -114,6 +106,9 @@ str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
                 label(D2, X2Str),
                 str_in(X1, string_dom(X1Str)),
                 str_in(X2, string_dom(X2Str)).
+str_in(X1,D1), str_in(X2,D2), str_concatenation(X1,X2,X3)
+            ==> concatenation(D1,D2,D3),
+                str_in(X3,D3).
 str_in(X1,D1), str_concatenation(X1,X1,X3)
             ==> concatenation(D1,D1,D3), str_in(X3,D3).
 
