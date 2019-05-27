@@ -85,6 +85,40 @@ test(quantity_star_two_char,[true(Res == concat(char(a),quantity(*,char(b))))]) 
   Test = `ab*`,
   parse_2_tree(Test,Res).
 
+test(repeat_thrice) :-
+  Regex = `a{3}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(3, char(a))).
+
+test(repeat_operator_precedence) :-
+  Regex = `ba{3}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(b), repeat(3, char(a)))).
+
+test(repeat_1000) :-
+  Regex = `a{1000}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(1000, char(a))).
+
+test(negative_repeat_fails, [fail]) :-
+  Regex = `a{-12}`,
+  parse_2_tree(Regex, _).
+
+test(repeat_10_to_220) :-
+  Regex = `a{10,220}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(10, 220, char(a))).
+
+test(repeat_10_to_220_nested) :-
+  Regex = `(ab){10,220}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(10, 220, concat(char(a), char(b)))).
+
+test(repeat_at_least_thrice) :-
+  Regex = `a{3,+}`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(3, +, char(a))).
+
 :- end_tests(tree_parser_reg_ex_operations).
 
 :- begin_tests(escaping).

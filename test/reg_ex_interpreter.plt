@@ -142,6 +142,56 @@ test(multi_char_range) :-
                                  [1],
                                  [2])).
 
+test(repetition_3_string) :-
+  Regex = `a{3}`,
+  generate(Regex, Dom),
+  generate(`aaa`, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_of_nested_string) :-
+  Regex = `(abc){3}`,
+  generate(Regex, Dom),
+  generate(`abcabcabc`, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_3_automaton) :-
+  Regex = `[a-b]{3}`,
+  generate(Regex, Dom),
+  generate(`[a-b][a-b][a-b]`, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_nested_automaton) :-
+  Regex = `([a-b][0-9]){3}`,
+  generate(Regex, Dom),
+  generate(`[a-b][0-9][a-b][0-9][a-b][0-9]`, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_from_to_string) :-
+  Regex = `a{3, 4}`,
+  generate(Regex, Dom),
+  generate(`a`, ADom),
+  repeat(ADom, 3, 4, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_from_to_automaton) :-
+  Regex = `[a-b]{3, 4}`,
+  generate(Regex, Dom),
+  generate(`[a-b]`, ADom),
+  repeat(ADom, 3, 4, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_at_least_3) :-
+  Regex = `a{3,+}`,
+  generate(Regex, Dom),
+  generate(`a{3}a*`, Expected),
+  assertion(Dom == Expected).
+
+test(repetition_of_ranges_at_least_3) :-
+  Regex = `[a-b]{3,+}`,
+  generate(Regex, Dom),
+  generate(`[a-b]{3}[a-b]*`, Expected),
+  assertion(Dom == Expected).
+
 :- end_tests(generater_reg_ex_operations).
 
 

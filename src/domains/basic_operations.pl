@@ -261,7 +261,7 @@ repeat(Dom, From, To, Res) :-
 % repetitions.
 % @Counter is the number of times input domain will be repeated.
 % @Input is the domain that is repeated.
-% @Accumulator is used for the recursion. Ususally instantiated with Input.
+% @Accumulator is used for the recursion. Usually instantiated with Input.
 % @Output contains the repeated Domain.
 repeat_acc(1, _, D, D) :-
   !.

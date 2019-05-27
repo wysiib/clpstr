@@ -1,6 +1,7 @@
 :- module(reg_ex_parser, [generate/2,
                           parse_2_tree/2]).
 
+:- use_module(library(dcg/basics), [number//1]).
 :- use_module('domains/basic_domains').
 :- use_module('domains/basic_operations').
 
@@ -22,7 +23,7 @@
    A variable in the second argument will be unified with the correct
    automaton by the interpreter.
 
-   You can use white space in the regex at your own convinience. Thus
+   You can use white space in the regex at your own convenience. Thus
    keeping your regex as tidy and readable as you want. It is not
    registered as part of the regex. Use _ underscore instead, if you
    specifically want space as a character.
@@ -34,12 +35,15 @@
    information.
    - digits (0 - 9)
    - The . is used to represent an arbitrary character.
-   - The _ represents the space character, " ", in an regex. TODO: Make white space available
+   - The \s represents a whitespace space character (" " or \t, \v, \f, \n, \r) in an regex.
    - All quantity operations:
    Repeats the given regex a set amount of times.
    - * for zero to arbitrary repeats
    - + for one to arbitrary repeats
    - ? for one or zero repeats
+   - {n} for n repetitions
+   - {m,n} for m to n repetitions
+   - {m,+} for m to n repetitions
    - Alternatives:
    Divide multiple regex and add choice points between them by using |.
    - Brackets:
@@ -47,8 +51,8 @@
 
    Thereby the operator precedence is:
    1. brackets
-   2. quantity operations ( *, +, ? )
-   3. alternatives seperated by |
+   2. quantity operations ( *, +, ?, {n} )
+   3. alternatives separated by |
 
    Thus the regex `ab*` would define the language a, ab, abb, abbb, abbbb, ...
 
@@ -134,6 +138,16 @@ expression1(X) -->
 expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
 expression2(quantity(+,X)) --> expression3(X), ws, `+`, !.
 expression2(quantity(?,X)) --> expression3(X), ws, `?`, !.
+expression2(repeat(N, Expression)) -->
+  expression3(Expression),
+  `{`, number(N) , {N >= 0}, `}`,
+  !.
+expression2(repeat(N, M, Expression)) -->
+  expression3(Expression),
+  `{`, number(N), {N >= 0},
+  ws, `,`, ws,
+  (`+`, {M = '+'} ; number(M), {N =< M}), `}`,
+  !.
 expression2(X) -->
   expression3(X).
 
@@ -221,9 +235,27 @@ build(quantity(?,X), ResDom) :-
   !,
   build(X, TempDom),
   repeat(TempDom, 0, 1, ResDom).
+build(repeat(N, Chars), ResDom) :-
+  string_check(Chars, CharList),
+  !,
+  string_chars(String, CharList),
+  constant_string_domain(String, StringDom),
+  repeat(StringDom, N, ResDom).
+build(repeat(N, X), ResDom) :-
+  !,
+  build(X, XDom),
+  repeat(XDom, N, ResDom).
+build(repeat(Min, +, X), ResDom) :-
+  !,
+  build(concat(repeat(Min, X), quantity(*, X)), ResDom). % s{n,+} = s{n}s*
+build(repeat(Min, Max, X), ResDom) :-
+  Max \= +,
+  !,
+  build(X, XDom),
+  repeat(XDom, Min, Max, ResDom).
 
 
-string_check(concat(char(X),char(Y)), [X,Y]).
+string_check(char(Y), [Y]).
 string_check(concat(char(X),Y), [X|T]) :-
   string_check(Y, T).
 
