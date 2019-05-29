@@ -1,6 +1,30 @@
 :- use_module('../src/clpstr').
 :- use_module(library(clpfd)).
 
+:- dynamic runtime/1, runs/1.
+:- volatile runtime/1, runs/1.
+
+benchmarks(Amount) :-
+    retractall(runtime(_)),
+    retractall(runs(_)),
+    assert(runs(0)),
+    !,
+    statistics(walltime, _),
+    iban(I),
+    statistics(walltime, B),
+    write(I),nl,
+    B = [_, SinceLast],
+    assert(runtime(SinceLast)),
+    runs(Ran),
+    retractall(runs(_)),
+    Ran1 is Ran + 1,
+    assert(runs(Ran1)),
+    (   Ran1 == Amount
+    ->  findall(R, runtime(R), AllR),
+        sumlist(AllR, TotalR),
+        format("Total walltime for ~w IBANs: ~w ms", [Amount, TotalR])
+    ;   fail).
+
 iban(IBAN) :-
     Rest in 0..96,
     TICalc in 100000000000000000..999999999999999999,
