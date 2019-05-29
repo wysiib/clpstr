@@ -78,7 +78,7 @@
 % Succeeds if C needs to be escaped to use,
 % e.g. as it would otherwise be an operator.
 special_character(C) :-
-  memberchk(C, `.?+*|()[]{}\\`).
+  memberchk(C, `.?+*|()[]{}\\`), !.
 
 % characters
 % characters(string(I)) --> characters2(D), {atom_codes(I, D)}. deprecated!
@@ -87,13 +87,14 @@ characters(char(I)) -->
   !,
   { atom_codes(I, D) }.
 characters(X) -->
-  escaped_character(X).
+  escaped_character(X),
+  !.
 characters(X) -->
   nonlit(X),
   !.
 characters(char(I)) --> % remaining special characters
   [C],
-  { code_type(C, punct), \+ special_character(C), char_code(I, C) }.
+  { code_type(C, punct), \+ special_character(C), !, char_code(I, C) }.
 % characters(char(I)) --> visible(D), !, {atom_codes(I, D)}.
 char_or_digit([D]) -->
   [D],
@@ -103,12 +104,13 @@ char_or_digit([D]) -->
 % (D>=48, D=<57) for digits
 
 escaped_character(char(X)) -->
-  `\\`, [C], {special_character(C), char_code(X, C)}.
+  `\\`, [C], {special_character(C), !, char_code(X, C)}.
 
 nonlit(any) --> `.`.
 nonlit(char(I)) -->
   [D],
   {   code_type(D, quote),
+      !,
       atom_codes(I, [D])
   }.                            % ", ', `
 nonlit(whitespace) --> `\\s`. % matches space, newline, tab, carriage return
@@ -155,7 +157,7 @@ expression2(X) -->
   expression3(X).
 
 expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
-expression3(X) --> ws, char_range(X), ws, !.
+expression3(X) --> ws, char_range(X), !, ws.
 expression3(X) -->
   characters(X),
   !.
