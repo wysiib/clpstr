@@ -28,7 +28,13 @@ test(some_mixed_characters,[true(Res == concat(char(a),concat(any,char(b))))]) :
 test(parse_minus) :-
   Regex = `-1`,
   parse_2_tree(Regex, Tree),
-  assertion(Tree = concat(char(-), char('1'))).
+  assertion(Tree == concat(char(-), char('1'))).
+
+test(parse_full_ascii) :-
+  Regex = `&!#=/`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(&), concat(char(!), concat(char(#), concat(char(=), char(/)))))).
+
 
 :- end_tests(tree_parser_characters).
 
@@ -133,6 +139,11 @@ test(escape_dot) :-
   parse_2_tree(Regex, Tree),
   assertion(Tree == char(.)).
 
+test(escape_backslash) :-
+  Regex = `\\\\`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char(\)).
+
 :- end_tests(escaping).
 
 :- begin_tests(whitespace).
@@ -148,12 +159,12 @@ test(ignore_tab) :-
   assertion(Tree == concat(char(a), char(b))).
 
 test(whitespace_s) :-
-  Regex = `\s`,
+  Regex = `\\s`,
   parse_2_tree(Regex, Tree),
   assertion(Tree == whitespace).
 
 test(escaped_whitespace_s) :-
-  Regex = `\\s`,
+  Regex = `\\\\s`,
   parse_2_tree(Regex, Tree),
   assertion(Tree == concat(char(\), char(s))).
 

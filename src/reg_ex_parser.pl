@@ -72,6 +72,14 @@
 
 
 /* ----- Generating an AST from a given regular expression  ----- */
+
+%! special_character(C) is det.
+%
+% Succeeds if C needs to be escaped to use,
+% e.g. as it would otherwise be an operator.
+special_character(C) :-
+  memberchk(C, `.?+*|()[]{}\\`).
+
 % characters
 % characters(string(I)) --> characters2(D), {atom_codes(I, D)}. deprecated!
 characters(char(I)) -->
@@ -79,10 +87,14 @@ characters(char(I)) -->
   !,
   { atom_codes(I, D) }.
 characters(X) -->
+  escaped_character(X).
+characters(X) -->
   nonlit(X),
   !.
+characters(char(I)) --> % remaining special characters
+  [C],
+  { code_type(C, punct), \+ special_character(C), char_code(I, C) }.
 % characters(char(I)) --> visible(D), !, {atom_codes(I, D)}.
-% characters2([D|T]) --> char(D), !, characters2(T). deprecated!
 char_or_digit([D]) -->
   [D],
   { code_type(D, alnum) }.
@@ -90,24 +102,17 @@ char_or_digit([D]) -->
 % letters like ö,ü,a and so on.
 % (D>=48, D=<57) for digits
 
+escaped_character(char(X)) -->
+  `\\`, [C], {special_character(C), char_code(X, C)}.
+
 nonlit(any) --> `.`.
 nonlit(char(I)) -->
   [D],
   {   code_type(D, quote),
       atom_codes(I, [D])
   }.                            % ", ', `
-%nonlit(char(I)) --> [92,D], {code_type(D,paren), atom_codes(I, [D])}. % (", ', `
-nonlit(char(I)) --> `\\(`, {atom_codes(I, "(")}.
-nonlit(char(I)) --> `\\)`, {atom_codes(I, ")")}.
-nonlit(char(*)) --> `\\*`.
-nonlit(char(+)) --> `\\+`.
-nonlit(char(.)) --> `\\.`.
-nonlit(char(?)) --> `\\?`.
-nonlit(char(\)) --> `\\`.
 nonlit(char(-)) --> `-`. % we need minus for negative integers
-
-% whitespace
-nonlit(whitespace) --> `\s`. % matches space, newline, tab, carriage return
+nonlit(whitespace) --> `\\s`. % matches space, newline, tab, carriage return
 
 nonlit(char(=)) --> `=`.
 % visible([D]) --> [D], {between(32,126,D)}.
@@ -152,10 +157,10 @@ expression2(X) -->
   expression3(X).
 
 expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
+expression3(X) --> ws, char_range(X), ws, !.
 expression3(X) -->
   characters(X),
   !.
-expression3(X) --> ws, char_range(X), ws, !.
 
 char_range(ranges(Ranges)) -->
   `[`, char_range_tuples(Ranges), `]`.
