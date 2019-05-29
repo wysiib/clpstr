@@ -42,7 +42,7 @@ test(some_mixed_characters,[true(Actual == Expected)]) :-
 :- begin_tests(whitespace).
 
 test(whitespace_s) :-
-  Regex = `\s`,
+  Regex = `\\s`,
   whitespace_domain(WsDom),
   generate(Regex, RegDom),
   assertion(RegDom == WsDom).
