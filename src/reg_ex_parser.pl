@@ -111,15 +111,13 @@ nonlit(char(I)) -->
   {   code_type(D, quote),
       atom_codes(I, [D])
   }.                            % ", ', `
-nonlit(char(-)) --> `-`. % we need minus for negative integers
 nonlit(whitespace) --> `\\s`. % matches space, newline, tab, carriage return
 
-nonlit(char(=)) --> `=`.
 % visible([D]) --> [D], {between(32,126,D)}.
 % white space
 ws -->
   [D],
-  {   code_type(D, white),
+  {   code_type(D, space),
       !
   },
   ws.

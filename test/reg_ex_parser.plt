@@ -158,6 +158,11 @@ test(ignore_tab) :-
   parse_2_tree(Regex, Tree),
   assertion(Tree == concat(char(a), char(b))).
 
+test(ignore_nl) :-
+  Regex = `a\nb`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), char(b))).
+
 test(whitespace_s) :-
   Regex = `\\s`,
   parse_2_tree(Regex, Tree),
