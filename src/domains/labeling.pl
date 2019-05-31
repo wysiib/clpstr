@@ -9,7 +9,7 @@ label(Dom, Label) :-
   !,
   label_dfs(Dom, Label).
 label(Dom, Label) :-
-  labeling([id_dfs], Dom, Label).
+  labeling([dfs], Dom, Label).
 
 /* labeling(L,Dom,Label) :-
    is_list(L),
