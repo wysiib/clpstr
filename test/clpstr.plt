@@ -485,3 +485,36 @@ test(str_to_int_equal_string_int2) :-
 % TODO: more tests for str_to_int/2
 
 :- end_tests(str_to_int).
+
+:- begin_tests(operators).
+
+test(match, [all(X == ["a", "b"])]) :-
+  X match "a|b",
+  str_label([X]).
+
+test(implicit_intersection, [true(X == "b")]) :-
+  X match "a|b",
+  X match "b|y",
+  str_label([X]).
+
+test(explicit_intersection, [true(X == "b")]) :-
+  X match "a|b" /\ "b|y",
+  str_label([X]).
+
+test(union, [all(X == ["a", "b", "c"])]) :-
+  X match "a|b" \/ "c",
+  str_label([X]).
+
+test(concatenation, [all(X == ["abc"])]) :-
+  X match "a" + "b" + "c",
+  str_label([X]).
+
+test(combining_ops, [all(X == ["ab"])]) :-
+  X match "a" \/ "a" + "b" /\ "ab",
+  str_label([X]).
+
+test(nesting, [all(X == ["ab", "ac", "bb", "bc"])]) :-
+  X match ("a" \/ "b") + ("b" \/ "c"),
+  str_label([X]).
+
+:- end_tests(operators).

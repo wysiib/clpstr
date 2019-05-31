@@ -15,7 +15,10 @@
                    str_infix/2,
                    str_upper_case/1,
                    str_lower_case/1,
-                   generate_domain/2]).
+                   generate_domain/2,
+                   match/2,
+                   op(700, xfx, match)
+                   ]).
 
 :- use_module(library(chr)).
 :- use_module(library(clpfd)).
@@ -30,6 +33,25 @@
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
    str_upper_case/1, str_lower_case/1, str_to_int/2, str_to_int2/2, str_max_size/2.
+
+clpstr_var(X) :- get_attr(X, clpstr, _).
+
+% Convenience predicate for defining domains; API similar to CLP(FD)
+match(X, D) :- clpstr_var(D), !, X=D.
+match(_, D) :- var(D), !. % Yields instantiation error when labelling
+match(X, A + B) :- !,
+  match(Y, A),
+  match(Z, B),
+  str_concatenation(Y, Z, X).
+match(X, A /\ B) :- !,
+  match(Y, A),
+  match(Z, B),
+  str_intersection(Y, Z, X).
+match(X, A \/ B) :- !,
+  match(Y, A),
+  match(Z, B),
+  str_union(Y, Z, X).
+match(X, Y) :- str_in(X, Y).
 
 % chr rule for generating a str_in directly from a String.
 % S should be bound to a str.
