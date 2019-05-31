@@ -47,6 +47,11 @@ test(whitespace_s) :-
   generate(Regex, RegDom),
   assertion(RegDom == WsDom).
 
+test(single_space) :-
+  Regex = `_`,
+  generate(Regex, RegDom),
+  assertion(RegDom == automaton_dom([1,2], [(1, range(32, 32), 2)], [1], [2])).
+
 :- end_tests(whitespace).
 
 

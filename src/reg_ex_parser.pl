@@ -78,7 +78,7 @@
 % Succeeds if C needs to be escaped to use,
 % e.g. as it would otherwise be an operator.
 special_character(C) :-
-  memberchk(C, `.?+*|()[]{}\\`), !.
+  memberchk(C, `.?+*|()[]{}\\_`), !.
 
 % characters
 % characters(string(I)) --> characters2(D), {atom_codes(I, D)}. deprecated!
@@ -104,7 +104,13 @@ char_or_digit([D]) -->
 % (D>=48, D=<57) for digits
 
 escaped_character(char(X)) -->
-  `\\`, [C], {special_character(C), !, char_code(X, C)}.
+  `\\`, [C],
+  { special_character(C), !, char_code(X, C) }.
+% parse white space characters
+escaped_character(char('\n')) --> `\\n`.
+escaped_character(char('\f')) --> `\\f`.
+escaped_character(char('\t')) --> `\\t`.
+escaped_character(char('\v')) --> `\\v`.
 
 nonlit(any) --> `.`.
 nonlit(char(I)) -->
@@ -114,6 +120,7 @@ nonlit(char(I)) -->
       atom_codes(I, [D])
   }.                            % ", ', `
 nonlit(whitespace) --> `\\s`. % matches space, newline, tab, carriage return
+nonlit(char(' ')) --> `_`. % matches space
 
 % visible([D]) --> [D], {between(32,126,D)}.
 % white space

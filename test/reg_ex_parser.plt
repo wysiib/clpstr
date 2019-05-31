@@ -228,6 +228,36 @@ test(escaped_whitespace_s) :-
   parse_2_tree(Regex, Tree),
   assertion(Tree == concat(char(\), char(s))).
 
+test(parse_space) :-
+  Regex = `_`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char(' ')).
+
+test(parse_underscore) :-
+  Regex = `\\_`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char('_')).
+
+test(parse_nl) :-
+  Regex = `\\n`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char('\n')).
+
+test(parse_ff) :-
+  Regex = `\\f`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char('\f')).
+
+test(parse_tab) :-
+  Regex = `\\t`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char('\t')).
+
+test(parse_vtab) :-
+  Regex = `\\v`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char('\v')).
+
 :- end_tests(whitespace).
 
 
