@@ -190,6 +190,11 @@ str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 
 str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
 
+% Note:
+%   str_in(X, "[0-9][0-9]"), Y in 0..20, str_to_int(X,Y),str_label([X]).
+%   First solution is X = "10" which, of course, is correct.
+%   However, we could adapt the implementation to also provide X = "00", X = "01", etc.
+%   Not sure if this is useful or disagrees with any conventions.
 %% String to integer conversion integrating CLP(FD) to the solver
 %
 % detect failure early without computing the intersection of domains
