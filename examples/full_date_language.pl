@@ -22,8 +22,31 @@
 %   publisher={Cambridge University Press}
 % }
 
+:- dynamic runtime/1, runs/1.
 
-input_gen(DateDom) :-
+benchmarks(Amount, TotalR) :-
+    retractall(runtime(_)),
+    retractall(runs(_)),
+    assert(runs(0)),
+    !,
+    statistics(walltime, _),
+    date2(I),
+    statistics(walltime, B),
+    % write(I),nl,
+    B = [_, SinceLast],
+    assert(runtime(SinceLast)),
+    runs(Ran),
+    retractall(runs(_)),
+    Ran1 is Ran + 1,
+    assert(runs(Ran1)),
+    (   Ran1 == Amount
+    ->  findall(R, runtime(R), AllR),
+        sumlist(AllR, TotalR),
+        format("Total walltime for ~w Date Expressions: ~w ms\n", [Amount, TotalR])
+    ;   fail).
+
+
+date(DateDom) :-
   % Basics
   str_in(DayNames,
     "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"),
@@ -46,14 +69,12 @@ input_gen(DateDom) :-
   % Labeling
   str_labeling([], [DateDom]).
 
-input_gen2(DateDom) :-
+date2(DateDom) :-
   % Basics
-  str_in(DayNames,
-    "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"),
-  str_in(MonthNames,
-    "January|February|March|April|June|July|August|September|October|November|December"),
-  str_in(DayNum, "[1-9]|[1-2][0-9]|3[0-1]"),
-  str_in(Year,"[1-9][0-9]{0,3}"),
+  DayNames str_in "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday",
+  MonthNames str_in "January|February|March|April|June|July|August|September|October|November|December",
+  DayNum str_in "[1-9]|[1-2][0-9]|3[0-1]",
+  Year str_in "[1-9][0-9]{0,3}",
   % Construction
   MonthDay match MonthNames + "_" + DayNum,
   MonthDayOptYear match MonthDay + ",_" + Year \/ MonthDay,
