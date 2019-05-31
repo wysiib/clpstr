@@ -17,7 +17,8 @@
                    str_lower_case/1,
                    generate_domain/2,
                    match/2,
-                   op(700, xfx, match)
+                   op(700, xfx, match),
+                   op(700, xfx, str_in)
                    ]).
 
 :- use_module(library(chr)).
