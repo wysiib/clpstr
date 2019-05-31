@@ -49,11 +49,11 @@ iban2(IBAN) :-
     ICalc #= TICalc * 1000000 + 131400, % ICalc has the constant suffix 131400
     ICalc mod 97 #= Rest,
     str_label([ICalc, Rest]),
-    BBANStr match "[0-9]{18}",
+    str_in(BBANStr, "[0-9]{18}"),
     str_to_int(StrCalc, ICalc),
     StrCalc match BBANStr + "[0-9]{6}",
     CheckSum #= 98 - Rest,
     str_to_int(CheckSumStr, CheckSum),
-    IBAN match "DE[0-9]{20}",
+    str_in(IBAN, "DE[0-9]{20}"),
     IBAN match "DE" + CheckSumStr + BBANStr,
     str_label([IBAN]). % [ICalc, Rest, IBAN] clpfd variables can also be labeled here which, however, is a bit slower
