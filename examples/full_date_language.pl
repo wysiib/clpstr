@@ -45,3 +45,19 @@ input_gen(DateDom) :-
   str_union(FullDateOptDay, DayNames, DateDom),
   % Labeling
   str_labeling([], [DateDom]).
+
+input_gen2(DateDom) :-
+  % Basics
+  str_in(DayNames,
+    "Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday"),
+  str_in(MonthNames,
+    "January|February|March|April|June|July|August|September|October|November|December"),
+  str_in(DayNum, "[1-9]|[1-2][0-9]|3[0-1]"),
+  str_in(Year,"[1-9][0-9]{0,3}"),
+  % Construction
+  MonthDay match MonthNames + "_" + DayNum,
+  MonthDayOptYear match MonthDay + ",_" + Year \/ MonthDay,
+  FullDate match DayNames + ",_" + MonthDayOptYear,
+  DateDom match MonthDayOptYear \/ FullDate \/ DayNames,
+  % Labeling
+  str_labeling([], [DateDom]).
