@@ -128,42 +128,45 @@ ws --> ``.
 
 % regular expressions
 %expression0([exp(X)]) --> expression(X).
-expression(set(X,Y)) --> expression1(X), ws, `|`, !, ws, expression(Y).
+expression(set(X,Y)) --> ws, expression1(X), ws, `|`, !, expression(Y).
 expression(X) -->
-  expression1(X).
+  ws, expression1(X).
 
 expression1(concat(X,Y)) -->
   expression2(X),
-  ws,
   expression1(Y),
   !.
 expression1(X) -->
   expression2(X).
 
-expression2(quantity(*,X)) --> expression3(X), ws, `*`, !.
-expression2(quantity(+,X)) --> expression3(X), ws, `+`, !.
-expression2(quantity(?,X)) --> expression3(X), ws, `?`, !.
+expression2(quantity(Op,X)) --> expression3(X), ws, quantity_op(Op), ws, !.
 expression2(repeat(N, Expression)) -->
-  expression3(Expression),
-  `{`, number(N) , {N >= 0}, `}`,
-  !.
+  expression3(Expression), ws,
+  `{`, ws, number(N) , {N >= 0}, ws, `}`,
+  !,
+  ws.
 expression2(repeat(N, M, Expression)) -->
   expression3(Expression),
-  `{`, number(N), {N >= 0},
+  `{`, ws, number(N), {N >= 0},
   ws, `,`, ws,
-  (`+`, {M = '+'} ; number(M), {N =< M}), `}`,
-  !.
+  (`+`, {M = '+'} ; number(M), {N =< M}), ws, `}`,
+  !,
+  ws.
 expression2(X) -->
   expression3(X).
 
-expression3(X) --> ws, `(`, ws, expression(X), ws, `)`, ws, !.
-expression3(X) --> ws, char_range(X), !, ws.
+quantity_op(*) --> `*`.
+quantity_op(+) --> `+`.
+quantity_op(?) --> `?`.
+
+expression3(X) --> `(`, ws, expression(X), ws, `)`, ws, !.
+expression3(X) --> char_range(X), !, ws.
 expression3(X) -->
   characters(X),
-  !.
+  !, ws.
 
 char_range(ranges(Ranges)) -->
-  `[`, char_range_tuples(Ranges), `]`.
+  `[`, ws, char_range_tuples(Ranges), `]`, ws.
 
 char_range_tuples([Tuple|Tuples]) -->
   char_range_tuple(Tuple), char_range_tuples(Tuples).
@@ -171,7 +174,7 @@ char_range_tuples([Tuple]) -->
   char_range_tuple(Tuple).
 
 char_range_tuple(From-To) -->
-  char_or_digit([A]), `-`, char_or_digit([Z]),
+  char_or_digit([A]), ws, `-`, ws, char_or_digit([Z]), ws,
   {A =< Z, atom_codes(From, [A]), atom_codes(To, [Z])}.
 
 

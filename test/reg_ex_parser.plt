@@ -153,6 +153,61 @@ test(ignore_space) :-
   parse_2_tree(Regex, Tree),
   assertion(Tree == concat(char(a), char(b))).
 
+test(ignore_white_space_at_start) :-
+  Regex = `  a`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char(a)).
+
+test(ignore_white_space_at_end) :-
+  Regex = `  a`,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == char(a)).
+
+test(ignore_white_space_at_concat) :-
+  Regex = ` a b `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == concat(char(a), char(b))).
+
+test(ignore_white_space_at_alternative) :-
+  Regex = ` a | b `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == set(char(a), char(b))).
+
+test(ignore_white_space_at_star) :-
+  Regex = ` a * `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == quantity(*, char(a))).
+
+test(ignore_white_space_at_plus) :-
+  Regex = ` a + `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == quantity(+, char(a))).
+
+test(ignore_white_space_at_questionmark) :-
+  Regex = ` a ? `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == quantity(?, char(a))).
+
+test(ignore_white_space_at_n_repetitions) :-
+  Regex = ` a { 1 } `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(1, char(a))).
+
+test(ignore_white_space_at_n_to_m_repetitions) :-
+  Regex = ` a { 1 , 4} `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(1, 4, char(a))).
+
+test(ignore_white_space_at_m_plus_repetitions) :-
+  Regex = ` a { 1 , +} `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == repeat(1, +, char(a))).
+
+test(ignore_white_space_at_range) :-
+  Regex = ` [ a - z A - Z ] `,
+  parse_2_tree(Regex, Tree),
+  assertion(Tree == ranges([a-z, 'A'-'Z'])).
+
 test(ignore_tab) :-
   Regex = `a\tb`,
   parse_2_tree(Regex, Tree),
