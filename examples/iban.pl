@@ -42,3 +42,18 @@ iban(IBAN) :-
     str_concatenation(DE, CheckSumStr, IBANPrefix),
     str_concatenation(IBANPrefix, BBANStr, IBAN),
     str_label([IBAN]). % [ICalc, Rest, IBAN] clpfd variables can also be labeled here which, however, is a bit slower
+
+iban2(IBAN) :-
+    Rest in 0..96,
+    TICalc in 100000000000000000..999999999999999999,
+    ICalc #= TICalc * 1000000 + 131400, % ICalc has the constant suffix 131400
+    ICalc mod 97 #= Rest,
+    str_label([ICalc, Rest]),
+    BBANStr match "[0-9]{18}",
+    str_to_int(StrCalc, ICalc),
+    StrCalc match BBANStr + "[0-9]{6}",
+    CheckSum #= 98 - Rest,
+    str_to_int(CheckSumStr, CheckSum),
+    IBAN match "DE[0-9]{20}",
+    IBAN match "DE" + CheckSumStr + BBANStr,
+    str_label([IBAN]). % [ICalc, Rest, IBAN] clpfd variables can also be labeled here which, however, is a bit slower
