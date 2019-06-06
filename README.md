@@ -10,7 +10,7 @@ Parentheses can be used to enforce operator precedence.
 We represent a whitespace character in regular expressions by `\s` while actual whitespace characters can be used to structure regular expressions without being part of the accepted language.
 Further, we support the usual regular expression operators on characters, i.e., quantity operators (`*`, `+` and `?`) and the alternative choice operator (`|`).
 On top of those, our regular expressions offer more strict repetition definitions for convenience, noted by
-`\{n\}` (exactly `n` times), `\{m,n\}` (`m` to `n` times) and `\{m,+\}` (at least `m` times).
+`{n}` (exactly `n` times), `{m,n}` (`m` to `n` times) and `{m,+}` (at least `m` times).
 
 ## Supported Constraints
 
