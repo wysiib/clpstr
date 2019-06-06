@@ -16,6 +16,7 @@
                    str_upper_case/1,
                    str_lower_case/1,
                    generate_domain/2,
+                   str_to_bool/2,
                    match/2,
                    op(700, xfx, match),
                    op(700, xfx, str_in)
@@ -33,7 +34,8 @@
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
-   str_upper_case/1, str_lower_case/1, str_to_int/2, str_to_int2/2, str_max_size/2.
+   str_upper_case/1, str_lower_case/1, str_to_int/2, str_to_int2/2, str_max_size/2,
+   str_to_bool/2.
 
 clpstr_var(X) :- get_attr(X, clpstr, _).
 
@@ -190,32 +192,42 @@ str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2)
 
 str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
 
+generate_domain("", Dom) :-
+  !,
+  constant_string_domain("", Dom).
+generate_domain(String, Dom) :-
+  string(String),
+  atom_codes(String, Codes),
+  generate(Codes, Dom),
+  !.
+
 % Note:
 %   str_in(X, "[0-9][0-9]"), Y in 0..20, str_to_int(X,Y),str_label([X]).
 %   First solution is X = "10" which, of course, is correct.
 %   However, we could adapt the implementation to also provide X = "00", X = "01", etc.
 %   Not sure if this is useful or disagrees with any conventions.
-%% String to integer conversion integrating CLP(FD) to the solver
+%% String to integer conversion integrating CLP(FD) to the solver.
 %
 % detect failure early without computing the intersection of domains
-str_to_int2(X,I) ==>
-  string(X) , integer(I) , number_string(I, IString) , X \== IString | fail.
+str_to_int2(S,I) ==>
+  string(S), integer(I), number_string(I, IString), S \== IString | fail.
 
 % fd var is constant
-str_to_int2(X,I) ==>
-  integer(I) , number_string(I, IString) | constant_string_domain(IString, IDom) , str_in(X, IDom).
+str_to_int2(S,I) ==>
+  integer(I), number_string(I, IString) | constant_string_domain(IString, IDom), str_in(S, IDom).
 
 % string is constant
-str_to_int2(X,I) , str_in(X,S) ==>
-  S = string_dom(CstString) , number_string(CstInteger, CstString) | I #= CstInteger.
+str_to_int2(S,I), str_in(S,D) ==>
+  D = string_dom(CstString), number_string(CstInteger, CstString) | I #= CstInteger.
 
 % fail for non numeric string to integer
-str_to_int2(X,_) , str_in(X,S) ==>
-  S = string_dom(CstString) , \+ number_string(_, CstString) | fail.
+str_to_int2(S,_), str_in(S,D) ==>
+  D = string_dom(CstString), \+ number_string(_, CstString) | fail.
 
 % terminate exhaustive search if string domain is regex with Kleene star
 % only called once so int domain has to be finite beforehand, not terminating:
 % str_in(X,"[0-9]*"),str_to_int(X,I),I in 0..2,findall(X,str_label([X]),L).
+% would be too much overhead to trigger this on each domain clpfd reduction
 str_to_int(S, I) ==>
   finite_domain_len(I, MaxStrSize) |
   str_max_size(S, MaxStrSize),
@@ -249,11 +261,27 @@ max_string_size_fd_bound(S1, S2, MaxStrSize) :-
   MaxStrSize is max(S1, S2).
 %%
 
-generate_domain("", Dom) :-
-  !,
-  constant_string_domain("", Dom).
-generate_domain(String, Dom) :-
-  string(String),
-  atom_codes(String, Codes),
-  generate(Codes, Dom),
-  !.
+% Note: We could provide a direct conversion from bool to integer, too. Currently, one can use 'str_to_bool(X,B), str_to_int(X,I)'.
+%       Therefore, I think this is not necessary.
+%% String to bool conversion integrating CLP(B) to the solver.
+str_to_bool(S,B) ==>
+  string(S), ground(B), bool_to_string(B, BString) , S \== BString | fail.
+
+% bool var is constant
+str_to_bool(S,B) ==>
+  ground(B), bool_to_string(B, BString) | constant_string_domain(BString, IDom) , str_in(S, IDom).
+
+% string is constant
+str_to_bool(S,B), str_in(S,D) ==>
+  D = string_dom(CstString), bool_to_string(Bool, CstString) | B = Bool.
+
+% fail for non boolean string to bool
+str_to_bool(S,B), str_in(S,D) ==>
+  D = string_dom(_), (\+ ground(B); \+ bool(B)) | fail.
+
+bool(1).
+bool(0).
+
+bool_to_string(1, "1").
+bool_to_string(0, "0").
+%%
