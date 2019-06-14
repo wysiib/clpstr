@@ -1,5 +1,5 @@
 # ConString
-A string constraint solver for SWI-Prolog having interfaces to CLP(FD) and CLP(B).
+A string constraint solver for SWI-Prolog having interfaces to CLP(FD), CLP(B) and CLP(R).
 
 # User Information
 
@@ -35,6 +35,10 @@ On top of those, our regular expressions offer more strict repetition definition
 * `str_to_int/2`: bidirectional string to integer conversion integrating SWI-Prologs CLP(FD) library
 
     * any constraint of library(clpfd) can be used on finite domain integer variables
+
+* `str_to_real/2`: bidirectional string to real conversion integrating SWI-Prologs CLP(R) library
+
+    * any constraint of library(clpr) can be used on floating point numbers
 
 * `str_to_bool/2`: bidirectional string to boolean conversion integrating SWI-Prolog's CLP(B) library
 
