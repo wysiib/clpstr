@@ -10,19 +10,22 @@
                    str_union/3,
                    str_intersection/3,
                    str_to_int/2,
+                   str_to_bool/2,
+                   str_to_real/2,
                    str_prefix/2,
                    str_suffix/2,
                    str_infix/2,
                    str_upper_case/1,
                    str_lower_case/1,
                    generate_domain/2,
-                   str_to_bool/2,
                    match/2,
                    op(700, xfx, match),
                    op(700, xfx, str_in)
                    ]).
 
 :- use_module(library(chr)).
+:- use_module(library(clpr)).
+:- use_module(library(clpb)).
 :- use_module(library(clpfd)).
 
 :- use_module('domains/basic_domains').
@@ -34,8 +37,8 @@
 :- chr_constraint str_in/2, str_labeling/2, str_label/1, str_size/2,
    str_concatenation/3, str_repeat/2, str_repeat/3, str_repeat/4,
    str_union/3, str_intersection/3, str_prefix/2, str_suffix/2, str_infix/2,
-   str_upper_case/1, str_lower_case/1, str_to_int/2, str_to_int2/2, str_max_size/2,
-   str_to_bool/2.
+   str_upper_case/1, str_lower_case/1, str_max_size/2,
+   str_to_int/2, str_to_bool/2, str_to_real/2.
 
 clpstr_var(X) :- get_attr(X, clpstr, _).
 
@@ -201,75 +204,42 @@ generate_domain(String, Dom) :-
   generate(Codes, Dom),
   !.
 
-% Note:
-%   str_in(X, "[0-9][0-9]"), Y in 0..20, str_to_int(X,Y),str_label([X]).
-%   First solution is X = "10" which, of course, is correct.
-%   However, we could adapt the implementation to also provide X = "00", X = "01", etc.
-%   Not sure if this is useful or disagrees with any conventions.
 %% String to integer conversion integrating CLP(FD) to the solver.
 %
 % detect failure early without computing the intersection of domains
-str_to_int2(S,I) ==>
-  string(S), integer(I), number_string(I, IString), S \== IString | fail.
+str_to_int(S,I) ==>
+  string(S), integer(I), number_string(SInt, S), I \== SInt | fail.
 
 % fd var is constant
-str_to_int2(S,I) ==>
-  integer(I), number_string(I, IString) | constant_string_domain(IString, IDom), str_in(S, IDom).
+str_to_int(S,I) ==>
+  integer(I), number_string(I, IString) |
+  constant_string_domain(IString, IDom),
+  generate_domain("0*", ZDom),
+  concatenation(ZDom, IDom, Dom),
+  str_in(S, Dom).
 
 % string is constant
-str_to_int2(S,I), str_in(S,D) ==>
+str_to_int(S,I), str_in(S,D) ==>
   D = string_dom(CstString), number_string(CstInteger, CstString) | I #= CstInteger.
 
 % fail for non numeric string to integer
-str_to_int2(S,_), str_in(S,D) ==>
+str_to_int(S,_), str_in(S,D) ==>
   D = string_dom(CstString), \+ number_string(_, CstString) | fail.
-
-% terminate exhaustive search if string domain is regex with Kleene star
-% only called once so int domain has to be finite beforehand, not terminating:
-% str_in(X,"[0-9]*"),str_to_int(X,I),I in 0..2,findall(X,str_label([X]),L).
-% would be too much overhead to trigger this on each domain clpfd reduction
-str_to_int(S, I) ==>
-  finite_domain_len(I, MaxStrSize) |
-  str_max_size(S, MaxStrSize),
-  str_to_int2(S, I).
-
-finite_domain_len(Var, MaxStrSize) :-
-  fd_var(Var),
-  fd_inf(Var, Infimum),
-  fd_sup(Var, Supremum),
-  string_size_fd_bound(Infimum, ISize),
-  string_size_fd_bound(Supremum, SSize),
-  max_string_size_fd_bound(ISize, SSize, MaxStrSize),
-  MaxStrSize \== unbounded,!.
-finite_domain_len(Cst, MaxStrSize) :-
-  integer(Cst),
-  number_string(Cst, CstStr),
-  string_length(CstStr, MaxStrSize).
-
-string_size_fd_bound(I, StringSize) :-
-  integer(I),
-  !,
-  number_string(I, IString),
-  string_length(IString, StringSize).
-string_size_fd_bound(_, unbounded).
-
-max_string_size_fd_bound(unbounded, _, unbounded) :-
-  !.
-max_string_size_fd_bound(_, unbounded, unbounded) :-
-  !.
-max_string_size_fd_bound(S1, S2, MaxStrSize) :-
-  MaxStrSize is max(S1, S2).
 %%
 
 % Note: We could provide a direct conversion from bool to integer, too. Currently, one can use 'str_to_bool(X,B), str_to_int(X,I)'.
 %       Therefore, I think this is not necessary.
 %% String to bool conversion integrating CLP(B) to the solver.
 str_to_bool(S,B) ==>
-  string(S), ground(B), bool_to_string(B, BString) , S \== BString | fail.
+  string(S), ground(B), \+bool_to_string(B, S)| fail.
 
 % bool var is constant
 str_to_bool(S,B) ==>
-  ground(B), bool_to_string(B, BString) | constant_string_domain(BString, IDom) , str_in(S, IDom).
+  ground(B), bool_to_string(B, BString) |
+  constant_string_domain(BString, IDom),
+  generate_domain("0*", ZDom),
+  concatenation(ZDom, IDom, Dom),
+  str_in(S, Dom).
 
 % string is constant
 str_to_bool(S,B), str_in(S,D) ==>
@@ -282,6 +252,35 @@ str_to_bool(S,B), str_in(S,D) ==>
 bool(1).
 bool(0).
 
-bool_to_string(1, "1").
-bool_to_string(0, "0").
+bool_to_string(1, "1") :-
+  !.
+bool_to_string(0, "0") :-
+  !.
+bool_to_string(Bool, S) :-
+  % "00" = 0 etc.
+  % Note: number_string(1, "01") holds
+  (   Bool = 0
+  ;   Bool = 1),
+  number_string(Bool, S).
+%%
+
+%% String to real conversion integrating CLP(R) to the solver.
+str_to_real(S,R) ==>
+  string(S), float(R), number_string(SReal, S) , R \== SReal | fail.
+
+% real var is constant
+str_to_real(S,R) ==>
+  float(R), number_string(R, RString) |
+  constant_string_domain(RString, RDom),
+  generate_domain("0*", ZDom),
+  concatenation(ZDom, RDom, Dom),
+  str_in(S, Dom).
+
+% string is constant
+str_to_real(S,R), str_in(S,D) ==>
+  D = string_dom(CstString), number_string(Real, CstString) | R = Real.
+
+% fail for non real string to real
+str_to_real(S,R), str_in(S,D) ==>
+  D = string_dom(_), \+ float(R) | fail.
 %%
