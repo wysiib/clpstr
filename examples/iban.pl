@@ -38,7 +38,8 @@ iban(IBAN) :-
     str_in(IBAN, "DE[0-9]{20}"),
     str_in(DE, "DE"),
     CheckSum #= 98 - Rest,
-    str_to_int(CheckSumStr, CheckSum),
+    str_to_intl(CheckSumStr, CheckSum),
+    str_size(CheckSumStr, 2), % TODO: without size constraint we possibly find a solution several times
     str_concatenation(DE, CheckSumStr, IBANPrefix),
     str_concatenation(IBANPrefix, BBANStr, IBAN),
     str_label([IBAN]). % [ICalc, Rest, IBAN] clpfd variables can also be labeled here which, however, is a bit slower
