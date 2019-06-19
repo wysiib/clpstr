@@ -288,22 +288,20 @@ max_string_size_fd_bound(S1, S2, MaxStrSize) :-
 %%
 
 %% String to bool conversion allowing leading zeros.
-str_to_bool(_, S, B) ==>
-  string(S), ground(B), \+bool_to_string(B, S)| fail.
+str_to_bool(Type, S, B) ==>
+  string(S), ground(B), \+bool_to_string(Type, B, S)| fail.
 
 % bool var is constant
 str_to_bool(leading_zeros, S, B) ==>
-  ground(B), bool_to_string(B, BString) |
+  ground(B), bool_to_string(leading_zeros, B, BString) |
   constant_string_domain(BString, IDom),
   generate_domain("0*", ZDom),
   concatenation(ZDom, IDom, Dom),
   str_in(S, Dom).
 str_to_bool(exact, S, B) ==>
-  ground(B), bool_to_string(B, BString) |
-  constant_string_domain(BString, IDom),
-  generate_domain("0*", ZDom),
-  concatenation(ZDom, IDom, Dom),
-  str_in(S, Dom).
+  ground(B), bool_to_string(exact, B, BString) |
+  constant_string_domain(BString, BDom),
+  str_in(S, BDom).
 
 % string is constant
 str_to_bool(Type, S, B), str_in(S, D) ==>
