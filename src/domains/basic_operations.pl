@@ -193,6 +193,14 @@ calcse(State1, State2, L, ResState) :-
 % @InputDomain is a string domain containing the original String or autoamton.
 % @Counter is the number of times the string is repeated.
 % @RepeatedDomain is the resulting new domain.
+repeat(D, C, DOut) :-
+  % special case avoiding epsilon transitions for repetitions like "[0-9]{10}"
+  D = automaton_dom([1,2], [(1,NonLit,2)], [1], [2]),
+  !,
+  repeat_trans([], (1,NonLit,2), C, Trans),
+  C1 is C+1,
+  numlist(1, C1, States),
+  DOut = automaton_dom(States, Trans, [1], [C1]).
 repeat(_, C, _) :-
   C =< 0,
   !,
@@ -200,6 +208,12 @@ repeat(_, C, _) :-
 repeat(D, C, DOut) :-
   repeat_acc(C, D, D, DOut).
 
+% build linear path repeating a single nonliteral transition several times
+repeat_trans(Acc, (C,NonLit,C2), C, [(C,NonLit,C2)|Acc]).
+repeat_trans(Acc, (C1,NonLit,C2), C, Trans) :-
+  C1 < C,
+  C21 is C2+1,
+  repeat_trans([(C1,NonLit,C2)|Acc], (C2,NonLit,C21), C, Trans).
 
 % ! repeat(InputDomain,OutputDomain) is det
 % Takes a domain and generates an infitie loop automaton representing the
