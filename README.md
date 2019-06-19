@@ -35,19 +35,25 @@ On top of those, our regular expressions offer more strict repetition definition
 * `str_to_int/2`: bidirectional string to integer conversion integrating SWI-Prologs CLP(FD) library
 
     * any constraint of library(clpfd) can be used on finite domain integer variables
+    * does not accept leading zeros, e.g., `str_to_int("01", 1)` does not hold
+* `str_to_intl/2`: same as `str_to_int/2` but accepting leading zeros
 
 * `str_to_real/2`: bidirectional string to real conversion integrating SWI-Prologs CLP(R) library
 
     * any constraint of library(clpr) can be used on floating point numbers
+    * does not accept leading zeros
+* `str_to_reall/2`: same as `str_to_real/2` but accepting leading zeros
 
 * `str_to_bool/2`: bidirectional string to boolean conversion integrating SWI-Prolog's CLP(B) library
 
     * any constraint of library(clpb) can be used on boolean variables
+    * does not accept leading zeros
+* `str_to_booll/2`: same as `str_to_bool/2` but accepting leading zeros
 
 * `str_labeling/2`: labeling with options (CLP(FD) options can be used, too)
     * supported uninformed search strategies are depth-first search (`dfs`), breadth-first search (`bfs`) and iterative deepening depth-first search (`idfs`)
 
-* `str_label/1`: labeling with default options
+* `str_label/1`: labeling with default options, i.e., `dfs`
 
 # Developer Information
 
