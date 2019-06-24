@@ -27,14 +27,13 @@ benchmarks(Amount) :-
 
 % fastest
 iban(IBAN) :-
-    Rest in 0..96,
-    TICalc in 100000000000000000..999999999999999999,
-    ICalc #= TICalc * 1000000 + 131400, % ICalc has the constant suffix 131400
-    ICalc mod 97 #= Rest,
-    str_label([ICalc, Rest]),
-    BBAN is ICalc // 1000000,
+    SigmaC in 0..96,
+    BBAN in 100000000000000000..999999999999999999,
+    SigmaB #= BBAN * 1000000 + 131400, % SigmaB has the constant suffix 131400
+    SigmaB mod 97 #= SigmaC,
+    str_label([SigmaB, SigmaC]),
     str_to_int(BBANStr, BBAN),
-    CheckSum #= 98 - Rest,
+    CheckSum #= 98 - SigmaC,
     str_to_intl(CheckSumStr, CheckSum),
     str_size(CheckSumStr, 2), % TODO: without size constraint we possibly find a solution several times
     str_in(DE, "DE"),
