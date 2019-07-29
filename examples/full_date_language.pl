@@ -31,6 +31,7 @@ benchmarks(Amount, TotalR) :-
     !,
     statistics(walltime, _),
     date2(I),
+    write(I),nl,
     statistics(walltime, B),
     % write(I),nl,
     B = [_, SinceLast],
