@@ -130,6 +130,10 @@ str_size(X, I) <=> integer(I) | generate_any_size(I, D), str_in(X, D).
 
 str_max_size(X, I) <=> integer(I) | generate_any_up_to_size(I, D), str_in(X, D).
 
+str_concatenation(String, Empty, String) ==>
+  str_in(Empty, "").
+str_concatenation(Empty, String, String) ==>
+  str_in(Empty, "").
 % propagate constant values backwards if X3 is constant
 str_in(X1,D1), str_in(X2,D2), str_in(X3,D3), str_concatenation(X1,X2,X3)
             ==> D3 = string_dom(CstStr)|
@@ -172,32 +176,34 @@ str_in(X1,D1), str_in(X2,D2), str_intersection(X1,X2,X3)
             ==> intersection(D1,D2,D3), str_in(X3,D3).
 str_in(X1,_) \ str_intersection(X1,X1,X3) <=> X1 = X3.
 
-
-
+% TODO: unit tests for prefix, suffix and infix
 str_prefix(X,String) <=>
             string(String) | generate_domain(String,Dom), str_prefix(X,Dom).
-str_prefix(X,Dom1) <=>
+str_in(S,Dom1) \ str_prefix(X,S) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
-            concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom).
+            concatenation(Dom1,Dom3,ResDom), str_in(X,ResDom),
+            str_in(Any, Dom3), str_concatenation(S, Any, X).
 
 str_suffix(X,String) <=>
             string(String) | generate_domain(String,Dom), str_suffix(X,Dom).
-str_suffix(X,Dom1) <=>
+str_in(S,Dom1) \ str_suffix(X,S) <=>
             any_char_domain(Dom2), repeat(Dom2,Dom3),
-            concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom).
+            concatenation(Dom3,Dom1,ResDom), str_in(X,ResDom),
+            str_in(Any, Dom3), str_concatenation(Any, S, X).
 
-str_infix(X,String) <=>
-            string(String) | generate_domain(String,Dom), str_infix(X,Dom).
-str_infix(X,Dom1) <=>
-            any_char_domain(Dom2), repeat(Dom2,Dom3),
-            concatenation(Dom1,Dom3,Dom4), concatenation(Dom3,Dom4,ResDom),
-            str_in(X,ResDom).
+str_infix(X, String) <=>
+            string(String) | generate_domain(String, Dom), str_infix(X, Dom).
+str_in(S,Dom1) \ str_infix(X,S) <=>
+            any_char_domain(Dom2), repeat(Dom2, Dom3),
+            concatenation(Dom1, Dom3, Dom4), concatenation(Dom3, Dom4, ResDom),
+            str_in(X,ResDom), str_in(Any1, Dom3), str_in(Any2, Dom3),
+            str_concatenation(S, Any1, Suffix), str_concatenation(Any2, Suffix, X).
 
 
-str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
+str_upper_case(X) <=> upper_case_domain(Dom1), repeat(Dom1, Dom2), str_in(X, Dom2).
 
 
-str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1,Dom2), str_in(X,Dom2).
+str_lower_case(X) <=> lower_case_domain(Dom1), repeat(Dom1, Dom2), str_in(X, Dom2).
 
 generate_domain("", Dom) :-
   !,
