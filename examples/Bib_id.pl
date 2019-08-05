@@ -38,6 +38,6 @@ bibid2(FirstLetterPreName) :-
     %str_in(SurName, "Mustermann"),
     any_char_domain(I),
     str_in(FirstLetterPreName, I),
-    str_prefix(FirstLetterPreName, PreName),
+    str_prefix(PreName, FirstLetterPreName),
     str_label([FirstLetterPreName]).
 
