@@ -48,7 +48,7 @@ On top of those, our regular expressions offer more strict repetition definition
 
     * any constraint of library(clpb) can be used on boolean variables
     * does not accept leading zeros
-* `str_to_bool/2`: same as `str_to_bool/2` but accepting leading zeros
+* `str_to_booll/2`: same as `str_to_bool/2` but accepting leading zeros
 
 * `str_labeling/2`: labeling with options (CLP(FD) options can be used, too)
     * supported uninformed search strategies are depth-first search (`dfs`), breadth-first search (`bfs`) and iterative deepening depth-first search (`idfs`)
