@@ -89,10 +89,8 @@ single_color_json(Color) :-
     single_color_code(ClrCode),
     Color match "\\{\"color\": \"" + "[a-z]{1,10}" + "\"," + ClrCode + " \\}".
 
-% just a first draft; currently only works for a single ColorJson
 json_colors(Json) :-
     random(0, 10, AmountOfColors),
-    %single_color_json(ColorJson1),
     list_of_colors(AmountOfColors, ColorsList),
     join_to_concat(ColorsList, ColorsStr),
     InnerData match ColorsStr,
