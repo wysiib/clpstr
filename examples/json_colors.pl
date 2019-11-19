@@ -70,7 +70,11 @@ list_of_colors(AmountOfColors, Acc, ColorsList) :-
     AmountOfColors \== 0,
     single_color_json(ColorJson),
     AmountOfColors1 is AmountOfColors - 1,
-    list_of_colors(AmountOfColors1, [ColorJson|Acc], ColorsList).
+    (   AmountOfColors1 \== 0
+    ->  NewAcc = [",",ColorJson|Acc]
+    ;   NewAcc = [ColorJson|Acc]
+    ),
+    list_of_colors(AmountOfColors1, NewAcc, ColorsList).
 
 single_color_code(ClrCode) :-
     str_in(HexCode, "([A-F] | [0-9]){6}"),
@@ -87,9 +91,10 @@ single_color_json(Color) :-
 
 % just a first draft; currently only works for a single ColorJson
 json_colors(Json) :-
-    %random(0, 10, AmountOfColors),
-    single_color_json(ColorJson1),
-    %list_of_colors(AmountOfColors, ColorsList),
-    %join_to_concat(ColorsList, ColorsStr),
-    Json match "\\{\"colors\": \\[" + ColorJson1 + "\\]\\}",
+    random(0, 10, AmountOfColors),
+    %single_color_json(ColorJson1),
+    list_of_colors(AmountOfColors, ColorsList),
+    join_to_concat(ColorsList, ColorsStr),
+    InnerData match ColorsStr,
+    Json match "\\{\"colors\": \\[" + InnerData + "\\]\\}",
     str_label([Json]).
