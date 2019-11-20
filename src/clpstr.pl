@@ -25,6 +25,8 @@
                    str_diff/2,
                    str_all_diff/1,
                    match/2,
+                   escape_special_characters/2,
+                   remove_escape_special_characters/2,
                    op(700, xfx, match),
                    op(700, xfx, str_in)
                    ]).
@@ -61,7 +63,7 @@ pairwise_different(Current, [H|T]) :-
 
 % Convenience predicate for defining domains; API similar to CLP(FD)
 match(X, D) :- clpstr_var(D), !, X=D.
-match(_, D) :- var(D), !. % Yields instantiation error when labeling
+match(X, D) :- var(D), !, str_in(X, ".*"). % create new string var
 match(X, A + B) :- !,
   match(Y, A),
   match(Z, B),
@@ -80,9 +82,15 @@ match(X, Y) :- str_in(X, Y).
 % S should be bound to a str.
 str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).
 
-str_diff(S1,S2) ==> string(S1), string(S2) | S1 \== S2.
+% string different: we have to ensure that this propagates during labeling
+% as soon as both, S1 and S2, are constant values (better performance)
+str_in(S1,D1), str_in(S2,D2), str_diff(S1,S2) ==>
+  D1 = string_dom(Cst1), string(Cst1),
+  D2 = string_dom(Cst2), string(Cst2) |
+  Cst1 \== Cst2.
 
-str_all_diff(ListOfCnstrnts) ==> is_list(ListOfCnstrnts) | pairwise_different(ListOfCnstrnts).
+% string all different
+str_all_diff(ListOfCnstrnts) <=> is_list(ListOfCnstrnts) | pairwise_different(ListOfCnstrnts).
 
 % chr rule wakes up each time a new or updated str_in is added
 % in case the domain is empty, no sulution is possible anymore:
@@ -91,7 +99,7 @@ str_all_diff(ListOfCnstrnts) ==> is_list(ListOfCnstrnts) | pairwise_different(Li
 % In consequence, we fail and backtrack.
 str_in(_,D) ==>  is_empty(D) | fail.
 % in case the domain became constant, we propagate to the variable
-str_in(Var,Domain) ==> Domain = string_dom(Const) | Var = Const.
+str_in(Var,Domain) ==> Domain = string_dom(Const) | escape_special_characters(Const, Var).
 
 % two domains are available for the same string variable X
 % this might happen when an updated domain is posted to CHR
@@ -108,28 +116,29 @@ str_in(X,D1) \ str_in(X,D2)
 str_labeling(Options, Vars)
             <=> is_list(Options), select(Var, Vars, RestVars), fd_var(Var)
             | clpfd:labeling([], [Var]) ,
-              str_labeling(Options, RestVars). % TODO: filter clpfd options
+              str_labeling(Options, RestVars). % TO DO: filter clpfd options
 % the variables in the list Vars are supposed to be labeled.
 % the rule iterates over all the domains, picking each domain str_in,
 % that is associated with a variable in the list
 % (we do not use member to check since that would unify variables!)
 % in case the string variable Var is indeed supposed to be labeled,
 % we call the domain operation for labeling.
-str_labeling(Options,Vars)\ str_in(Var,Dom)
+str_labeling(Options,Vars), str_in(Var,Dom)
             <=> var(Var), Dom \= string_dom(_), is_list(Options), var_is_member(Var,Vars)
             | labeling(Options,Dom,Label),
-              Var = Label,
+              escape_special_characters(Label, Var),
               constant_string_domain(Label,CstDom),
-              str_in(Var,CstDom).
+              str_in(Var,CstDom),
+              str_labeling(Options,Vars).
 
 % no labeling if string var has a singleton domain
 str_labeling(_, Vars) , str_in(Var, Dom)
             ==> var(Var), Dom = string_dom(Label), var_is_member(Var, Vars)
-            | Var = Label.
+            | escape_special_characters(Label, Var).
 
 str_label(Vars) <=> str_labeling([],Vars).
 
-% just like member, but using variable identity check (==)
+% just like member, but using exact equality check (==)
 % rather than unification (=)
 var_is_member(X,[C|_]) :- X == C, !.
 var_is_member(X,[_|T]) :- var_is_member(X,T).
@@ -192,7 +201,7 @@ str_in(X1,D1), str_in(X2,D2), str_intersection(X1,X2,X3)
             ==> intersection(D1,D2,D3), str_in(X3,D3).
 str_in(X1,_) \ str_intersection(X1,X1,X3) <=> X1 = X3.
 
-% TODO: unit tests for prefix, suffix and infix
+% TO DO: unit tests for prefix, suffix and infix
 str_prefix(X,String) <=>
             string(String) | generate_domain(String,Dom), str_prefix(X,Dom).
 str_in(S,Dom1) \ str_prefix(X,S) <=>
@@ -372,3 +381,15 @@ str_to_real(_, S, R), str_in(S,D) ==>
 str_to_real(_, S, R), str_in(S,D) ==>
   D = string_dom(_), \+ float(R) | fail.
 %%
+
+escape_special_characters(RgbCodeStr1, RgbCodeStr) :-
+  re_replace("\\["/g, "\\[", RgbCodeStr1, RgbCodeStr2),
+  re_replace("\\]"/g, "\\]", RgbCodeStr2, RgbCodeStr3),
+  re_replace("\\{"/g, "\\{", RgbCodeStr3, RgbCodeStr4),
+  re_replace("\\}"/g, "\\}", RgbCodeStr4, RgbCodeStr).
+
+remove_escape_special_characters(RgbCodeStr1, RgbCodeStr) :-
+  re_replace("\\\\\\["/g, "[", RgbCodeStr1, RgbCodeStr2),
+  re_replace("\\\\\\]"/g, "]", RgbCodeStr2, RgbCodeStr3),
+  re_replace("\\\\\\{"/g, "{", RgbCodeStr3, RgbCodeStr4),
+  re_replace("\\\\\\}"/g, "}", RgbCodeStr4, RgbCodeStr).
