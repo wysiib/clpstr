@@ -22,6 +22,7 @@
                    str_lower_case/1,
                    generate_domain/2,
                    str_to_bool/2,
+                   str_diff/2,
                    match/2,
                    op(700, xfx, match),
                    op(700, xfx, str_in)
@@ -42,7 +43,8 @@
    str_upper_case/1, str_lower_case/1, str_max_size/2,
    str_to_int/3, str_to_bool/3, str_to_real/3,
    str_to_int/2, str_to_bool/2, str_to_real/2,
-   str_to_intl/2, str_to_booll/2, str_to_reall/2.
+   str_to_intl/2, str_to_booll/2, str_to_reall/2,
+   str_diff/2.
 
 clpstr_var(X) :- get_attr(X, clpstr, _).
 
@@ -67,6 +69,7 @@ match(X, Y) :- str_in(X, Y).
 % S should be bound to a str.
 str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).
 
+str_diff(S1,S2) ==> string(S1), string(S2) | S1 \== S2.
 
 % chr rule wakes up each time a new or updated str_in is added
 % in case the domain is empty, no sulution is possible anymore:
