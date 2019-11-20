@@ -382,14 +382,14 @@ str_to_real(_, S, R), str_in(S,D) ==>
   D = string_dom(_), \+ float(R) | fail.
 %%
 
-escape_special_characters(RgbCodeStr1, RgbCodeStr) :-
-  re_replace("\\["/g, "\\[", RgbCodeStr1, RgbCodeStr2),
-  re_replace("\\]"/g, "\\]", RgbCodeStr2, RgbCodeStr3),
-  re_replace("\\{"/g, "\\{", RgbCodeStr3, RgbCodeStr4),
-  re_replace("\\}"/g, "\\}", RgbCodeStr4, RgbCodeStr).
+escape_special_characters(In, Out) :-
+  re_replace("\\["/g, "\\[", In, In2),
+  re_replace("\\]"/g, "\\]", In2, In3),
+  re_replace("\\{"/g, "\\{", In3, In4),
+  re_replace("\\}"/g, "\\}", In4, Out).
 
-remove_escape_special_characters(RgbCodeStr1, RgbCodeStr) :-
-  re_replace("\\\\\\["/g, "[", RgbCodeStr1, RgbCodeStr2),
-  re_replace("\\\\\\]"/g, "]", RgbCodeStr2, RgbCodeStr3),
-  re_replace("\\\\\\{"/g, "{", RgbCodeStr3, RgbCodeStr4),
-  re_replace("\\\\\\}"/g, "}", RgbCodeStr4, RgbCodeStr).
+remove_escape_special_characters(In, Out) :-
+  re_replace("\\\\\\["/g, "[", In, In2),
+  re_replace("\\\\\\]"/g, "]", In2, In3),
+  re_replace("\\\\\\{"/g, "{", In3, In4),
+  re_replace("\\\\\\}"/g, "}", In4, Out).
