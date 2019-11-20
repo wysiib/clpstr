@@ -32,6 +32,10 @@ On top of those, our regular expressions offer more strict repetition definition
 
 * `str_upper_case/1`, `str_lower_case/1`: set the string to accept upper/lower case characters only
 
+* `str_diff/2`: inequality between two string constraints
+
+* `str_all_diff/1`: pairwise inequality for a list of string constraints
+
 * `str_to_int/2`: bidirectional string to integer conversion integrating SWI-Prologs CLP(FD) library
 
     * any constraint of library(clpfd) can be used on finite domain integer variables
