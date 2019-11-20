@@ -28,71 +28,56 @@ benchmarks(Amount) :-
     ;   fail).
 
 /*
+Generate data in JSON describing colors:
+
 { "colors": [
     { "color": "black",
       "code": {
         "rgba": [255,255,255,1],
-        "hex": "#000"
+        "hex": "#000000"
       }
     },
     { "color": "white",
       "code": {
         "rgba": [0,0,0,1],
-        "hex": "#FFF"
+        "hex": "#FFFFFF"
       }
-    },
-    { "color": "red",
-      "code": {
-        "rgba": [255,0,0,1],
-        "hex": "#FF0"
-      }
-    },
+    }
+    ...
   ]
 }
 
 */
 
-join_to_concat([], "").
-join_to_concat([H], H).
-join_to_concat([H1,H2], '+'(H1, H2)).
-join_to_concat([H|T], Concat) :-
-    join_to_concat(T, H, Concat).
-
-join_to_concat([], Acc, Acc).
-join_to_concat([H|T], Acc, Concat) :-
-    join_to_concat(T, '+'(H,Acc), Concat).
-
-list_of_colors(AmountOfColors, ColorsList) :-
-    list_of_colors(AmountOfColors, [], ColorsList).
-
-list_of_colors(0, Acc, Acc).
-list_of_colors(AmountOfColors, Acc, ColorsList) :-
-    AmountOfColors \== 0,
-    single_color_json(ColorJson),
-    AmountOfColors1 is AmountOfColors - 1,
-    (   AmountOfColors1 \== 0
-    ->  NewAcc = [",",ColorJson|Acc]
-    ;   NewAcc = [ColorJson|Acc]
-    ),
-    list_of_colors(AmountOfColors1, NewAcc, ColorsList).
-
-single_color_code(ClrCode) :-
+list_of_hex_codes(0, []) :- !.
+list_of_hex_codes(C, [HexCode|T]) :-
     str_in(HexCode, "([A-F] | [0-9]){6}"),
-    str_label([HexCode]),
-    hex_bytes(HexCode, HexBytesTerm),
-    term_string(HexBytesTerm, HexBytes1),
-    re_replace("\\[", "\\[", HexBytes1, HexBytes2),
-    re_replace("\\]", "\\]", HexBytes2, HexBytes),
-    ClrCode match "\"code\": \\{ \"rgb\": " + HexBytes + ", \"hex\": " + HexCode + " \\}".
+    C1 is C-1,
+    list_of_hex_codes(C1, T).
 
-single_color_json(Color) :-
-    single_color_code(ClrCode),
-    Color match "\\{\"color\": \"" + "[a-z]{1,10}" + "\"," + ClrCode + " \\}".
+get_color_entry(Hex, RgbList, Color) :-
+    term_string(RgbList, Rgb1),
+    escape_special_characters(Rgb1, Rgb),
+    Color match "\\{\"color\": \"test\",\"code\":\\{ \"rgb\": " + Rgb + ", \"hex\": #" + Hex + " \\}\\}".
 
-json_colors(Json) :-
-    random(0, 10, AmountOfColors),
-    list_of_colors(AmountOfColors, ColorsList),
-    join_to_concat(ColorsList, ColorsStr),
-    InnerData match ColorsStr,
-    Json match "\\{\"colors\": \\[" + InnerData + "\\]\\}",
-    str_label([Json]).
+list_of_colors_concat([], [], "").
+list_of_colors_concat([Hex|HT], [Rgb|RT], Concat) :-
+    get_color_entry(Hex, Rgb, Color),
+    list_of_colors_concat_acc(HT, RT, Color, Concat).
+
+list_of_colors_concat_acc([], [], Acc, Acc).
+list_of_colors_concat_acc([Hex|HT], [Rgb|RT], Acc, Concat) :-
+    get_color_entry(Hex, Rgb, Color),
+    list_of_colors_concat_acc(HT, RT, '+'(Acc, '+'(",", Color)), Concat).
+
+json_colors(Out) :-
+    random(0, 10, Amount),
+    format("~nAmount of colors: ~d~n", [Amount]),
+    list_of_hex_codes(Amount, LHex),
+    str_all_diff(LHex),
+    str_label(LHex),
+    maplist(hex_bytes, LHex, RgbList),
+    list_of_colors_concat(LHex, RgbList, ColorsConcat),
+    Json match "\\{\"colors\": \\[" + ColorsConcat + "\\]\\}",
+    str_label([Json]),
+    remove_escape_special_characters(Json, Out).
