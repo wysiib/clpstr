@@ -23,6 +23,7 @@
                    generate_domain/2,
                    str_to_bool/2,
                    str_diff/2,
+                   str_all_diff/1,
                    match/2,
                    op(700, xfx, match),
                    op(700, xfx, str_in)
@@ -44,13 +45,23 @@
    str_to_int/3, str_to_bool/3, str_to_real/3,
    str_to_int/2, str_to_bool/2, str_to_real/2,
    str_to_intl/2, str_to_booll/2, str_to_reall/2,
-   str_diff/2.
+   str_diff/2, str_all_diff/1.
 
 clpstr_var(X) :- get_attr(X, clpstr, _).
 
+pairwise_different([]).
+pairwise_different([H|T]) :-
+  pairwise_different(H, T),
+  pairwise_different(T).
+
+pairwise_different(_, []).
+pairwise_different(Current, [H|T]) :-
+  str_diff(Current, H),
+  pairwise_different(Current, T).
+
 % Convenience predicate for defining domains; API similar to CLP(FD)
 match(X, D) :- clpstr_var(D), !, X=D.
-match(_, D) :- var(D), !. % Yields instantiation error when labelling
+match(_, D) :- var(D), !. % Yields instantiation error when labeling
 match(X, A + B) :- !,
   match(Y, A),
   match(Z, B),
@@ -70,6 +81,8 @@ match(X, Y) :- str_in(X, Y).
 str_in(X,S) <=> string(S) | generate_domain(S,D), str_in(X,D).
 
 str_diff(S1,S2) ==> string(S1), string(S2) | S1 \== S2.
+
+str_all_diff(ListOfCnstrnts) ==> is_list(ListOfCnstrnts) | pairwise_different(ListOfCnstrnts).
 
 % chr rule wakes up each time a new or updated str_in is added
 % in case the domain is empty, no sulution is possible anymore:
