@@ -34,19 +34,18 @@ Generate data in JSON describing colors:
     { "color": "black",
       "code": {
         "rgba": [255,255,255,1],
-        "hex": "#000000"
+        "hex": "#FFFFFF"
       }
     },
     { "color": "white",
       "code": {
         "rgba": [0,0,0,1],
-        "hex": "#FFFFFF"
+        "hex": "#000000"
       }
     }
     ...
   ]
 }
-
 */
 
 list_of_hex_codes(0, []) :- !.
