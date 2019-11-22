@@ -31,13 +31,13 @@ benchmarks(Amount) :-
 Generate data in JSON describing colors:
 
 { "colors": [
-    { "color": "black",
+    { "color": "white",
       "code": {
         "rgba": [255,255,255,1],
         "hex": "#FFFFFF"
       }
     },
-    { "color": "white",
+    { "color": "black",
       "code": {
         "rgba": [0,0,0,1],
         "hex": "#000000"
