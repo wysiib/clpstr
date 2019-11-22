@@ -49,6 +49,8 @@
    str_to_intl/2, str_to_booll/2, str_to_reall/2,
    str_diff/2, str_all_diff/1.
 
+% TO DO: allow constant strings in str_concatenation, str_intersection etc.
+
 clpstr_var(X) :- get_attr(X, clpstr, _).
 
 pairwise_different([]).
