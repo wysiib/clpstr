@@ -2,44 +2,45 @@
 :- use_module(library(clpfd)).
 :- use_module('../src/domains/basic_domains').
 
-:- dynamic runtime/1, runs/1.
-:- volatile runtime/1, runs/1.
+:- dynamic runtime/1.
+:- volatile runtime/1.
 
+benchmark_goal(json_colors(1, _)).
+benchmark_goal(json_colors(2, _)).
+benchmark_goal(json_colors(3, _)).
+benchmark_goal(json_colors(4, _)).
+benchmark_goal(json_colors(5, _)).
+benchmark_goal(json_colors(10, _)).
+benchmark_goal(json_colors(50, _)).
+benchmark_goal(json_colors(100, _)).
+benchmark_goal(json_colors(1000, _)).
 
-benchmarks(Amount) :-
+benchmarks :-
     retractall(runtime(_)),
-    retractall(runs(_)),
-    assert(runs(0)),
-    !,
+    benchmark_goal(Goal),
     statistics(walltime, _),
-    json_colors(Json),
+    Goal,
     statistics(walltime, B),
-    write(Json),nl,
     B = [_, SinceLast],
-    assert(runtime(SinceLast)),
-    runs(Ran),
-    retractall(runs(_)),
-    Ran1 is Ran + 1,
-    assert(runs(Ran1)),
-    (   Ran1 == Amount
-    ->  findall(R, runtime(R), AllR),
-        sumlist(AllR, TotalR),
-        format("Total walltime for ~w JSON Datasets describing colors: ~w ms", [Amount, TotalR])
-    ;   fail).
+    assertz(runtime(SinceLast)),
+    fail.
+benchmarks :-
+    findall(Runtime, runtime(Runtime), Runtimes),
+    format("~n~nRuntimes (ms) in order of goals: ~w", [Runtimes]).
 
 /*
-Generate data in JSON describing colors:
+Generate data describing colors in JSON:
 
 { "colors": [
     { "color": "white",
       "code": {
-        "rgba": [255,255,255,1],
+        "rgb": [255,255,255],
         "hex": "#FFFFFF"
       }
     },
     { "color": "black",
       "code": {
-        "rgba": [0,0,0,1],
+        "rgb": [0,0,0],
         "hex": "#000000"
       }
     }
@@ -70,12 +71,12 @@ list_of_colors_concat_acc([Hex|HT], [Rgb|RT], Acc, Concat) :-
     NewAcc = '+'(Acc, '+'(",", Color)),
     list_of_colors_concat_acc(HT, RT, NewAcc, Concat).
 
-json_colors(Amount, Out) :-
+json_colors(Amount, JSON) :-
     list_of_hex_codes(Amount, LHex),
-    str_all_diff(LHex),!,
+    str_all_diff(LHex),
     str_label(LHex),
     maplist(hex_bytes, LHex, RgbList),
     list_of_colors_concat(LHex, RgbList, ColorsConcat),
     JSON match "\\{\"colors\": \\[" + ColorsConcat + "\\]\\}",
-    str_labeling([bfs], [JSON]),
-    remove_escape_special_characters(JSON, Out).
+    str_label([JSON]),
+    !.
