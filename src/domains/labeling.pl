@@ -2,8 +2,9 @@
 
 :- use_module(basic_domains).
 
-label(string_dom(S), S) :-
-  !.
+label(string_dom(S), Label) :-
+  !,
+  Label = S.
 label(Dom, Label) :-
   ground(Label),
   !,
