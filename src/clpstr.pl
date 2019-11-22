@@ -62,12 +62,20 @@ pairwise_different(Current, [H|T]) :-
   pairwise_different(Current, T).
 
 % Convenience predicate for defining domains; API similar to CLP(FD)
+% Note: prevent introducing CHR variables for constant string concatenations;
+%       use string_concat/3 if possible which improves performance by several orders of magnitude
 match(X, D) :- clpstr_var(D), !, X=D.
 match(X, D) :- var(D), !, str_in(X, ".*"). % create new string var
-match(X, A + B) :- !,
+match(X, A + B) :-
+  string(A), string(B),
+  string_concat(A, B, X).
+match(X, A + B) :-
   match(Y, A),
   match(Z, B),
-  str_concatenation(Y, Z, X).
+  (   string(Y),
+      string(Z)
+  ->  string_concat(Y, Z, X)
+  ;   str_concatenation(Y, Z, X)).
 match(X, A /\ B) :- !,
   match(Y, A),
   match(Z, B),
@@ -76,6 +84,15 @@ match(X, A \/ B) :- !,
   match(Y, A),
   match(Z, B),
   str_union(Y, Z, X).
+match(X, Y) :-
+  string(Y),
+  generate_domain(Y, D),
+  (   ( D \= string_dom(_)
+      ; clpstr_var(X)
+      )
+  ->  str_in(X, D)
+  ;   X = Y
+  ).
 match(X, Y) :- str_in(X, Y).
 
 % chr rule for generating a str_in directly from a String.
@@ -386,10 +403,12 @@ escape_special_characters(In, Out) :-
   re_replace("\\["/g, "\\[", In, In2),
   re_replace("\\]"/g, "\\]", In2, In3),
   re_replace("\\{"/g, "\\{", In3, In4),
-  re_replace("\\}"/g, "\\}", In4, Out).
+  re_replace("\\}"/g, "\\}", In4, TOut),!,
+  Out = TOut.
 
 remove_escape_special_characters(In, Out) :-
   re_replace("\\\\\\["/g, "[", In, In2),
   re_replace("\\\\\\]"/g, "]", In2, In3),
   re_replace("\\\\\\{"/g, "{", In3, In4),
-  re_replace("\\\\\\}"/g, "}", In4, Out).
+  re_replace("\\\\\\}"/g, "}", In4, TOut),!,
+  Out = TOut.
