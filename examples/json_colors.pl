@@ -13,7 +13,7 @@ benchmark_goal(json_colors(5, _)).
 benchmark_goal(json_colors(10, _)).
 benchmark_goal(json_colors(50, _)).
 benchmark_goal(json_colors(100, _)).
-benchmark_goal(json_colors(1000, _)).
+%benchmark_goal(json_colors(1000, _)). % does not to scale in under 20 minutes
 
 benchmarks :-
     retractall(runtime(_)),
